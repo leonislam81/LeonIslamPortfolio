@@ -206,62 +206,6 @@ export function Hero() {
       ref={heroRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20"
     >
-      <header ref={headerRef} className="fixed top-4 left-4 right-4 z-50 transition-all duration-300">
-        <nav className="mx-auto max-w-6xl">
-          <div className="bg-white/10 dark:bg-black/10 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl px-6 py-4 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <div className="text-xl font-bold text-foreground bg-gradient-to-r from-portfolio-primary to-portfolio-accent bg-clip-text text-transparent">
-                Leon Islam
-              </div>
-
-              <div className="hidden lg:flex items-center space-x-1">
-                {[
-                  { name: "Home", id: "#hero" },
-                  { name: "Services", id: "#services" },
-                  { name: "Skills", id: "#skills" },
-                  { name: "Projects", id: "#projects" },
-                  { name: "Experience", id: "#experience" },
-                  { name: "Testimonials", id: "#testimonials" },
-                  { name: "Contact", id: "#contact" },
-                ].map((item) => (
-                  <button
-                    key={item.name}
-                    onClick={() => scrollToSection(item.id)}
-                    className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/10 dark:hover:bg-white/5 rounded-xl transition-all duration-300 backdrop-blur-sm"
-                  >
-                    {item.name}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="w-10 h-10 rounded-full bg-white/10 dark:bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 backdrop-blur-sm border border-white/20 dark:border-white/10 transition-all duration-300"
-                >
-                  <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                  <span className="sr-only">Toggle theme</span>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="lg:hidden w-10 h-10 rounded-full bg-white/10 dark:bg-white/5 hover:bg-white/20 dark:hover:bg-white/10 backdrop-blur-sm border border-white/20 dark:border-white/10 transition-all duration-300"
-                  onClick={() => {
-                    console.log("[v0] Mobile menu clicked")
-                  }}
-                >
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </nav>
-      </header>
-
       <div ref={backgroundRef} className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-portfolio-primary/20 to-portfolio-accent/20 rounded-full blur-3xl animate-pulse" />
         <div
