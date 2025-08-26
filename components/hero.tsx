@@ -284,7 +284,7 @@ export function Hero() {
           ref={scrollCueRef}
           variant="ghost"
           size="icon"
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-muted-foreground hover:text-foreground transition-colors bg-white/10 dark:bg-black/10 backdrop-blur-sm rounded-full border border-white/20 dark:border-white/10"
+          className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-muted-foreground hover:text-foreground transition-colors bg-white/10 dark:bg-black/10 backdrop-blur-sm rounded-full border border-white/20 dark:border-white/10"
           onClick={() => scrollToSection("#services")}
           aria-label="Scroll to services section"
         >
