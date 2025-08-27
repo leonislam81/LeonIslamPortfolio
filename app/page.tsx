@@ -55,7 +55,7 @@ export default function HomePage() {
       <ScrollProgress />
       <Header />
       <main ref={mainRef} className="relative overflow-hidden">
-        <div id="hero" className="pt-16 md:pt-20">
+        <div id="hero">
           <Hero />
         </div>
         <Services />
