@@ -204,7 +204,7 @@ export function Hero() {
   return (
     <section
       ref={heroRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20"
+      className="relative flex items-start justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20"
     >
       <div ref={backgroundRef} className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-portfolio-primary/20 to-portfolio-accent/20 rounded-full blur-3xl animate-pulse" />
