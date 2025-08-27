@@ -224,7 +224,7 @@ export function Hero() {
 
       <div ref={rippleRef} className="absolute inset-0 pointer-events-none z-10" />
 
-      <div className="container mx-auto px-4 text-center relative z-10 mt-20">
+      <div className="container mx-auto px-4 text-center relative z-10 mt-20 heroBox__container">
         <div className="max-w-4xl mx-auto space-y-8">
           <h1
             ref={headlineRef}
