@@ -237,7 +237,7 @@ export function Hero() {
             WordPress • Shopify • Wix — fast, reliable, and conversion-ready.
           </p>
 
-          <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 justify-center items-center hidden">
             <Button
               size="lg"
               className="bg-gradient-to-r from-portfolio-primary to-portfolio-accent hover:from-portfolio-primary/90 hover:to-portfolio-accent/90 text-white px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
@@ -284,7 +284,7 @@ export function Hero() {
           ref={scrollCueRef}
           variant="ghost"
           size="icon"
-          className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-muted-foreground hover:text-foreground transition-colors bg-white/10 dark:bg-black/10 backdrop-blur-sm rounded-full border border-white/20 dark:border-white/10"
+          className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-muted-foreground hover:text-foreground transition-colors bg-white/10 dark:bg-black/10 backdrop-blur-sm rounded-full border border-white/20 dark:border-white/10"
           onClick={() => scrollToSection("#services")}
           aria-label="Scroll to services section"
         >
