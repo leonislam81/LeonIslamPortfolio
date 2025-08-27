@@ -170,9 +170,9 @@ export function Header() {
     <>
       <header
         ref={headerRef}
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        className="top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
-          backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.95)" : "rgba(255, 255, 255, 0.1)",
+          backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.1)",
           backdropFilter: isScrolled ? "blur(10px)" : "blur(5px)",
           borderBottom: isScrolled ? "1px solid rgba(0, 0, 0, 0.1)" : "1px solid rgba(255, 255, 255, 0.1)",
           boxShadow: isScrolled ? "0 2px 20px rgba(0, 0, 0, 0.1)" : "0 2px 10px rgba(0, 0, 0, 0.05)",
