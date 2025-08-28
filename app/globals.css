@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -170,7 +170,11 @@
 @layer utilities {
   /* Added portfolio-specific utility classes */
   .portfolio-gradient {
-    background: linear-gradient(135deg, var(--color-portfolio-gradient-from), var(--color-portfolio-gradient-to));
+    background: linear-gradient(
+      135deg,
+      var(--color-portfolio-gradient-from),
+      var(--color-portfolio-gradient-to)
+    );
   }
 
   .glass-effect {
@@ -182,5 +186,18 @@
   .dark .glass-effect {
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+.heroBox__container {
+  min-height: 58vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (min-width: 768px) {
+  .heroBox__container {
+    min-height: 92vh;
   }
 }

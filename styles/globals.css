@@ -120,8 +120,4 @@
   body {
     @apply bg-background text-foreground;
   }
-
-  .heroBox__container  {
-    padding: 120px 0;
-  }
 }

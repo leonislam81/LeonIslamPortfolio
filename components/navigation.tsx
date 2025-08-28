@@ -1,37 +1,39 @@
-"use client"
+'use client';
 
-import { useEffect, useRef, useState } from "react"
-import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { ScrollToPlugin } from "gsap/ScrollToPlugin"
-import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { Menu, X, Code, Zap } from "lucide-react"
+import { useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Menu, X, Code, Zap } from 'lucide-react';
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 }
 
 const navItems = [
-  { name: "Home", href: "#hero", id: "hero" },
-  { name: "Services", href: "#services", id: "services" },
-  { name: "Skills", href: "#skills", id: "skills" },
-  { name: "Projects", href: "#projects", id: "projects" },
-  { name: "Experience", href: "#experience", id: "experience" },
-  { name: "Testimonials", href: "#testimonials", id: "testimonials" },
-  { name: "Contact", href: "#contact", id: "contact" },
-]
+  { name: 'Home', href: '#hero', id: 'hero' },
+  { name: 'Services', href: '#services', id: 'services' },
+  { name: 'Skills', href: '#skills', id: 'skills' },
+  { name: 'Projects', href: '#projects', id: 'projects' },
+  { name: 'Experience', href: '#experience', id: 'experience' },
+  { name: 'Testimonials', href: '#testimonials', id: 'testimonials' },
+  { name: 'Contact', href: '#contact', id: 'contact' },
+];
 
 export function Navigation() {
-  const navRef = useRef<HTMLElement>(null)
-  const logoRef = useRef<HTMLDivElement>(null)
-  const mobileMenuRef = useRef<HTMLDivElement>(null)
-  const [activeSection, setActiveSection] = useState("hero")
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const navRef = useRef<HTMLElement>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState('hero');
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
 
     if (!prefersReducedMotion) {
       // Initial navigation animation
@@ -39,139 +41,150 @@ export function Navigation() {
         y: -100,
         opacity: 0,
         duration: 0.8,
-        ease: "power2.out",
+        ease: 'power2.out',
         delay: 0.2,
-      })
+      });
 
       // Pin navigation on scroll with style changes
       ScrollTrigger.create({
-        trigger: "body",
-        start: "100px top",
-        end: "bottom bottom",
-        onUpdate: (self) => {
-          const scrolled = self.progress > 0
-          setIsScrolled(scrolled)
+        trigger: 'body',
+        start: '100px top',
+        end: 'bottom bottom',
+        onUpdate: self => {
+          const scrolled = self.progress > 0;
+          setIsScrolled(scrolled);
 
           if (navRef.current) {
             if (scrolled) {
               gsap.to(navRef.current, {
-                backgroundColor: "rgba(var(--color-background), 0.95)",
-                backdropFilter: "blur(10px)",
-                borderBottom: "1px solid rgba(var(--color-border), 0.5)",
+                backgroundColor: 'rgba(var(--color-background), 0.95)',
+                backdropFilter: 'blur(10px)',
+                borderBottom: '1px solid rgba(var(--color-border), 0.5)',
                 duration: 0.3,
-                ease: "power2.out",
-              })
+                ease: 'power2.out',
+              });
               gsap.to(logoRef.current, {
                 scale: 0.9,
                 duration: 0.3,
-                ease: "power2.out",
-              })
+                ease: 'power2.out',
+              });
             } else {
               gsap.to(navRef.current, {
-                backgroundColor: "transparent",
-                backdropFilter: "none",
-                borderBottom: "none",
+                backgroundColor: 'transparent',
+                backdropFilter: 'none',
+                borderBottom: 'none',
                 duration: 0.3,
-                ease: "power2.out",
-              })
+                ease: 'power2.out',
+              });
               gsap.to(logoRef.current, {
                 scale: 1,
                 duration: 0.3,
-                ease: "power2.out",
-              })
+                ease: 'power2.out',
+              });
             }
           }
         },
-      })
+      });
     }
 
     // Scroll spy for active section highlighting
     const observerOptions = {
       root: null,
-      rootMargin: "-20% 0px -70% 0px",
+      rootMargin: '-20% 0px -70% 0px',
       threshold: 0,
-    }
+    };
 
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
+      entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const sectionId = entry.target.id || "hero"
-          setActiveSection(sectionId)
+          const sectionId = entry.target.id || 'hero';
+          setActiveSection(sectionId);
         }
-      })
-    }
+      });
+    };
 
-    const observer = new IntersectionObserver(observerCallback, observerOptions)
+    const observer = new IntersectionObserver(
+      observerCallback,
+      observerOptions
+    );
 
     // Observe all sections
-    navItems.forEach((item) => {
-      const element = document.getElementById(item.id) || document.querySelector(item.href)
+    navItems.forEach(item => {
+      const element =
+        document.getElementById(item.id) || document.querySelector(item.href);
       if (element) {
-        observer.observe(element)
+        observer.observe(element);
       }
-    })
+    });
 
     // Handle scroll for isScrolled state
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100)
-    }
+      setIsScrolled(window.scrollY > 100);
+    };
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener('scroll', handleScroll);
 
     return () => {
-      observer.disconnect()
-      window.removeEventListener("scroll", handleScroll)
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
-    }
-  }, [])
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, []);
 
   const scrollToSection = (href: string) => {
-    const element = document.querySelector(href) || document.querySelector("#hero")
+    const element =
+      document.querySelector(href) || document.querySelector('#hero');
     if (element) {
       gsap.to(window, {
         duration: 1,
         scrollTo: { y: element, offsetY: 80 },
-        ease: "power2.inOut",
-      })
+        ease: 'power2.inOut',
+      });
     }
-    setIsMobileMenuOpen(false)
-  }
+    setIsMobileMenuOpen(false);
+  };
 
   const toggleMobileMenu = () => {
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
 
     if (!isMobileMenuOpen) {
-      setIsMobileMenuOpen(true)
-      document.body.style.overflow = "hidden"
+      setIsMobileMenuOpen(true);
+      document.body.style.overflow = 'hidden';
 
       if (!prefersReducedMotion && mobileMenuRef.current) {
-        gsap.fromTo(mobileMenuRef.current, { x: "100%" }, { x: "0%", duration: 0.3, ease: "power2.out" })
-        gsap.from(mobileMenuRef.current.querySelectorAll(".mobile-nav-item"), {
+        gsap.fromTo(
+          mobileMenuRef.current,
+          { x: '100%' },
+          { x: '0%', duration: 0.3, ease: 'power2.out' }
+        );
+        gsap.from(mobileMenuRef.current.querySelectorAll('.mobile-nav-item'), {
           x: 50,
-          opacity: 0,
+          opacity: 1,
           duration: 0.4,
           stagger: 0.1,
-          ease: "power2.out",
+          ease: 'power2.out',
           delay: 0.1,
-        })
+        });
       }
     } else {
       if (!prefersReducedMotion && mobileMenuRef.current) {
         gsap.to(mobileMenuRef.current, {
-          x: "100%",
+          x: '100%',
           duration: 0.3,
-          ease: "power2.in",
+          ease: 'power2.in',
           onComplete: () => {
-            setIsMobileMenuOpen(false)
-            document.body.style.overflow = "auto"
+            setIsMobileMenuOpen(false);
+            document.body.style.overflow = 'auto';
           },
-        })
+        });
       } else {
-        setIsMobileMenuOpen(false)
-        document.body.style.overflow = "auto"
+        setIsMobileMenuOpen(false);
+        document.body.style.overflow = 'auto';
       }
     }
-  }
+  };
 
   return (
     <>
@@ -179,9 +192,13 @@ export function Navigation() {
         ref={navRef}
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
-          backgroundColor: isScrolled ? "rgba(var(--color-background), 0.95)" : "transparent",
-          backdropFilter: isScrolled ? "blur(10px)" : "none",
-          borderBottom: isScrolled ? "1px solid rgba(var(--color-border), 0.5)" : "none",
+          backgroundColor: isScrolled
+            ? 'rgba(var(--color-background), 0.95)'
+            : 'transparent',
+          backdropFilter: isScrolled ? 'blur(10px)' : 'none',
+          borderBottom: isScrolled
+            ? '1px solid rgba(var(--color-border), 0.5)'
+            : 'none',
         }}
       >
         <div className="container mx-auto px-4">
@@ -192,14 +209,18 @@ export function Navigation() {
                 <Code className="w-5 h-5 text-portfolio-primary-foreground" />
               </div>
               <div className="hidden sm:block">
-                <div className="font-bold text-lg text-foreground">Leon Islam</div>
-                <div className="text-xs text-muted-foreground -mt-1">Website Specialist</div>
+                <div className="font-bold text-lg text-foreground">
+                  Leon Islam
+                </div>
+                <div className="text-xs text-muted-foreground -mt-1">
+                  Website Specialist
+                </div>
               </div>
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-1">
-              {navItems.map((item) => (
+              {navItems.map(item => (
                 <Button
                   key={item.name}
                   variant="ghost"
@@ -207,8 +228,8 @@ export function Navigation() {
                   onClick={() => scrollToSection(item.href)}
                   className={`relative px-4 py-2 text-sm font-medium transition-colors ${
                     activeSection === item.id
-                      ? "text-portfolio-primary bg-portfolio-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      ? 'text-portfolio-primary bg-portfolio-primary/10'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                   }`}
                 >
                   {item.name}
@@ -226,7 +247,7 @@ export function Navigation() {
               {/* CTA Button - Desktop */}
               <Button
                 size="sm"
-                onClick={() => scrollToSection("#contact")}
+                onClick={() => scrollToSection('#contact')}
                 className="hidden md:flex bg-portfolio-primary hover:bg-portfolio-primary/90 text-portfolio-primary-foreground"
               >
                 <Zap className="w-4 h-4 mr-1" />
@@ -250,14 +271,17 @@ export function Navigation() {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden" onClick={toggleMobileMenu} />
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+          onClick={toggleMobileMenu}
+        />
       )}
 
       {/* Mobile Menu */}
       <div
         ref={mobileMenuRef}
         className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-background border-l border-border z-50 md:hidden ${
-          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         } transition-transform duration-300 ease-out`}
       >
         <div className="flex items-center justify-between p-4 border-b border-border">
@@ -267,33 +291,40 @@ export function Navigation() {
             </div>
             <span className="font-semibold text-foreground">Leon Islam</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Close mobile menu">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleMobileMenu}
+            aria-label="Close mobile menu"
+          >
             <X className="w-5 h-5" />
           </Button>
         </div>
 
         <div className="p-4">
           <div className="space-y-2">
-            {navItems.map((item) => (
+            {navItems.map(item => (
               <Button
                 key={item.name}
                 variant="ghost"
                 onClick={() => scrollToSection(item.href)}
                 className={`mobile-nav-item w-full justify-start text-left ${
                   activeSection === item.id
-                    ? "text-portfolio-primary bg-portfolio-primary/10"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? 'text-portfolio-primary bg-portfolio-primary/10'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {item.name}
-                {activeSection === item.id && <div className="ml-auto w-2 h-2 bg-portfolio-primary rounded-full" />}
+                {activeSection === item.id && (
+                  <div className="ml-auto w-2 h-2 bg-portfolio-primary rounded-full" />
+                )}
               </Button>
             ))}
           </div>
 
           <div className="mt-8 pt-8 border-t border-border">
             <Button
-              onClick={() => scrollToSection("#contact")}
+              onClick={() => scrollToSection('#contact')}
               className="mobile-nav-item w-full bg-portfolio-primary hover:bg-portfolio-primary/90 text-portfolio-primary-foreground"
             >
               <Zap className="w-4 h-4 mr-2" />
@@ -302,21 +333,27 @@ export function Navigation() {
           </div>
 
           <div className="mt-6 pt-6 border-t border-border text-center">
-            <p className="text-sm text-muted-foreground mb-2">Ready to work together?</p>
+            <p className="text-sm text-muted-foreground mb-2">
+              Ready to work together?
+            </p>
             <div className="space-y-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open("mailto:leonislam810@gmail.com", "_blank")}
-                className="mobile-nav-item w-full text-xs"
+                onClick={() =>
+                  window.open('mailto:leonislam810@gmail.com', '_blank')
+                }
+                className="mobile-nav-item w-full text-xs text-muted-foreground"
               >
                 leonislam810@gmail.com
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open("https://wa.me/8801521783498", "_blank")}
-                className="mobile-nav-item w-full text-xs"
+                onClick={() =>
+                  window.open('https://wa.me/8801521783498', '_blank')
+                }
+                className="mobile-nav-item w-full text-xs text-muted-foreground"
               >
                 +880 1521 783498
               </Button>
@@ -325,5 +362,5 @@ export function Navigation() {
         </div>
       </div>
     </>
-  )
+  );
 }
