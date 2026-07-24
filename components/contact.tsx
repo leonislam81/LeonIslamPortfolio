@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Mail, Phone, MessageSquare, CheckCircle, Send, MapPin } from "lucide-react"
+import { toast } from "sonner"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
@@ -38,7 +39,6 @@ export function Contact() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Partial<FormData>>({})
-  const [submissionStatus, setSubmissionStatus] = useState<"success" | "error" | null>(null)
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -119,10 +119,12 @@ export function Contact() {
     }
 
     if (!validateForm()) {
+      toast.error("Please complete the required fields", {
+        description: "Check the highlighted fields and try again.",
+      })
       return
     }
 
-    setSubmissionStatus(null)
     setIsSubmitting(true)
 
     try {
@@ -158,7 +160,9 @@ export function Contact() {
           }
         }
 
-        setSubmissionStatus("success")
+        toast.success("Message sent successfully!", {
+          description: "I'll get back to you within 24 hours.",
+        })
 
         // Reset form
         setFormData({
@@ -173,7 +177,9 @@ export function Contact() {
         throw new Error("Failed to send message")
       }
     } catch (error) {
-      setSubmissionStatus("error")
+      toast.error("Unable to send your message", {
+        description: "Please try again or contact me directly by email or WhatsApp.",
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -307,16 +313,6 @@ export function Contact() {
                   )}
                   <CheckCircle className="success-checkmark w-4 h-4 ml-2 opacity-0" />
                 </Button>
-                {submissionStatus === "success" && (
-                  <p role="status" className="text-sm text-green-600">
-                    Message sent successfully. I'll get back to you within 24 hours.
-                  </p>
-                )}
-                {submissionStatus === "error" && (
-                  <p role="alert" className="text-sm text-destructive">
-                    Unable to send your message. Please try again or contact me directly by email or WhatsApp.
-                  </p>
-                )}
               </form>
             </CardContent>
           </Card>
