@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useToast } from "@/hooks/use-toast"
 import { Mail, Phone, MessageSquare, CheckCircle, Send, MapPin } from "lucide-react"
 
 if (typeof window !== "undefined") {
@@ -30,8 +29,6 @@ export function Contact() {
   const titleRef = useRef<HTMLHeadingElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const contactInfoRef = useRef<HTMLDivElement>(null)
-  const { toast } = useToast()
-
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -41,6 +38,7 @@ export function Contact() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Partial<FormData>>({})
+  const [submissionStatus, setSubmissionStatus] = useState<"success" | "error" | null>(null)
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -121,28 +119,27 @@ export function Contact() {
     }
 
     if (!validateForm()) {
-      toast({
-        title: "Validation Error",
-        description: "Please fix the errors in the form and try again.",
-        variant: "destructive",
-      })
       return
     }
 
+    setSubmissionStatus(null)
     setIsSubmitting(true)
 
     try {
-      // Simulate form submission (replace with actual Formspree/EmailJS integration)
-      const response = await fetch("https://formspree.io/f/your-form-id", {
+      const response = await fetch("https://formsubmit.co/ajax/leonislam810@gmail.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
           message: formData.message,
-          sendChecklist: formData.sendChecklist,
+          "Send project checklist": formData.sendChecklist ? "Yes" : "No",
+          _subject: "New portfolio contact form message",
+          _replyto: formData.email,
+          _template: "table",
         }),
       })
 
@@ -161,10 +158,7 @@ export function Contact() {
           }
         }
 
-        toast({
-          title: "Message Sent Successfully!",
-          description: "Thank you for reaching out. I'll get back to you within 24 hours.",
-        })
+        setSubmissionStatus("success")
 
         // Reset form
         setFormData({
@@ -179,11 +173,7 @@ export function Contact() {
         throw new Error("Failed to send message")
       }
     } catch (error) {
-      toast({
-        title: "Error Sending Message",
-        description: "Please try again or contact me directly via email or WhatsApp.",
-        variant: "destructive",
-      })
+      setSubmissionStatus("error")
     } finally {
       setIsSubmitting(false)
     }
@@ -317,6 +307,16 @@ export function Contact() {
                   )}
                   <CheckCircle className="success-checkmark w-4 h-4 ml-2 opacity-0" />
                 </Button>
+                {submissionStatus === "success" && (
+                  <p role="status" className="text-sm text-green-600">
+                    Message sent successfully. I'll get back to you within 24 hours.
+                  </p>
+                )}
+                {submissionStatus === "error" && (
+                  <p role="alert" className="text-sm text-destructive">
+                    Unable to send your message. Please try again or contact me directly by email or WhatsApp.
+                  </p>
+                )}
               </form>
             </CardContent>
           </Card>
