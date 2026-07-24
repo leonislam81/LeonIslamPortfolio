@@ -184,7 +184,7 @@ export function Contact() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    className={`h-12 rounded-xl bg-slate-50 ${errors.name ? "border-destructive" : "border-slate-200 focus-visible:ring-sky-500"}`}
+                    className={`h-12 rounded-xl bg-slate-50 dark:bg-slate-950 ${errors.name ? "border-destructive" : "border-slate-200 dark:border-slate-700 focus-visible:ring-portfolio-primary"}`}
                     placeholder="Your full name"
                   />
                   {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
@@ -199,7 +199,7 @@ export function Contact() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className={`h-12 rounded-xl bg-slate-50 ${errors.email ? "border-destructive" : "border-slate-200 focus-visible:ring-sky-500"}`}
+                    className={`h-12 rounded-xl bg-slate-50 dark:bg-slate-950 ${errors.email ? "border-destructive" : "border-slate-200 dark:border-slate-700 focus-visible:ring-portfolio-primary"}`}
                     placeholder="your.email@example.com"
                   />
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
@@ -213,7 +213,7 @@ export function Contact() {
                     id="message"
                     value={formData.message}
                     onChange={(e) => handleInputChange("message", e.target.value)}
-                    className={`min-h-[140px] rounded-xl bg-slate-50 ${errors.message ? "border-destructive" : "border-slate-200 focus-visible:ring-sky-500"}`}
+                    className={`min-h-[140px] rounded-xl bg-slate-50 dark:bg-slate-950 ${errors.message ? "border-destructive" : "border-slate-200 dark:border-slate-700 focus-visible:ring-portfolio-primary"}`}
                     placeholder="Tell me about your project, timeline, and any specific requirements..."
                   />
                   {errors.message && <p className="text-sm text-destructive">{errors.message}</p>}
@@ -253,19 +253,19 @@ export function Contact() {
 
           {/* Contact Information */}
           <div className="space-y-5">
-            <Card className="rounded-3xl border border-sky-200 bg-sky-950 p-1 text-white shadow-xl shadow-sky-950/20 dark:border-sky-900">
+            <Card className="rounded-3xl border border-sky-300/30 bg-gradient-to-br from-[#0b1f3a] via-[#0c3150] to-[#0a4b5c] p-1 text-white shadow-xl shadow-sky-950/25 dark:border-cyan-300/15">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2">
                   <Mail className="w-5 h-5 text-sky-300" />
                   Email Me Directly
                 </CardTitle>
-                <CardDescription>Prefer email? Send me a message directly.</CardDescription>
+                <CardDescription className="text-sky-100/75">Prefer email? Send me a message directly.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button
                   variant="outline"
                   onClick={openEmail}
-                  className="w-full justify-start border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+                  className="w-full justify-start border-white/20 bg-white/10 text-white shadow-sm hover:bg-white/20 hover:text-white"
                 >
                   <Mail className="w-4 h-4 mr-2" />
                   leonislam810@gmail.com

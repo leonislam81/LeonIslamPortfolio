@@ -195,18 +195,18 @@ export function Header() {
       {/* Mobile Menu */}
       <div
         ref={mobileMenuRef}
-        className={`fixed top-0 right-0 h-full w-full overflow-y-auto bg-white text-slate-900 border-l border-slate-200 z-50 sm:w-80 md:hidden ${
+        className={`fixed top-0 right-0 h-full w-full overflow-y-auto border-l border-slate-200 bg-white text-slate-900 shadow-2xl shadow-slate-950/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 z-50 sm:w-80 md:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-out`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-slate-200">
+        <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-portfolio-primary rounded-md flex items-center justify-center">
               <Code className="w-4 h-4 text-portfolio-primary-foreground" />
             </div>
-            <span className="font-semibold text-slate-900">Leon Islam</span>
+            <span className="font-semibold text-slate-900 dark:text-slate-100">Leon Islam</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Close mobile menu" className="text-slate-900 hover:bg-slate-100 hover:text-slate-950">
+          <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Close mobile menu" className="text-slate-900 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-100 dark:hover:bg-slate-900 dark:hover:text-white">
             <X className="w-5 h-5" />
           </Button>
         </div>
@@ -220,8 +220,8 @@ export function Header() {
                 onClick={() => scrollToSection(item.href)}
                 className={`mobile-nav-item !opacity-100 w-full justify-start text-left ${
                   activeSection === item.id
-                    ? "text-[#00658e] bg-[#00658e]/10"
-                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-950"
+                    ? "bg-portfolio-primary/10 text-portfolio-primary"
+                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white"
                 }`}
               >
                 {item.name}
@@ -230,7 +230,7 @@ export function Header() {
             ))}
           </div>
 
-          <div className="mt-8 pt-8 border-t border-slate-200">
+          <div className="mt-8 border-t border-slate-200 pt-8 dark:border-slate-800">
             <Button
               onClick={() => scrollToSection("#contact")}
               className="mobile-nav-item !opacity-100 w-full bg-portfolio-primary hover:bg-portfolio-primary/90 text-portfolio-primary-foreground"
@@ -240,14 +240,14 @@ export function Header() {
             </Button>
           </div>
 
-          <div className="mt-6 pt-6 border-t border-slate-200 text-center">
-            <p className="text-sm text-slate-600 mb-2">Ready to work together?</p>
+          <div className="mt-6 border-t border-slate-200 pt-6 text-center dark:border-slate-800">
+            <p className="mb-2 text-sm text-slate-600 dark:text-slate-400">Ready to work together?</p>
             <div className="space-y-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => window.open("mailto:leonislam810@gmail.com", "_blank")}
-                className="mobile-nav-item !opacity-100 w-full border-slate-300 bg-white text-slate-700 text-xs hover:bg-slate-100 hover:text-slate-950"
+                className="mobile-nav-item !opacity-100 w-full border-slate-300 bg-white text-slate-700 text-xs hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
               >
                 leonislam810@gmail.com
               </Button>
@@ -255,7 +255,7 @@ export function Header() {
                 variant="outline"
                 size="sm"
                 onClick={() => window.open("https://wa.me/8801521783498", "_blank")}
-                className="mobile-nav-item !opacity-100 w-full border-slate-300 bg-white text-slate-700 text-xs hover:bg-slate-100 hover:text-slate-950"
+                className="mobile-nav-item !opacity-100 w-full border-slate-300 bg-white text-slate-700 text-xs hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
               >
                 +880 1521 783498
               </Button>
