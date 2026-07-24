@@ -7,6 +7,7 @@ import { Toaster } from 'sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://leonislam.dev'),
   title: 'Leon Islam - WordPress, Shopify & Wix Specialist',
   description:
     'Professional website development and management services. WordPress, Shopify, and Wix specialist offering fast turnaround, SEO-friendly solutions, and ongoing website care.',

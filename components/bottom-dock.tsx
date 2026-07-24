@@ -28,24 +28,13 @@ export function BottomDock() {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
     // Show dock after scrolling past hero
-    ScrollTrigger.create({
+    const dockScrollTrigger = ScrollTrigger.create({
       trigger: "#services",
       start: "top 80%",
       end: "bottom bottom",
       onEnter: () => setIsVisible(true),
       onLeaveBack: () => setIsVisible(false),
     })
-
-    if (!prefersReducedMotion) {
-      // Dock entrance animation
-      gsap.from(dockRef.current, {
-        y: 100,
-        opacity: 0,
-        duration: 0.6,
-        ease: "back.out(1.7)",
-        delay: 0.5,
-      })
-    }
 
     // Scroll spy for active section highlighting
     const observerOptions = {
@@ -75,9 +64,21 @@ export function BottomDock() {
 
     return () => {
       observer.disconnect()
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+      dockScrollTrigger.kill()
     }
   }, [])
+
+  useEffect(() => {
+    if (!isVisible || !dockRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+    const animation = gsap.fromTo(
+      dockRef.current,
+      { y: 36, opacity: 0, scale: 0.96 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.4)" },
+    )
+
+    return () => animation.kill()
+  }, [isVisible])
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href) || document.querySelector("#hero")

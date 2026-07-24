@@ -32,6 +32,7 @@ export function Header() {
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    let headerScrollTrigger: ScrollTrigger | undefined
 
     if (!prefersReducedMotion) {
       gsap.fromTo(
@@ -41,7 +42,7 @@ export function Header() {
       )
 
       // Header scroll effects
-      ScrollTrigger.create({
+      headerScrollTrigger = ScrollTrigger.create({
         trigger: "body",
         start: "100px top",
         end: "bottom bottom",
@@ -114,7 +115,7 @@ export function Header() {
     return () => {
       observer.disconnect()
       window.removeEventListener("scroll", handleScroll)
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+      headerScrollTrigger?.kill()
     }
   }, [])
 

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-import { TextPlugin } from 'gsap/TextPlugin';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -11,15 +11,13 @@ import {
   Zap,
   Search,
   CheckCircle,
-  Sun,
-  Moon,
-  Menu,
 } from 'lucide-react';
-import { useTheme } from 'next-themes';
 
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollToPlugin, TextPlugin);
+  gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
 }
+
+const headlineWords = ['I', 'build,', 'fix', '&', 'manage', 'modern', 'websites.'];
 
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
@@ -29,91 +27,26 @@ export function Hero() {
   const badgesRef = useRef<HTMLDivElement>(null);
   const backgroundRef = useRef<HTMLDivElement>(null);
   const scrollCueRef = useRef<HTMLButtonElement>(null);
-  const headerRef = useRef<HTMLElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
-  const rippleRef = useRef<HTMLDivElement>(null);
-  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches;
+    if (!heroRef.current) return;
 
-    if (!prefersReducedMotion && heroRef.current) {
-      const tl = gsap.timeline({ delay: 0.2 });
+    const hero = heroRef.current;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let removePointerListener: (() => void) | undefined;
+    const ctx = gsap.context(() => {
+      if (prefersReducedMotion) return;
 
-      if (headerRef.current) {
-        gsap.from(headerRef.current, {
-          y: -100,
-          opacity: 0,
-          duration: 0.8,
-          ease: 'power2.out',
-        });
-
-        gsap.to(headerRef.current, {
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          scrollTrigger: {
-            trigger: heroRef.current,
-            start: 'top -50px',
-            end: 'bottom top',
-            toggleActions: 'play none none reverse',
-          },
-        });
-      }
-
-      const handleMouseMove = (e: MouseEvent) => {
-        if (cursorRef.current && heroRef.current) {
-          const rect = heroRef.current.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-
-          gsap.to(cursorRef.current, {
-            x: x - 25,
-            y: y - 25,
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-
-          // Create ripple effect
-          if (rippleRef.current) {
-            const ripple = document.createElement('div');
-            ripple.className =
-              'absolute w-4 h-4 bg-portfolio-primary/20 rounded-full pointer-events-none';
-            ripple.style.left = `${x - 8}px`;
-            ripple.style.top = `${y - 8}px`;
-            rippleRef.current.appendChild(ripple);
-
-            gsap.fromTo(
-              ripple,
-              { scale: 0, opacity: 1 },
-              {
-                scale: 8,
-                opacity: 0,
-                duration: 1.5,
-                ease: 'power2.out',
-                onComplete: () => ripple.remove(),
-              }
-            );
-          }
-        }
-      };
-
-      heroRef.current.addEventListener('mousemove', handleMouseMove);
+      const tl = gsap.timeline({ delay: 0.15, defaults: { ease: 'power3.out' } });
 
       if (headlineRef.current) {
-        const words = headlineRef.current.textContent?.split(' ') || [];
-        headlineRef.current.innerHTML = words
-          .map(word => `<span class="inline-block">${word}</span>`)
-          .join(' ');
-
-        tl.from(headlineRef.current.children, {
+        tl.from(headlineRef.current.querySelectorAll('[data-hero-word]'), {
           y: 40,
           opacity: 0,
           duration: 0.8,
           stagger: 0.1,
-          ease: 'power2.out',
+          ease: 'power4.out',
         });
       }
 
@@ -123,7 +56,6 @@ export function Hero() {
           y: 30,
           opacity: 0,
           duration: 0.6,
-          ease: 'power2.out',
         },
         '-=0.4'
       );
@@ -135,7 +67,7 @@ export function Hero() {
           opacity: 0,
           duration: 0.7,
           stagger: 0.1,
-          ease: 'back.out(1.2)',
+          ease: 'back.out(1.4)',
         },
         '-=0.3'
       );
@@ -147,7 +79,7 @@ export function Hero() {
           opacity: 0,
           duration: 0.5,
           stagger: 0.1,
-          ease: 'back.out(1.1)',
+          ease: 'back.out(1.2)',
         },
         '-=0.4'
       );
@@ -158,7 +90,6 @@ export function Hero() {
           y: 20,
           opacity: 0,
           duration: 0.5,
-          ease: 'power2.out',
         },
         '-=0.2'
       );
@@ -177,19 +108,6 @@ export function Hero() {
         });
       }
 
-      if (ctaRef.current) {
-        Array.from(ctaRef.current.children).forEach((button, index) => {
-          gsap.to(button, {
-            y: -3,
-            duration: 2 + index * 0.5,
-            ease: 'sine.inOut',
-            repeat: -1,
-            yoyo: true,
-            delay: index * 0.3,
-          });
-        });
-      }
-
       if (scrollCueRef.current) {
         gsap.to(scrollCueRef.current, {
           y: 8,
@@ -200,10 +118,23 @@ export function Hero() {
         });
       }
 
-      return () => {
-        heroRef.current?.removeEventListener('mousemove', handleMouseMove);
-      };
-    }
+      if (cursorRef.current && window.matchMedia('(pointer: fine)').matches) {
+        const moveCursorX = gsap.quickTo(cursorRef.current, 'x', { duration: 0.35, ease: 'power3.out' });
+        const moveCursorY = gsap.quickTo(cursorRef.current, 'y', { duration: 0.35, ease: 'power3.out' });
+        const handleMouseMove = (event: MouseEvent) => {
+          const rect = hero.getBoundingClientRect();
+          moveCursorX(event.clientX - rect.left - 24);
+          moveCursorY(event.clientY - rect.top - 24);
+        };
+        hero.addEventListener('mousemove', handleMouseMove, { passive: true });
+        removePointerListener = () => hero.removeEventListener('mousemove', handleMouseMove);
+      }
+    }, hero);
+
+    return () => {
+      removePointerListener?.();
+      ctx.revert();
+    };
   }, []);
 
   const scrollToSection = (sectionId: string) => {
@@ -217,7 +148,7 @@ export function Hero() {
   return (
     <section
       ref={heroRef}
-      className="relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20"
+      className="relative flex min-h-[580px] items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-muted/20 sm:min-h-[640px]"
     >
       <div ref={backgroundRef} className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-portfolio-primary/20 to-portfolio-accent/20 rounded-full blur-3xl animate-pulse" />
@@ -238,18 +169,17 @@ export function Hero() {
         <div className="w-full h-full bg-gradient-to-r from-portfolio-primary/30 to-portfolio-accent/30 rounded-full blur-sm animate-pulse" />
       </div>
 
-      <div
-        ref={rippleRef}
-        className="absolute inset-0 pointer-events-none z-10"
-      />
-
       <div className="container mx-auto px-4 text-center relative z-10 heroBox__container">
         <div className="max-w-4xl mx-auto space-y-8">
           <h1
             ref={headlineRef}
             className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-tight"
           >
-            I build, fix & manage modern websites.
+            {headlineWords.map((word, index) => (
+              <span key={`${word}-${index}`} data-hero-word className="inline-block">
+                {word}{index < headlineWords.length - 1 ? '\u00a0' : ''}
+              </span>
+            ))}
           </h1>
 
           <p
@@ -261,11 +191,11 @@ export function Hero() {
 
           <div
             ref={ctaRef}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center hidden"
+            className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4"
           >
             <Button
               size="lg"
-              className="bg-gradient-to-r from-portfolio-primary to-portfolio-accent hover:from-portfolio-primary/90 hover:to-portfolio-accent/90 text-white px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+              className="w-full bg-gradient-to-r from-portfolio-primary to-portfolio-accent px-8 py-6 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:from-portfolio-primary/90 hover:to-portfolio-accent/90 hover:shadow-xl sm:w-auto"
               onClick={() => scrollToSection('#contact')}
             >
               Hire Me
@@ -273,7 +203,7 @@ export function Hero() {
             <Button
               variant="outline"
               size="lg"
-              className="border-2 border-portfolio-primary/50 text-portfolio-primary hover:bg-portfolio-primary/10 px-8 py-6 text-lg font-semibold rounded-xl transition-all duration-300 bg-white/5 dark:bg-black/5 backdrop-blur-sm"
+              className="w-full border-2 border-portfolio-primary/50 bg-white/5 px-8 py-6 text-lg font-semibold text-portfolio-primary transition-all duration-300 hover:-translate-y-0.5 hover:bg-portfolio-primary/10 sm:w-auto dark:bg-black/5"
               onClick={() => scrollToSection('#projects')}
             >
               View Projects
