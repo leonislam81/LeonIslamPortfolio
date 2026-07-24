@@ -171,7 +171,6 @@ const projects = [
 
 export function Projects() {
   const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const [selectedProject, setSelectedProject] = useState<
@@ -190,46 +189,6 @@ export function Projects() {
     const prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
     ).matches;
-
-    if (!prefersReducedMotion && sectionRef.current) {
-      gsap.from(titleRef.current, {
-        y: 30,
-        opacity: 1,
-        duration: 0.8,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: titleRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-      });
-
-      gsap.from(filterRef.current?.children || [], {
-        scale: 0.9,
-        opacity: 1,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: 'back.out(1.1)',
-        scrollTrigger: {
-          trigger: filterRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-      });
-
-      gsap.from(gridRef.current?.children || [], {
-        y: 50,
-        opacity: 1,
-        duration: 0.6,
-        stagger: 0.15,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: gridRef.current,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-      });
-    }
 
     return () => clearTimeout(timer);
   }, []);
@@ -332,16 +291,15 @@ export function Projects() {
 
   return (
     <>
-      <section id="projects" ref={sectionRef} className="py-20 bg-muted/30">
+      <section id="projects" ref={sectionRef} className="relative overflow-hidden bg-slate-100 py-20 sm:py-28 dark:bg-slate-900">
+        <div className="absolute -left-32 top-12 h-80 w-80 rounded-full bg-sky-300/20 blur-3xl dark:bg-sky-700/10" />
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2
-              ref={titleRef}
-              className="text-3xl md:text-4xl font-bold text-foreground mb-4"
-            >
+          <div className="relative mx-auto mb-10 max-w-3xl text-center sm:mb-12">
+            <span className="inline-flex rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[.16em] text-sky-700 shadow-sm dark:border-sky-900 dark:bg-slate-950 dark:text-sky-300">Selected work</span>
+            <h2 className="mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
               Featured Projects
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="mt-4 text-lg text-muted-foreground">
               Real results from real projects across WordPress, Shopify, and Wix
               platforms
             </p>
@@ -350,7 +308,7 @@ export function Projects() {
           {/* Filter buttons */}
           <div
             ref={filterRef}
-            className="flex flex-wrap justify-center gap-3 mb-12"
+            className="relative mx-auto mb-10 flex max-w-3xl flex-wrap justify-center gap-2 rounded-2xl border border-slate-200 bg-white/80 p-2 shadow-sm dark:border-slate-800 dark:bg-slate-950/80"
           >
             {platforms.map(platform => (
               <Button
@@ -360,8 +318,8 @@ export function Projects() {
                 onClick={() => setFilter(platform)}
                 className={
                   filter === platform
-                    ? 'bg-portfolio-primary text-portfolio-primary-foreground'
-                    : 'border-portfolio-primary/30 text-portfolio-primary hover:bg-portfolio-primary/10'
+                    ? 'rounded-xl bg-portfolio-primary text-portfolio-primary-foreground shadow-sm'
+                    : 'rounded-xl border-transparent text-muted-foreground hover:bg-sky-50 hover:text-portfolio-primary dark:hover:bg-slate-900'
                 }
               >
                 {platform}
@@ -372,7 +330,7 @@ export function Projects() {
           {/* Projects grid */}
           <div
             ref={gridRef}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="relative grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3"
           >
             {isLoading
               ? Array.from({ length: 6 }).map((_, index) => (
@@ -382,32 +340,32 @@ export function Projects() {
                   <Card
                     key={project.id}
                     data-project-id={project.id}
-                    className={`relative overflow-hidden border border-border bg-card hover:shadow-lg transition-all duration-300 cursor-pointer ${
-                      project.featured ? 'ring-2 ring-portfolio-primary/20' : ''
+                    className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-950 ${
+                      project.featured ? 'ring-1 ring-sky-400/50' : ''
                     }`}
                     onMouseEnter={() => handleCardHover(project.id, true)}
                     onMouseLeave={() => handleCardHover(project.id, false)}
                     onClick={() => openProjectModal(project)}
                   >
                     {project.featured && (
-                      <div className="absolute top-4 right-4 z-10">
-                        <Badge className="bg-portfolio-primary text-portfolio-primary-foreground">
+                      <div className="absolute right-4 top-4 z-10">
+                        <Badge className="rounded-full bg-slate-950/85 text-white backdrop-blur">
                           Featured
                         </Badge>
                       </div>
                     )}
 
-                    <div className="aspect-video overflow-hidden">
+                    <div className="aspect-video overflow-hidden bg-slate-200">
                       <img
                         src={project.thumbnail || '/placeholder.svg'}
                         alt={project.title}
-                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
 
-                    <CardHeader className="pb-4">
+                    <CardHeader className="pb-4 pt-6">
                       <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="rounded-full border-slate-200 bg-slate-50 text-xs dark:border-slate-800 dark:bg-slate-900">
                           {project.platform}
                         </Badge>
                         <div className="flex items-center gap-1 text-portfolio-primary font-semibold text-sm">
@@ -441,7 +399,7 @@ export function Projects() {
                             </Badge>
                           )}
                         </div>
-                        <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                        <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
                       </div>
                     </CardContent>
                   </Card>

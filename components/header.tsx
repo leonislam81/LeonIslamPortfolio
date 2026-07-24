@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from "react"
 import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { ScrollToPlugin } from "gsap/ScrollToPlugin"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Menu, X, Code, Zap } from "lucide-react"
 
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
+  gsap.registerPlugin(ScrollToPlugin)
 }
 
 const navItems = [
@@ -32,8 +31,6 @@ export function Header() {
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    let headerScrollTrigger: ScrollTrigger | undefined
-
     if (!prefersReducedMotion) {
       gsap.fromTo(
         headerRef.current,
@@ -41,38 +38,6 @@ export function Header() {
         { y: 0, opacity: 1, duration: 0.8, ease: "power2.out", delay: 0.2 },
       )
 
-      // Header scroll effects
-      headerScrollTrigger = ScrollTrigger.create({
-        trigger: "body",
-        start: "100px top",
-        end: "bottom bottom",
-        onUpdate: (self) => {
-          const scrolled = self.progress > 0
-          setIsScrolled(scrolled)
-
-          if (headerRef.current) {
-            if (scrolled) {
-              gsap.to(headerRef.current, {
-                backgroundColor: "rgba(255, 255, 255, 0.95)",
-                backdropFilter: "blur(10px)",
-                borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
-                boxShadow: "0 2px 20px rgba(0, 0, 0, 0.1)",
-                duration: 0.3,
-                ease: "power2.out",
-              })
-            } else {
-              gsap.to(headerRef.current, {
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-                backdropFilter: "blur(5px)",
-                borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.05)",
-                duration: 0.3,
-                ease: "power2.out",
-              })
-            }
-          }
-        },
-      })
     } else {
       if (headerRef.current) {
         gsap.set(headerRef.current, { opacity: 1, y: 0 })
@@ -115,7 +80,6 @@ export function Header() {
     return () => {
       observer.disconnect()
       window.removeEventListener("scroll", handleScroll)
-      headerScrollTrigger?.kill()
     }
   }, [])
 
@@ -163,29 +127,23 @@ export function Header() {
     <>
       <header
         ref={headerRef}
-        className="top-0 left-0 right-0 z-50 transition-all duration-300"
-        style={{
-          backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.1)",
-          backdropFilter: isScrolled ? "blur(5px)" : "blur(5px)",
-          borderBottom: isScrolled ? "1px solid rgba(0, 0, 0, 0.1)" : "1px solid rgba(255, 255, 255, 0.1)",
-          boxShadow: isScrolled ? "0 2px 20px rgba(0, 0, 0, 0.05)" : "0 2px 10px rgba(0, 0, 0, 0.05)",
-        }}
+        className={`sticky top-0 left-0 right-0 z-50 border-b transition-all duration-300 ${isScrolled ? "border-slate-200/80 bg-white/90 shadow-lg shadow-slate-900/5 backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/90" : "border-transparent bg-white/70 backdrop-blur-md dark:bg-slate-950/70"}`}
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <div ref={logoRef} className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-portfolio-primary rounded-lg flex items-center justify-center shadow-lg">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-cyan-400 shadow-lg shadow-sky-500/25">
                 <Code className="w-5 h-5 text-portfolio-primary-foreground" />
               </div>
               <div className="hidden sm:block">
-                <div className="font-bold text-lg text-foreground">Leon Islam</div>
-                <div className="text-xs text-muted-foreground -mt-1">Website Specialist</div>
+                <div className="font-bold text-lg tracking-tight text-foreground">Leon Islam</div>
+                <div className="-mt-1 text-xs text-muted-foreground">Digital specialist</div>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden items-center gap-1 rounded-full border border-slate-200/80 bg-white/70 p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900/70 md:flex">
               {navItems.map((item) => (
                 <Button
                   key={item.name}
@@ -194,8 +152,8 @@ export function Header() {
                   onClick={() => scrollToSection(item.href)}
                   className={`relative px-4 py-2 text-sm font-medium transition-colors ${
                     activeSection === item.id
-                      ? "text-portfolio-primary bg-portfolio-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      ? "rounded-full text-portfolio-primary bg-portfolio-primary/10"
+                      : "rounded-full text-muted-foreground hover:text-foreground hover:bg-accent"
                   }`}
                 >
                   {item.name}
@@ -214,7 +172,7 @@ export function Header() {
               <Button
                 size="sm"
                 onClick={() => scrollToSection("#contact")}
-                className="hidden md:flex bg-portfolio-primary hover:bg-portfolio-primary/90 text-portfolio-primary-foreground"
+                className="hidden rounded-full bg-portfolio-primary px-4 shadow-md shadow-sky-500/20 hover:bg-portfolio-primary/90 md:flex"
               >
                 <Zap className="w-4 h-4 mr-1" />
                 Hire Me

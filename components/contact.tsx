@@ -2,9 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useRef, useState } from "react"
-import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -13,9 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Mail, Phone, MessageSquare, CheckCircle, Send, MapPin } from "lucide-react"
 import { toast } from "sonner"
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger)
-}
 
 interface FormData {
   name: string
@@ -27,9 +22,7 @@ interface FormData {
 
 export function Contact() {
   const sectionRef = useRef<HTMLElement>(null)
-  const titleRef = useRef<HTMLHeadingElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
-  const contactInfoRef = useRef<HTMLDivElement>(null)
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -39,53 +32,6 @@ export function Contact() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Partial<FormData>>({})
-
-  useEffect(() => {
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-
-    if (!prefersReducedMotion && sectionRef.current) {
-      // Title animation
-      gsap.from(titleRef.current, {
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: titleRef.current,
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-      })
-
-      // Form fields slide in
-      gsap.from(formRef.current?.querySelectorAll(".form-field") || [], {
-        x: -30,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: formRef.current,
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-      })
-
-      // Contact info animation
-      gsap.from(contactInfoRef.current?.children || [], {
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: contactInfoRef.current,
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-      })
-    }
-  }, [])
 
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {}
@@ -147,19 +93,6 @@ export function Contact() {
 
       if (response.ok) {
         // Success animation
-        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        if (!prefersReducedMotion) {
-          // Animate success checkmark
-          const successIcon = document.querySelector(".success-checkmark")
-          if (successIcon) {
-            gsap.fromTo(
-              successIcon,
-              { scale: 0, rotation: -180 },
-              { scale: 1, rotation: 0, duration: 0.5, ease: "back.out(1.2)" },
-            )
-          }
-        }
-
         toast.success("Message sent successfully!", {
           description: "I'll get back to you within 24 hours.",
         })
@@ -206,28 +139,30 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" ref={sectionRef} className="py-20 bg-background">
+    <section id="contact" ref={sectionRef} className="relative overflow-hidden bg-slate-50 py-20 sm:py-28 dark:bg-slate-950">
+      <div className="absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-sky-100/70 to-transparent dark:from-sky-950/30" />
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 ref={titleRef} className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <div className="relative mx-auto mb-12 max-w-3xl text-center sm:mb-16">
+          <span className="inline-flex items-center rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[.16em] text-sky-700 shadow-sm dark:border-sky-900 dark:bg-slate-900 dark:text-sky-300">Start a project</span>
+          <h2 className="mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             Let's Work Together
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-muted-foreground">
             Ready to build, fix, or manage your website? Get in touch and let's discuss your project.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+        <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.1fr_.9fr]">
           {/* Contact Form */}
-          <Card className="border border-border bg-card">
-            <CardHeader>
+          <Card className="rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/40 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+            <CardHeader className="p-6 pb-2 sm:p-8 sm:pb-3">
               <CardTitle className="flex items-center gap-2">
                 <Send className="w-5 h-5 text-portfolio-primary" />
                 Send a Message
               </CardTitle>
               <CardDescription>Fill out the form below and I'll get back to you within 24 hours.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6 pt-4 sm:p-8 sm:pt-5">
               <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                 {/* Honeypot field (hidden) */}
                 <input
@@ -249,7 +184,7 @@ export function Contact() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    className={errors.name ? "border-destructive" : ""}
+                    className={`h-12 rounded-xl bg-slate-50 ${errors.name ? "border-destructive" : "border-slate-200 focus-visible:ring-sky-500"}`}
                     placeholder="Your full name"
                   />
                   {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
@@ -264,7 +199,7 @@ export function Contact() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className={errors.email ? "border-destructive" : ""}
+                    className={`h-12 rounded-xl bg-slate-50 ${errors.email ? "border-destructive" : "border-slate-200 focus-visible:ring-sky-500"}`}
                     placeholder="your.email@example.com"
                   />
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
@@ -278,7 +213,7 @@ export function Contact() {
                     id="message"
                     value={formData.message}
                     onChange={(e) => handleInputChange("message", e.target.value)}
-                    className={`min-h-[120px] ${errors.message ? "border-destructive" : ""}`}
+                    className={`min-h-[140px] rounded-xl bg-slate-50 ${errors.message ? "border-destructive" : "border-slate-200 focus-visible:ring-sky-500"}`}
                     placeholder="Tell me about your project, timeline, and any specific requirements..."
                   />
                   {errors.message && <p className="text-sm text-destructive">{errors.message}</p>}
@@ -298,7 +233,7 @@ export function Contact() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-portfolio-primary hover:bg-portfolio-primary/90 text-portfolio-primary-foreground"
+                  className="h-12 w-full rounded-xl bg-portfolio-primary text-portfolio-primary-foreground shadow-lg shadow-sky-700/20 hover:bg-portfolio-primary/90"
                 >
                   {isSubmitting ? (
                     <>
@@ -311,18 +246,17 @@ export function Contact() {
                       Send Message
                     </>
                   )}
-                  <CheckCircle className="success-checkmark w-4 h-4 ml-2 opacity-0" />
                 </Button>
               </form>
             </CardContent>
           </Card>
 
           {/* Contact Information */}
-          <div ref={contactInfoRef} className="space-y-6">
-            <Card className="border border-border bg-card">
-              <CardHeader>
+          <div className="space-y-5">
+            <Card className="rounded-3xl border border-sky-200 bg-sky-950 p-1 text-white shadow-xl shadow-sky-950/20 dark:border-sky-900">
+              <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-portfolio-primary" />
+                  <Mail className="w-5 h-5 text-sky-300" />
                   Email Me Directly
                 </CardTitle>
                 <CardDescription>Prefer email? Send me a message directly.</CardDescription>
@@ -331,7 +265,7 @@ export function Contact() {
                 <Button
                   variant="outline"
                   onClick={openEmail}
-                  className="w-full justify-start border-portfolio-primary/30 text-portfolio-primary hover:bg-portfolio-primary/10 bg-transparent"
+                  className="w-full justify-start border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
                 >
                   <Mail className="w-4 h-4 mr-2" />
                   leonislam810@gmail.com
@@ -339,7 +273,7 @@ export function Contact() {
               </CardContent>
             </Card>
 
-            <Card className="border border-border bg-card">
+            <Card className="rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="w-5 h-5 text-portfolio-primary" />
@@ -359,7 +293,7 @@ export function Contact() {
               </CardContent>
             </Card>
 
-            <Card className="border border-border bg-card">
+            <Card className="rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-portfolio-primary" />
@@ -382,7 +316,7 @@ export function Contact() {
               </CardContent>
             </Card>
 
-            <div className="bg-muted/50 p-6 rounded-lg">
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <h3 className="font-semibold text-foreground mb-3">What happens next?</h3>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">

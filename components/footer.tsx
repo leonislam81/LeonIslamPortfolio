@@ -1,151 +1,29 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Mail, Phone, MapPin, Heart } from "lucide-react"
+import { ArrowUpRight, Code2, Mail, MapPin, Phone, Sparkles } from "lucide-react"
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
+  const links = ["Services", "Skills", "Projects", "Experience", "Testimonials", "Contact"]
+  const scrollTo = (id: string) => document.querySelector(`#${id.toLowerCase()}`)?.scrollIntoView({ behavior: "smooth" })
 
-  const quickLinks = [
-    { name: "Services", href: "#services" },
-    { name: "Skills", href: "#skills" },
-    { name: "Projects", href: "#projects" },
-    { name: "Experience", href: "#experience" },
-    { name: "Testimonials", href: "#testimonials" },
-    { name: "Contact", href: "#contact" },
-  ]
-
-  const services = [
-    "WordPress Development",
-    "Shopify Setup",
-    "Wix Design",
-    "Data Entry",
-    "Bug Fixing",
-    "Website Management",
-  ]
-
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-    }
-  }
-
-  const openWhatsApp = () => {
-    const message = encodeURIComponent("Hi Leon! I'm interested in your website services.")
-    window.open(`https://wa.me/8801521783498?text=${message}`, "_blank")
-  }
-
-  const openEmail = () => {
-    const subject = encodeURIComponent("Website Project Inquiry")
-    window.open(`mailto:leonislam810@gmail.com?subject=${subject}`, "_blank")
-  }
-
-  return (
-    <footer className="bg-muted/50 border-t border-border">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand & Description */}
-          <div className="lg:col-span-1">
-            <h3 className="text-xl font-bold text-foreground mb-4">Leon Islam</h3>
-            <p className="text-muted-foreground mb-4 leading-relaxed">
-              WordPress, Shopify & Wix specialist delivering fast, reliable, and conversion-ready websites for
-              businesses worldwide.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="outline" className="text-xs">
-                WordPress Expert
-              </Badge>
-              <Badge variant="outline" className="text-xs">
-                Shopify Specialist
-              </Badge>
-              <Badge variant="outline" className="text-xs">
-                Wix Designer
-              </Badge>
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h4 className="font-semibold text-foreground mb-4">Quick Links</h4>
-            <ul className="space-y-2">
-              {quickLinks.map((link) => (
-                <li key={link.name}>
-                  <button
-                    onClick={() => scrollToSection(link.href)}
-                    className="text-muted-foreground hover:text-portfolio-primary transition-colors text-sm"
-                  >
-                    {link.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Services */}
-          <div>
-            <h4 className="font-semibold text-foreground mb-4">Services</h4>
-            <ul className="space-y-2">
-              {services.map((service) => (
-                <li key={service} className="text-muted-foreground text-sm">
-                  {service}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact Info */}
-          <div>
-            <h4 className="font-semibold text-foreground mb-4">Get In Touch</h4>
-            <div className="space-y-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={openEmail}
-                className="justify-start p-0 h-auto text-muted-foreground hover:text-portfolio-primary"
-              >
-                <Mail className="w-4 h-4" />
-                leonislam810@gmail.com
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={openWhatsApp}
-                className="justify-start p-0 h-auto text-muted-foreground hover:text-green-600"
-              >
-                <Phone className="w-4 h-4" />
-                +880 1521 783498
-              </Button>
-              <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                <MapPin className="w-4 h-4" />
-                <span>Bangladesh (Working Globally)</span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <p className="text-sm text-muted-foreground mb-2">Response Time</p>
-              <p className="text-sm font-medium text-foreground">Usually within 2-4 hours</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="border-t border-border mt-12 pt-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>© {currentYear} Leon Islam. All rights reserved.</span>
-            </div>
-
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span>Fast Turnaround</span>
-              <span>•</span>
-              <span>SEO-Friendly</span>
-              <span>•</span>
-              <span>100+ Tasks Managed</span>
-            </div>
-          </div>
+  return <footer className="overflow-hidden bg-slate-950 text-white">
+    <div className="container mx-auto px-4 pt-16 sm:pt-20">
+      <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-sky-500/20 via-slate-900 to-emerald-500/15 px-6 py-10 sm:px-10 sm:py-12">
+        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-sky-400/20 blur-3xl" />
+        <div className="relative grid items-end gap-8 lg:grid-cols-[1fr_auto]">
+          <div><div className="mb-4 flex items-center gap-2 text-sm font-medium text-sky-200"><Sparkles className="h-4 w-4" />Have a project in mind?</div><h2 className="max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl">Let’s turn your website into a dependable growth tool.</h2></div>
+          <Button onClick={() => scrollTo("Contact")} className="h-12 rounded-xl bg-white px-6 text-slate-950 hover:bg-sky-100">Start a conversation <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
         </div>
       </div>
-    </footer>
-  )
+
+      <div className="grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr]">
+        <div><div className="flex items-center gap-2 font-bold"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500"><Code2 className="h-5 w-5" /></span>Leon Islam</div><p className="mt-5 max-w-sm text-sm leading-7 text-slate-400">A hands-on WordPress, Shopify, and Wix specialist building fast, polished websites that are easy to maintain.</p><div className="mt-6 flex flex-wrap gap-2 text-xs text-slate-300"><span className="rounded-full border border-white/10 px-3 py-1.5">WordPress</span><span className="rounded-full border border-white/10 px-3 py-1.5">Shopify</span><span className="rounded-full border border-white/10 px-3 py-1.5">Wix</span></div></div>
+        <div><h3 className="text-sm font-semibold uppercase tracking-[.16em] text-slate-400">Navigate</h3><div className="mt-5 grid grid-cols-2 gap-y-3">{links.map(link => <button key={link} onClick={() => scrollTo(link)} className="text-left text-sm text-slate-300 transition hover:text-sky-300">{link}</button>)}</div></div>
+        <div><h3 className="text-sm font-semibold uppercase tracking-[.16em] text-slate-400">Say hello</h3><div className="mt-5 space-y-3 text-sm text-slate-300"><a href="mailto:leonislam810@gmail.com" className="flex items-center gap-3 transition hover:text-sky-300"><Mail className="h-4 w-4 text-sky-300" />leonislam810@gmail.com</a><a href="https://wa.me/8801521783498" target="_blank" rel="noreferrer" className="flex items-center gap-3 transition hover:text-emerald-300"><Phone className="h-4 w-4 text-emerald-300" />+880 1521 783498</a><span className="flex items-center gap-3"><MapPin className="h-4 w-4 text-slate-400" />Bangladesh · working globally</span></div></div>
+      </div>
+      <div className="flex flex-col gap-3 border-t border-white/10 py-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between"><span>© {currentYear} Leon Islam. Built with care.</span><span>Clear communication · Reliable delivery · Practical results</span></div>
+    </div>
+  </footer>
 }
