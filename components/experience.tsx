@@ -42,7 +42,7 @@ export function Experience() {
 
         <div className="mx-auto max-w-5xl space-y-5">
           {experiences.map((experience, index) => (
-            <article key={experience.id} className="experience-card group relative overflow-hidden rounded-3xl border border-border/80 bg-card/90 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-portfolio-primary/30 hover:shadow-xl sm:p-7">
+            <article key={experience.id} className="experience-card !opacity-100 group relative overflow-hidden rounded-3xl border border-border/80 bg-card/90 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-portfolio-primary/30 hover:shadow-xl sm:p-7">
               <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-portfolio-primary via-portfolio-accent to-portfolio-primary opacity-70" />
               <div className="grid gap-6 lg:grid-cols-[150px_1fr] lg:gap-10">
                 <div className="flex items-start justify-between gap-4 lg:block">
