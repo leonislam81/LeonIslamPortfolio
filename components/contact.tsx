@@ -253,19 +253,19 @@ export function Contact() {
 
           {/* Contact Information */}
           <div className="space-y-5">
-            <Card className="rounded-3xl border border-sky-300/30 bg-gradient-to-br from-[#0b1f3a] via-[#0c3150] to-[#0a4b5c] p-1 text-white shadow-xl shadow-sky-950/25 dark:border-cyan-300/15">
+            <Card className="rounded-3xl border border-portfolio-primary/20 bg-white p-1 text-foreground shadow-sm dark:border-portfolio-primary/25 dark:bg-gradient-to-br dark:from-[#101b35] dark:via-[#15294a] dark:to-[#123d4c] dark:text-white dark:shadow-xl dark:shadow-slate-950/25">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-sky-300" />
+                  <Mail className="w-5 h-5 text-portfolio-primary dark:text-cyan-300" />
                   Email Me Directly
                 </CardTitle>
-                <CardDescription className="text-sky-100/75">Prefer email? Send me a message directly.</CardDescription>
+                <CardDescription className="text-muted-foreground dark:text-sky-100/75">Prefer email? Send me a message directly.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button
                   variant="outline"
                   onClick={openEmail}
-                  className="w-full justify-start border-white/20 bg-white/10 text-white shadow-sm hover:bg-white/20 hover:text-white"
+                  className="w-full justify-start border-portfolio-primary/25 bg-portfolio-primary/5 text-portfolio-primary shadow-sm hover:bg-portfolio-primary/10 hover:text-portfolio-primary dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:hover:text-white"
                 >
                   <Mail className="w-4 h-4 mr-2" />
                   leonislam810@gmail.com
