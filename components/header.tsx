@@ -141,7 +141,6 @@ export function Header() {
         gsap.fromTo(mobileMenuRef.current, { x: "100%" }, { x: "0%", duration: 0.3, ease: "power2.out" })
         gsap.from(mobileMenuRef.current.querySelectorAll(".mobile-nav-item"), {
           x: 50,
-          opacity: 0,
           duration: 0.4,
           stagger: 0.1,
           ease: "power2.out",
