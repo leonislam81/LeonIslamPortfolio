@@ -243,18 +243,18 @@ export function Header() {
       {/* Mobile Menu */}
       <div
         ref={mobileMenuRef}
-        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-background border-l border-border z-50 md:hidden ${
+        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white text-slate-900 border-l border-slate-200 z-50 md:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-out`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-4 border-b border-slate-200">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-portfolio-primary rounded-md flex items-center justify-center">
               <Code className="w-4 h-4 text-portfolio-primary-foreground" />
             </div>
-            <span className="font-semibold text-foreground">Leon Islam</span>
+            <span className="font-semibold text-slate-900">Leon Islam</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Close mobile menu">
+          <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Close mobile menu" className="text-slate-900 hover:bg-slate-100 hover:text-slate-950">
             <X className="w-5 h-5" />
           </Button>
         </div>
@@ -266,10 +266,10 @@ export function Header() {
                 key={item.name}
                 variant="ghost"
                 onClick={() => scrollToSection(item.href)}
-                className={`mobile-nav-item w-full justify-start text-left ${
+                className={`mobile-nav-item !opacity-100 w-full justify-start text-left ${
                   activeSection === item.id
-                    ? "text-portfolio-primary bg-portfolio-primary/10"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "text-[#00658e] bg-[#00658e]/10"
+                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-950"
                 }`}
               >
                 {item.name}
@@ -278,24 +278,24 @@ export function Header() {
             ))}
           </div>
 
-          <div className="mt-8 pt-8 border-t border-border">
+          <div className="mt-8 pt-8 border-t border-slate-200">
             <Button
               onClick={() => scrollToSection("#contact")}
-              className="mobile-nav-item w-full bg-portfolio-primary hover:bg-portfolio-primary/90 text-portfolio-primary-foreground"
+              className="mobile-nav-item !opacity-100 w-full bg-portfolio-primary hover:bg-portfolio-primary/90 text-portfolio-primary-foreground"
             >
               <Zap className="w-4 h-4 mr-2" />
               Hire Me
             </Button>
           </div>
 
-          <div className="mt-6 pt-6 border-t border-border text-center">
-            <p className="text-sm text-muted-foreground mb-2">Ready to work together?</p>
+          <div className="mt-6 pt-6 border-t border-slate-200 text-center">
+            <p className="text-sm text-slate-600 mb-2">Ready to work together?</p>
             <div className="space-y-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => window.open("mailto:leonislam810@gmail.com", "_blank")}
-                className="mobile-nav-item w-full text-xs"
+                className="mobile-nav-item !opacity-100 w-full border-slate-300 bg-white text-slate-700 text-xs hover:bg-slate-100 hover:text-slate-950"
               >
                 leonislam810@gmail.com
               </Button>
@@ -303,7 +303,7 @@ export function Header() {
                 variant="outline"
                 size="sm"
                 onClick={() => window.open("https://wa.me/8801521783498", "_blank")}
-                className="mobile-nav-item w-full text-xs"
+                className="mobile-nav-item !opacity-100 w-full border-slate-300 bg-white text-slate-700 text-xs hover:bg-slate-100 hover:text-slate-950"
               >
                 +880 1521 783498
               </Button>
