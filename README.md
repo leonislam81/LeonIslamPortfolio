@@ -1,30 +1,66 @@
-# No content
+# Leon Islam — Website Specialist Portfolio
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+[![Live website](https://img.shields.io/badge/Live%20website-Visit%20now-4f46e5?style=for-the-badge&logo=vercel&logoColor=white)](https://leonislam.vercel.app/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/leonislamwp-6968s-projects/v0-no-content)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/projects/OCpq1pao8iJ)
+Modern portfolio website for **Leon Islam**, a WordPress, Shopify, and Wix specialist. The site is designed to make it easy for prospective clients to understand the services offered, see results, and start a project.
 
-## Overview
+## Live Preview
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+**[Open the live website →](https://leonislam.vercel.app/)**
 
-## Deployment
+## What’s inside
 
-Your project is live at:
+- Modern, responsive landing page for desktop, tablet, and mobile
+- Fully supported light and dark themes
+- Clear service paths for building, improving, and maintaining a website
+- Skills, selected projects, professional experience, and client testimonials
+- Animated but accessible navigation and mobile menu
+- Contact form with validation, success/error feedback, and email delivery via FormSubmit
+- Direct email and WhatsApp contact options
 
-**[https://vercel.com/leonislamwp-6968s-projects/v0-no-content](https://vercel.com/leonislamwp-6968s-projects/v0-no-content)**
+## Services
 
-## Build your app
+| Build | Improve | Maintain |
+| --- | --- | --- |
+| WordPress websites | Bug fixing | Content operations |
+| Shopify stores | Performance and SEO | Website care plans |
+| Wix design | Platform migration | Integrations and automation |
 
-Continue building your app on:
+## Technology
 
-**[https://v0.app/chat/projects/OCpq1pao8iJ](https://v0.app/chat/projects/OCpq1pao8iJ)**
+- [Next.js](https://nextjs.org/) 15
+- React 19 and TypeScript
+- Tailwind CSS
+- shadcn/ui and Lucide icons
+- GSAP for selected interface interactions
+- Vercel deployment
 
-## How It Works
+## Run locally
 
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+```bash
+git clone https://github.com/leonislam81/LeonIslamPortfolio.git
+cd LeonIslamPortfolio
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Production build
+
+```bash
+npm run build
+npm run start
+```
+
+## Contact
+
+- Email: [leonislam810@gmail.com](mailto:leonislam810@gmail.com)
+- WhatsApp: [+880 1521 783498](https://wa.me/8801521783498)
+- Website: [leonislam.vercel.app](https://leonislam.vercel.app/)
+
+---
+
+Built and maintained by Leon Islam.
