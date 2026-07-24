@@ -125,11 +125,13 @@ export function BottomDock() {
   if (!isVisible) return null
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
-      <div
-        ref={dockRef}
-        className="flex items-center gap-2 px-4 py-3 bg-background/95 backdrop-blur-md border border-border rounded-full shadow-lg"
-      >
+    <>
+      <div className="h-28 md:hidden" aria-hidden="true" />
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
+        <div
+          ref={dockRef}
+          className="flex items-center gap-2 px-4 py-3 bg-background/95 backdrop-blur-md border border-border rounded-full shadow-lg"
+        >
         {dockItems.map((item, index) => {
           const IconComponent = item.icon
           const isActive = activeSection === item.id
@@ -172,7 +174,8 @@ export function BottomDock() {
         >
           <ChevronUp className="w-5 h-5" />
         </Button>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
