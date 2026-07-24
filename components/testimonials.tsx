@@ -33,7 +33,6 @@ export function Testimonials() {
     if (!sectionRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
     const ctx = gsap.context(() => {
       gsap.from(titleRef.current, { y: 28, opacity: 0, duration: 0.65, ease: "power3.out", scrollTrigger: { trigger: titleRef.current, start: "top 80%", toggleActions: "play none none none" } })
-      gsap.from(cardRef.current, { y: 34, opacity: 0, duration: 0.7, ease: "power3.out", scrollTrigger: { trigger: cardRef.current, start: "top 80%", toggleActions: "play none none none" } })
     }, sectionRef)
     return () => ctx.revert()
   }, [])

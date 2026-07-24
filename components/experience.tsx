@@ -19,14 +19,12 @@ const experiences = [
 export function Experience() {
   const sectionRef = useRef<HTMLElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
-  const experienceListRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!sectionRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
 
     const ctx = gsap.context(() => {
       gsap.from(titleRef.current, { y: 28, opacity: 0, duration: 0.65, ease: "power3.out", scrollTrigger: { trigger: titleRef.current, start: "top 80%", toggleActions: "play none none none" } })
-      gsap.from(experienceListRef.current?.querySelectorAll(".experience-card") ?? [], { y: 28, opacity: 0, duration: 0.65, stagger: 0.12, ease: "power3.out", scrollTrigger: { trigger: experienceListRef.current, start: "top 78%", toggleActions: "play none none none" } })
     }, sectionRef)
 
     return () => ctx.revert()
@@ -42,7 +40,7 @@ export function Experience() {
           <p className="text-lg leading-relaxed text-muted-foreground">A practical record of building dependable websites, improving performance, and delivering outcomes clients can measure.</p>
         </div>
 
-        <div ref={experienceListRef} className="mx-auto max-w-5xl space-y-5">
+        <div className="mx-auto max-w-5xl space-y-5">
           {experiences.map((experience, index) => (
             <article key={experience.id} className="experience-card group relative overflow-hidden rounded-3xl border border-border/80 bg-card/90 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-portfolio-primary/30 hover:shadow-xl sm:p-7">
               <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-portfolio-primary via-portfolio-accent to-portfolio-primary opacity-70" />
