@@ -253,8 +253,8 @@ export function Contact() {
 
           {/* Contact Information */}
           <div className="space-y-5">
-            <Card className="rounded-3xl border border-portfolio-primary/20 bg-white p-1 text-foreground shadow-sm dark:border-portfolio-primary/25 dark:bg-gradient-to-br dark:from-[#101b35] dark:via-[#15294a] dark:to-[#123d4c] dark:text-white dark:shadow-xl dark:shadow-slate-950/25">
-              <CardHeader className="pb-3">
+            <Card className="rounded-3xl border border-portfolio-primary/20 bg-white text-foreground shadow-sm dark:border-portfolio-primary/25 dark:bg-gradient-to-br dark:from-[#101b35] dark:via-[#15294a] dark:to-[#123d4c] dark:text-white dark:shadow-xl dark:shadow-slate-950/25">
+              <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Mail className="w-5 h-5 text-portfolio-primary dark:text-cyan-300" />
                   Email Me Directly
