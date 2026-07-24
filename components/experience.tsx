@@ -183,16 +183,16 @@ export function Experience() {
         </div>
 
         <div ref={timelineRef} className="relative max-w-4xl mx-auto">
-          <div className="timeline-line absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-portfolio-primary via-portfolio-primary/60 to-portfolio-primary/20 origin-top rounded-full" />
+          <div className="timeline-line absolute left-4 w-1 h-full bg-gradient-to-b from-portfolio-primary via-portfolio-primary/60 to-portfolio-primary/20 origin-top rounded-full md:left-1/2 md:-translate-x-1/2" />
 
           <div className="space-y-12">
             {experiences.map((exp, index) => (
               <div
                 key={exp.id}
-                className={`experience-card flex items-center ${index % 2 === 0 ? "" : "flex-row-reverse"}`}
+                className={`experience-card flex items-center pl-10 md:pl-0 ${index % 2 === 0 ? "" : "flex-row-reverse"}`}
               >
                 {/* Timeline dot */}
-                <div className="absolute left-1/2 transform -translate-x-1/2 w-4 h-4 bg-portfolio-primary rounded-full border-4 border-background z-10" />
+                <div className="absolute left-4 -translate-x-1/2 w-4 h-4 bg-portfolio-primary rounded-full border-4 border-background z-10 md:left-1/2" />
 
                 {/* Content */}
                 <div className={`w-full md:w-5/12 ${index % 2 === 0 ? "md:pr-8" : "md:pl-8"}`}>

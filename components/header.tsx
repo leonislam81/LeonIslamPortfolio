@@ -139,13 +139,6 @@ export function Header() {
 
       if (!prefersReducedMotion && mobileMenuRef.current) {
         gsap.fromTo(mobileMenuRef.current, { x: "100%" }, { x: "0%", duration: 0.3, ease: "power2.out" })
-        gsap.from(mobileMenuRef.current.querySelectorAll(".mobile-nav-item"), {
-          x: 50,
-          duration: 0.4,
-          stagger: 0.1,
-          ease: "power2.out",
-          delay: 0.1,
-        })
       }
     } else {
       if (!prefersReducedMotion && mobileMenuRef.current) {
@@ -243,7 +236,7 @@ export function Header() {
       {/* Mobile Menu */}
       <div
         ref={mobileMenuRef}
-        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white text-slate-900 border-l border-slate-200 z-50 md:hidden ${
+        className={`fixed top-0 right-0 h-full w-full overflow-y-auto bg-white text-slate-900 border-l border-slate-200 z-50 sm:w-80 md:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-out`}
       >

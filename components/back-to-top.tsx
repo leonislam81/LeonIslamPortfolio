@@ -60,7 +60,7 @@ export function BackToTop() {
       ref={buttonRef}
       onClick={scrollToTop}
       size="icon"
-      className="fixed bottom-8 right-8 w-12 h-12 rounded-full bg-portfolio-primary hover:bg-portfolio-primary/90 text-portfolio-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 scale-75 z-40"
+      className="fixed bottom-6 right-4 w-10 h-10 rounded-full bg-portfolio-primary hover:bg-portfolio-primary/90 text-portfolio-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 scale-75 z-40 sm:bottom-8 sm:right-8 sm:w-12 sm:h-12"
       aria-label="Back to top"
     >
       <ArrowUp className="w-5 h-5" />

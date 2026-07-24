@@ -127,10 +127,10 @@ export function BottomDock() {
   return (
     <>
       <div className="h-28 md:hidden" aria-hidden="true" />
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 sm:bottom-6">
         <div
           ref={dockRef}
-          className="flex items-center gap-2 px-4 py-3 bg-background/95 backdrop-blur-md border border-border rounded-full shadow-lg"
+          className="flex items-center gap-1 px-2 py-2 bg-background/95 backdrop-blur-md border border-border rounded-full shadow-lg sm:gap-2 sm:px-4 sm:py-3"
         >
         {dockItems.map((item, index) => {
           const IconComponent = item.icon
@@ -144,7 +144,7 @@ export function BottomDock() {
               onClick={() => scrollToSection(item.href)}
               onMouseEnter={() => handleItemHover(index, true)}
               onMouseLeave={() => handleItemHover(index, false)}
-              className={`relative w-12 h-12 rounded-full transition-colors ${
+              className={`relative w-10 h-10 rounded-full transition-colors sm:w-12 sm:h-12 ${
                 isActive
                   ? "bg-portfolio-primary text-portfolio-primary-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -160,7 +160,7 @@ export function BottomDock() {
         })}
 
         {/* Divider */}
-        <div className="w-px h-6 bg-border mx-1" />
+        <div className="w-px h-6 bg-border mx-0.5 sm:mx-1" />
 
         {/* Back to top button */}
         <Button
@@ -169,7 +169,7 @@ export function BottomDock() {
           onClick={scrollToTop}
           onMouseEnter={() => handleItemHover(dockItems.length, true)}
           onMouseLeave={() => handleItemHover(dockItems.length, false)}
-          className="w-12 h-12 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent"
+          className="w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent sm:w-12 sm:h-12"
           title="Back to top"
         >
           <ChevronUp className="w-5 h-5" />

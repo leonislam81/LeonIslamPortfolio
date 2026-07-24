@@ -454,8 +454,8 @@ export function Projects() {
       {selectedProject && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="project-modal bg-background border border-border rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-background border-b border-border p-6 flex items-center justify-between">
-              <div>
+            <div className="sticky top-0 bg-background border-b border-border p-4 sm:p-6 flex items-start justify-between gap-3">
+              <div className="min-w-0">
                 <h3 className="text-2xl font-bold text-foreground">
                   {selectedProject.title}
                 </h3>
@@ -467,7 +467,7 @@ export function Projects() {
                   </div>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={closeProjectModal}>
+              <Button variant="ghost" size="icon" onClick={closeProjectModal} className="shrink-0">
                 <X className="w-5 h-5" />
               </Button>
             </div>
