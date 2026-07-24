@@ -21,31 +21,31 @@ export function Services() {
   const [expandedCard, setExpandedCard] = useState<string | null>(null)
 
   return (
-    <section id="services" className="relative overflow-hidden bg-slate-950 py-20 text-white sm:py-28">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(14,165,233,.18),transparent_28%),radial-gradient(circle_at_85%_65%,rgba(16,185,129,.12),transparent_24%)]" />
+    <section id="services" className="relative overflow-hidden bg-white py-20 text-foreground dark:bg-slate-950 sm:py-28">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(99,102,241,.10),transparent_28%),radial-gradient(circle_at_85%_65%,rgba(20,184,166,.08),transparent_24%)] dark:bg-[radial-gradient(circle_at_15%_15%,rgba(99,102,241,.18),transparent_28%),radial-gradient(circle_at_85%_65%,rgba(20,184,166,.12),transparent_24%)]" />
       <div className="container relative mx-auto px-4">
         <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
-          <Badge className="border border-white/15 bg-white/10 px-3 py-1 text-sky-200 hover:bg-white/10"><Sparkles className="mr-1.5 h-3.5 w-3.5" />Capabilities</Badge>
+          <Badge className="border border-portfolio-primary/20 bg-portfolio-primary/10 px-3 py-1 text-portfolio-primary hover:bg-portfolio-primary/10"><Sparkles className="mr-1.5 h-3.5 w-3.5" />Capabilities</Badge>
           <h2 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">Digital work that moves your business forward.</h2>
-          <p className="mt-5 text-base leading-7 text-slate-300 sm:text-lg">From a focused fix to an end-to-end launch, every service is designed around practical results, clear communication, and a site that stays easy to run.</p>
+          <p className="mt-5 text-base leading-7 text-muted-foreground sm:text-lg">From a focused fix to an end-to-end launch, every service is designed around practical results, clear communication, and a site that stays easy to run.</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {services.map((service, index) => {
             const Icon = service.icon
             const isExpanded = expandedCard === service.id
-            return <article key={service.id} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] p-6 transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-white/[0.09] sm:p-7">
+            return <article key={service.id} className="group relative overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-portfolio-primary/30 hover:shadow-xl sm:p-7">
               <div className={`absolute right-0 top-0 h-24 w-24 rounded-bl-[4rem] bg-gradient-to-br ${service.accent} opacity-15 transition-opacity group-hover:opacity-30`} />
               <div className="relative flex items-start justify-between gap-4">
                 <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${service.accent} shadow-lg`}><Icon className="h-5 w-5 text-white" /></div>
-                <span className="font-mono text-xs text-slate-500">0{index + 1}</span>
+                <span className="font-mono text-xs text-muted-foreground">0{index + 1}</span>
               </div>
-              <h3 className="relative mt-7 text-xl font-semibold tracking-tight text-white">{service.title}</h3>
-              <p className="relative mt-3 min-h-12 text-sm leading-6 text-slate-300">{service.description}</p>
+              <h3 className="relative mt-7 text-xl font-semibold tracking-tight text-foreground">{service.title}</h3>
+              <p className="relative mt-3 min-h-12 text-sm leading-6 text-muted-foreground">{service.description}</p>
               <div className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ${isExpanded ? "mt-5 grid-rows-[1fr] opacity-100" : "mt-0 grid-rows-[0fr] opacity-0"}`}>
-                <div className="overflow-hidden"><ul className="space-y-2 border-t border-white/10 pt-5">{service.features.map(feature => <li key={feature} className="flex gap-2 text-sm text-slate-200"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />{feature}</li>)}</ul></div>
+                <div className="overflow-hidden"><ul className="space-y-2 border-t border-border pt-5">{service.features.map(feature => <li key={feature} className="flex gap-2 text-sm text-muted-foreground"><CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-portfolio-accent" />{feature}</li>)}</ul></div>
               </div>
-              <Button variant="ghost" onClick={() => setExpandedCard(isExpanded ? null : service.id)} className="relative mt-5 h-auto w-full justify-between rounded-xl px-0 py-2 text-sky-200 hover:bg-transparent hover:text-white">
+              <Button variant="ghost" onClick={() => setExpandedCard(isExpanded ? null : service.id)} className="relative mt-5 h-auto w-full justify-between rounded-xl px-0 py-2 text-portfolio-primary hover:bg-transparent hover:text-portfolio-primary">
                 {isExpanded ? "Close details" : "Explore service"}<ArrowRight className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-90" : "group-hover:translate-x-1"}`} />
               </Button>
             </article>
