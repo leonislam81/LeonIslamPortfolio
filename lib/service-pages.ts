@@ -4,6 +4,7 @@ export const servicePages = [
     title: 'Website Management & Admin Support',
     description: 'Reliable website management for WordPress, Shopify, and Wix: content updates, fixes, product uploads, maintenance, and ongoing admin support.',
     eyebrow: 'Website support',
+    contactService: 'Website management & updates',
     intro: 'Keep your website accurate, current, and easy to manage without carrying every technical or content task yourself.',
     services: ['WordPress, Shopify, and Wix updates', 'Page, post, menu, image, and content uploads', 'Website data entry and formatting', 'Bug fixes, routine maintenance, and quality checks', 'Product uploads and catalog updates'],
     faqs: [
@@ -18,6 +19,7 @@ export const servicePages = [
     title: 'E-commerce Product Listing Support',
     description: 'Product listing and catalog support for Shopify, WooCommerce, and online stores. Get accurate titles, descriptions, categories, images, attributes, and variations.',
     eyebrow: 'E-commerce operations',
+    contactService: 'E-commerce product listings',
     intro: 'Turn product information into clean, consistent listings that are ready for customers to browse and buy.',
     services: ['Product titles, descriptions, and specifications', 'Images, categories, tags, pricing fields, and attributes', 'Product variations and option setup', 'Bulk product uploads and spreadsheet preparation', 'Catalog cleanup and listing quality checks'],
     faqs: [
@@ -32,6 +34,7 @@ export const servicePages = [
     title: 'Amazon Product Listing & Catalog Support',
     description: 'Amazon product listing, catalog data entry, variation setup, attributes, product research, and spreadsheet support for sellers who need organized catalog operations.',
     eyebrow: 'Amazon support',
+    contactService: 'Amazon product listing support',
     intro: 'Get careful support for the product data and catalog tasks that help keep your Amazon store organized.',
     services: ['Amazon product listing creation and updates', 'Variation, attribute, category, and product data entry', 'Product titles, bullets, descriptions, and images', 'Catalog spreadsheets and bulk data preparation', 'Product and competitor research support'],
     faqs: [
@@ -46,6 +49,7 @@ export const servicePages = [
     title: 'Data Entry & Virtual Admin Support',
     description: 'Accurate online data entry, web research, spreadsheet cleanup, PDF conversion, list building, CRM updates, and virtual admin support for growing businesses.',
     eyebrow: 'Admin & data support',
+    contactService: 'Data entry & admin support',
     intro: 'Hand over the repetitive online work and receive organized, accurate information that is ready to use.',
     services: ['Excel and Google Sheets data entry', 'Web research, list building, and data collection', 'PDF to Excel or Word conversion', 'Copy-paste tasks, data cleanup, and validation', 'CRM, reporting, and recurring online admin tasks'],
     faqs: [

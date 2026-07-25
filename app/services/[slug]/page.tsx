@@ -52,7 +52,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
             </div>
             <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-6xl">{service.title}</h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground sm:text-xl">{service.intro}</p>
-            <Link href="/#contact" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-portfolio-primary px-5 py-3 text-sm font-semibold text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/20 hover:bg-portfolio-primary/90">
+            <Link href={`/?service=${encodeURIComponent(service.contactService)}#contact`} className="mt-8 inline-flex items-center gap-2 rounded-xl bg-portfolio-primary px-5 py-3 text-sm font-semibold text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/20 hover:bg-portfolio-primary/90">
               Discuss this service <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -23,6 +23,14 @@ interface FormData {
   honeypot: string // Hidden field for spam protection
 }
 
+const serviceOptions = [
+  "Website management & updates",
+  "E-commerce product listings",
+  "Amazon product listing support",
+  "Data entry & admin support",
+  "Something else",
+]
+
 export function Contact() {
   const sectionRef = useRef<HTMLElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
@@ -37,6 +45,13 @@ export function Contact() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Partial<FormData>>({})
+
+  useEffect(() => {
+    const requestedService = new URLSearchParams(window.location.search).get("service")
+    if (requestedService && serviceOptions.includes(requestedService)) {
+      setFormData((current) => ({ ...current, service: requestedService }))
+    }
+  }, [])
 
   const validateForm = (): boolean => {
     const newErrors: Partial<FormData> = {}
@@ -237,11 +252,7 @@ export function Contact() {
                       className={`flex h-12 w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm text-foreground outline-none transition focus-visible:ring-2 focus-visible:ring-portfolio-primary dark:bg-slate-950 ${errors.service ? "border-destructive" : "border-slate-200 dark:border-slate-700"}`}
                     >
                       <option value="">Choose a service</option>
-                      <option value="Website management & updates">Website management & updates</option>
-                      <option value="E-commerce product listings">E-commerce product listings</option>
-                      <option value="Amazon product listing support">Amazon product listing support</option>
-                      <option value="Data entry & admin support">Data entry & admin support</option>
-                      <option value="Something else">Something else</option>
+                      {serviceOptions.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
                     {errors.service && <p className="text-sm text-destructive">{errors.service}</p>}
                   </div>
