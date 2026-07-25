@@ -143,12 +143,12 @@ export function Contact() {
       <div className="absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-sky-100/70 to-transparent dark:from-sky-950/30" />
       <div className="container mx-auto px-4">
         <div className="relative mx-auto mb-12 max-w-3xl text-center sm:mb-16">
-          <span className="inline-flex items-center rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[.16em] text-sky-700 shadow-sm dark:border-sky-900 dark:bg-slate-900 dark:text-sky-300">Start a project</span>
+          <span className="inline-flex items-center rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[.16em] text-sky-700 shadow-sm dark:border-sky-900 dark:bg-slate-900 dark:text-sky-300">Let’s work together</span>
           <h2 className="mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Let's Work Together
+            Tell me what you need help with
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Ready to build, fix, or manage your website? Get in touch and let's discuss your project.
+            Need website updates, product listing support, Amazon catalog help, or reliable data and admin assistance? Send the details and I’ll reply with the best next step.
           </p>
         </div>
 
@@ -160,7 +160,7 @@ export function Contact() {
                 <Send className="w-5 h-5 text-portfolio-primary" />
                 Send a Message
               </CardTitle>
-              <CardDescription>Fill out the form below and I'll get back to you within 24 hours.</CardDescription>
+              <CardDescription>Tell me about the platform, task, timeline, and any files or links you can share.</CardDescription>
             </CardHeader>
             <CardContent className="p-6 pt-4 sm:p-8 sm:pt-5">
               <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
@@ -214,7 +214,7 @@ export function Contact() {
                     value={formData.message}
                     onChange={(e) => handleInputChange("message", e.target.value)}
                     className={`min-h-[140px] rounded-xl bg-slate-50 dark:bg-slate-950 ${errors.message ? "border-destructive" : "border-slate-200 dark:border-slate-700 focus-visible:ring-portfolio-primary"}`}
-                    placeholder="Tell me about your project, timeline, and any specific requirements..."
+                    placeholder="Tell me about your website, e-commerce, Amazon, data entry, or admin support needs..."
                   />
                   {errors.message && <p className="text-sm text-destructive">{errors.message}</p>}
                 </div>

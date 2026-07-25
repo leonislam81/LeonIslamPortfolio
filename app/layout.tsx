@@ -8,9 +8,9 @@ import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://leonislam.dev'),
-  title: 'Leon Islam - WordPress, Shopify & Wix Specialist',
+  title: 'Leon Islam - Website, E-commerce & Admin Support',
   description:
-    'Professional website development and management services. WordPress, Shopify, and Wix specialist offering fast turnaround, SEO-friendly solutions, and ongoing website care.',
+    'Website, e-commerce, Amazon, data entry, and admin support services. Get reliable help with website updates, product listings, catalog data, and online operations.',
   keywords: [
     'WordPress developer',
     'Shopify expert',
@@ -18,13 +18,17 @@ export const metadata: Metadata = {
     'website management',
     'bug fixing',
     'data entry',
+    'Amazon product listing',
+    'e-commerce product listing',
+    'website admin support',
+    'virtual assistant',
   ],
   authors: [{ name: 'Leon Islam' }],
   creator: 'Leon Islam',
   openGraph: {
-    title: 'Leon Islam - WordPress, Shopify & Wix Specialist',
+    title: 'Leon Islam - Website, E-commerce & Admin Support',
     description:
-      'Professional website development and management services. Fast, reliable, and conversion-ready solutions.',
+      'Reliable support for website updates, e-commerce product listings, Amazon catalog work, data entry, and online admin tasks.',
     url: 'https://leonislam.dev',
     siteName: 'Leon Islam Portfolio',
     type: 'website',
@@ -39,8 +43,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Leon Islam - WordPress, Shopify & Wix Specialist',
-    description: 'Professional website development and management services.',
+    title: 'Leon Islam - Website, E-commerce & Admin Support',
+    description: 'Website, e-commerce, Amazon, data entry, and admin support services.',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -72,7 +76,7 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'Person',
               name: 'Leon Islam',
-              jobTitle: 'Website Developer & Manager',
+              jobTitle: 'Website, E-commerce & Admin Support Specialist',
               description:
                 'WordPress, Shopify & Wix specialist offering professional website development and management services',
               email: 'leonislam810@gmail.com',
@@ -80,12 +84,7 @@ export default function RootLayout({
               url: 'https://leonislam.dev',
               sameAs: ['https://wa.me/8801521783498'],
               knowsAbout: [
-                'WordPress Development',
-                'Shopify Store Setup',
-                'Wix Design',
-                'Website Management',
-                'Bug Fixing',
-                'Data Entry',
+                'Website Management', 'Website Data Entry', 'E-commerce Product Listings', 'Amazon Product Listings', 'Virtual Assistance', 'Data Entry',
               ],
               '@graph': [
                 {

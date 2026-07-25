@@ -14,10 +14,10 @@ if (typeof window !== "undefined") {
 const navItems = [
   { name: "Home", href: "#hero", id: "hero" },
   { name: "Services", href: "#services", id: "services" },
-  { name: "Skills", href: "#skills", id: "skills" },
-  { name: "Projects", href: "#projects", id: "projects" },
-  { name: "Experience", href: "#experience", id: "experience" },
-  { name: "Testimonials", href: "#testimonials", id: "testimonials" },
+  { name: "Capabilities", href: "#skills", id: "skills" },
+  { name: "Support", href: "#projects", id: "projects" },
+  { name: "Platforms", href: "#experience", id: "experience" },
+  { name: "Process", href: "#testimonials", id: "testimonials" },
   { name: "Contact", href: "#contact", id: "contact" },
 ]
 
