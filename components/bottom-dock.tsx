@@ -77,21 +77,32 @@ export function BottomDock() {
       { y: 0, opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.4)" },
     )
 
-    return () => animation.kill()
+    return () => {
+      animation.kill()
+    }
   }, [isVisible])
 
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href) || document.querySelector("#hero")
     if (element) {
-      gsap.to(window, {
-        duration: 1,
-        scrollTo: { y: element, offsetY: 80 },
-        ease: "power2.inOut",
-      })
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        element.scrollIntoView({ behavior: "auto", block: "start" })
+      } else {
+        gsap.to(window, {
+          duration: 1,
+          scrollTo: { y: element, offsetY: 80 },
+          ease: "power2.inOut",
+        })
+      }
     }
   }
 
   const scrollToTop = () => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      window.scrollTo({ top: 0, behavior: "auto" })
+      return
+    }
+
     gsap.to(window, {
       duration: 1.2,
       scrollTo: { y: 0 },
@@ -129,8 +140,9 @@ export function BottomDock() {
     <>
       <div className="h-28 md:hidden" aria-hidden="true" />
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 sm:bottom-6">
-        <div
+        <nav
           ref={dockRef}
+          aria-label="Quick navigation"
           className="flex items-center gap-1 px-2 py-2 bg-background/95 backdrop-blur-md border border-border rounded-full shadow-lg sm:gap-2 sm:px-4 sm:py-3"
         >
         {dockItems.map((item, index) => {
@@ -151,6 +163,8 @@ export function BottomDock() {
                   : "text-muted-foreground hover:text-foreground hover:bg-accent"
               }`}
               title={item.name}
+              aria-label={item.name}
+              aria-current={isActive ? "page" : undefined}
             >
               <IconComponent className="w-5 h-5" />
               {isActive && (
@@ -172,10 +186,11 @@ export function BottomDock() {
           onMouseLeave={() => handleItemHover(dockItems.length, false)}
           className="w-10 h-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent sm:w-12 sm:h-12"
           title="Back to top"
+          aria-label="Back to top"
         >
           <ChevronUp className="w-5 h-5" />
         </Button>
-        </div>
+        </nav>
       </div>
     </>
   )

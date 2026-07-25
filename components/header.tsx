@@ -83,14 +83,29 @@ export function Header() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!isMobileMenuOpen) return
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") toggleMobileMenu()
+    }
+
+    window.addEventListener("keydown", closeOnEscape)
+    return () => window.removeEventListener("keydown", closeOnEscape)
+  }, [isMobileMenuOpen])
+
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href) || document.querySelector("#hero")
     if (element) {
-      gsap.to(window, {
-        duration: 1,
-        scrollTo: { y: element, offsetY: 80 },
-        ease: "power2.inOut",
-      })
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        element.scrollIntoView({ behavior: "auto", block: "start" })
+      } else {
+        gsap.to(window, {
+          duration: 1,
+          scrollTo: { y: element, offsetY: 80 },
+          ease: "power2.inOut",
+        })
+      }
     }
     setIsMobileMenuOpen(false)
   }
@@ -143,7 +158,7 @@ export function Header() {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden items-center gap-1 rounded-full border border-slate-200/80 bg-white/70 p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900/70 md:flex">
+            <nav aria-label="Main navigation" className="hidden items-center gap-1 rounded-full border border-slate-200/80 bg-white/70 p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900/70 md:flex">
               {navItems.map((item) => (
                 <Button
                   key={item.name}
@@ -162,7 +177,7 @@ export function Header() {
                   )}
                 </Button>
               ))}
-            </div>
+            </nav>
 
             {/* Right side actions */}
             <div className="flex items-center gap-2">
@@ -179,7 +194,7 @@ export function Header() {
               </Button>
 
               {/* Mobile menu button */}
-              <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Toggle mobile menu">
+              <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Toggle mobile menu" aria-expanded={isMobileMenuOpen} aria-controls="mobile-navigation">
                 <Menu className="w-5 h-5" />
               </Button>
             </div>
@@ -189,12 +204,18 @@ export function Header() {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden" onClick={toggleMobileMenu} />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden" onClick={toggleMobileMenu} aria-hidden="true" />
       )}
 
       {/* Mobile Menu */}
       <div
         ref={mobileMenuRef}
+        id="mobile-navigation"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation"
+        aria-hidden={!isMobileMenuOpen}
+        inert={!isMobileMenuOpen}
         className={`fixed top-0 right-0 h-full w-full overflow-y-auto border-l border-slate-200 bg-white text-slate-900 shadow-2xl shadow-slate-950/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 z-50 sm:w-80 md:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-out`}

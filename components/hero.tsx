@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 const proofPoints = ["Accurate data handling", "Clear communication", "Reliable delivery"]
 
 export function Hero() {
-  const scrollTo = (section: string) => document.querySelector(section)?.scrollIntoView({ behavior: "smooth" })
+  const scrollTo = (section: string) => document.querySelector(section)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })
 
   return <section className="relative isolate overflow-hidden bg-background pb-20 pt-12 sm:pb-28 sm:pt-20 lg:min-h-[720px] lg:py-20">
     <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_15%,rgba(99,102,241,.16),transparent_26rem),radial-gradient(circle_at_88%_55%,rgba(20,184,166,.13),transparent_29rem)] dark:bg-[radial-gradient(circle_at_15%_15%,rgba(99,102,241,.24),transparent_26rem),radial-gradient(circle_at_88%_55%,rgba(20,184,166,.17),transparent_29rem)]" />

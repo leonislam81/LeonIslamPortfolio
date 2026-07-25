@@ -12,8 +12,9 @@ export function ScrollProgress() {
   const progressRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (progressRef.current) {
-      gsap.to(progressRef.current, {
+    if (!progressRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+    const progressAnimation = gsap.to(progressRef.current, {
         scaleX: 1,
         ease: "none",
         scrollTrigger: {
@@ -22,12 +23,13 @@ export function ScrollProgress() {
           end: "bottom bottom",
           scrub: 0.3,
         },
-      })
-    }
+    })
+
+    return () => progressAnimation.scrollTrigger?.kill()
   }, [])
 
   return (
-    <div className="fixed top-0 left-0 w-full h-1 bg-muted/20 z-50">
+    <div className="fixed top-0 left-0 w-full h-1 bg-muted/20 z-50" aria-hidden="true">
       <div ref={progressRef} className="h-full bg-portfolio-primary origin-left scale-x-0" />
     </div>
   )

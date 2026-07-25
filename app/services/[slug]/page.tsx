@@ -10,8 +10,9 @@ export function generateStaticParams() {
   return servicePages.map((service) => ({ slug: service.slug }))
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const service = getServicePage(params.slug)
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const service = getServicePage(slug)
   if (!service) return {}
 
   return {
@@ -26,8 +27,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   }
 }
 
-export default function ServicePage({ params }: { params: { slug: string } }) {
-  const service = getServicePage(params.slug)
+export default async function ServicePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const service = getServicePage(slug)
   if (!service) notFound()
 
   const faqSchema = {
@@ -41,7 +43,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main id="main-content" className="min-h-screen bg-background text-foreground">
       <section className="relative overflow-hidden border-b border-border bg-muted/35 py-20 sm:py-28">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(99,102,241,.13),transparent_30rem),radial-gradient(circle_at_85%_75%,rgba(20,184,166,.10),transparent_28rem)]" />
         <div className="container relative mx-auto px-4">

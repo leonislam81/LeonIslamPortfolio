@@ -107,6 +107,7 @@ export default function RootLayout({
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}
         suppressHydrationWarning
       >
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

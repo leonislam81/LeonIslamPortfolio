@@ -13,7 +13,7 @@ const updatedDate = 'July 25, 2026'
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-slate-50 text-foreground dark:bg-slate-950">
+    <main id="main-content" className="min-h-screen bg-slate-50 text-foreground dark:bg-slate-950">
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-16">
         <Link
           href="/"
