@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { ScrollToPlugin } from "gsap/ScrollToPlugin"
 import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
+import { WhyWorkWithMe } from "@/components/why-work-with-me"
 import { Services } from "@/components/services"
 import { Skills } from "@/components/skills"
 import { Projects } from "@/components/projects"
@@ -32,6 +33,7 @@ export default function HomePage() {
         <div id="hero">
           <Hero />
         </div>
+        <WhyWorkWithMe />
         <Services />
         <Skills />
         <Projects />
