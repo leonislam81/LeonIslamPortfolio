@@ -50,7 +50,7 @@ export default function PrivacyPage() {
           </PolicyCard>
 
           <PolicyCard title="Services that process information">
-            <p>The contact form is delivered through FormSubmit, which sends submitted enquiries to Leon Islam&apos;s email address. Google Analytics is used to understand website traffic and interactions. These providers process information according to their own terms and privacy practices.</p>
+            <p>The contact form is delivered through Resend, which sends submitted enquiries to Leon Islam&apos;s email address. Google Analytics is used to understand website traffic and interactions. These providers process information according to their own terms and privacy practices.</p>
           </PolicyCard>
 
           <PolicyCard title="Cookies and analytics controls">

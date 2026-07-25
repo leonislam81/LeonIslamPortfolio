@@ -100,7 +100,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
     setIsSubmitting(true)
 
     try {
-      const response = await fetch("https://formsubmit.co/ajax/leonislam810@gmail.com", {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -111,11 +111,9 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
           email: formData.email,
           message: formData.message,
           service: formData.service,
-          timeline: formData.timeline || "Not specified",
-          "Send project checklist": formData.sendChecklist ? "Yes" : "No",
-          _subject: "New portfolio contact form message",
-          _replyto: formData.email,
-          _template: "table",
+          timeline: formData.timeline,
+          sendChecklist: formData.sendChecklist,
+          honeypot: formData.honeypot,
         }),
       })
 
