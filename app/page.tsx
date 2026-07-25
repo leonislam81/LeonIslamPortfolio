@@ -10,6 +10,7 @@ import { WhyWorkWithMe } from "@/components/why-work-with-me"
 import { Services } from "@/components/services"
 import { Skills } from "@/components/skills"
 import { Projects } from "@/components/projects"
+import { WorkSamples } from "@/components/work-samples"
 import { Experience } from "@/components/experience"
 import { Testimonials } from "@/components/testimonials"
 import { Contact } from "@/components/contact"
@@ -37,6 +38,7 @@ export default function HomePage() {
         <Services />
         <Skills />
         <Projects />
+        <WorkSamples />
         <Experience />
         <Testimonials />
         <Contact />
