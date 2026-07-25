@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowRight, CheckCircle2, HelpCircle, Mail, Sparkles } from 'lucide-react'
 import { getServicePage, servicePages } from '@/lib/service-pages'
+import { PageFooter } from '@/components/page-footer'
+import { SiteHeader } from '@/components/site-header'
 
 const siteUrl = 'https://leonislam.com'
 
@@ -64,7 +66,9 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <main id="main-content" className="min-h-screen bg-background text-foreground">
+    <>
+      <SiteHeader />
+      <main id="main-content" className="min-h-screen bg-background text-foreground">
       <section className="relative overflow-hidden border-b border-border bg-muted/35 py-20 sm:py-28">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(99,102,241,.13),transparent_30rem),radial-gradient(circle_at_85%_75%,rgba(20,184,166,.10),transparent_28rem)]" />
         <div className="container relative mx-auto px-4">
@@ -135,7 +139,9 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-    </main>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      </main>
+      <PageFooter />
+    </>
   )
 }

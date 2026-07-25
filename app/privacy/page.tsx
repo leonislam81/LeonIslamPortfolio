@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import type React from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Mail, ShieldCheck } from 'lucide-react'
+import { PageFooter } from '@/components/page-footer'
+import { SiteHeader } from '@/components/site-header'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -13,7 +15,9 @@ const updatedDate = 'July 25, 2026'
 
 export default function PrivacyPage() {
   return (
-    <main id="main-content" className="min-h-screen bg-slate-50 text-foreground dark:bg-slate-950">
+    <>
+      <SiteHeader />
+      <main id="main-content" className="min-h-screen bg-slate-50 text-foreground dark:bg-slate-950">
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-16">
         <Link
           href="/"
@@ -65,7 +69,9 @@ export default function PrivacyPage() {
           </PolicyCard>
         </article>
       </div>
-    </main>
+      </main>
+      <PageFooter />
+    </>
   )
 }
 

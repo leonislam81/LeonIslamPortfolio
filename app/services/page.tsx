@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, CheckCircle2, ClipboardList, Sparkles } from 'lucide-react'
 import { servicePages } from '@/lib/service-pages'
+import { PageFooter } from '@/components/page-footer'
+import { SiteHeader } from '@/components/site-header'
 
 export const metadata: Metadata = {
   title: 'Services',
@@ -28,7 +30,9 @@ export default function ServicesOverviewPage() {
   }
 
   return (
-    <main id="main-content" className="min-h-screen bg-background text-foreground">
+    <>
+      <SiteHeader />
+      <main id="main-content" className="min-h-screen bg-background text-foreground">
       <section className="relative overflow-hidden border-b border-border bg-muted/35 py-20 sm:py-28">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_15%,rgba(99,102,241,.16),transparent_29rem),radial-gradient(circle_at_90%_70%,rgba(20,184,166,.13),transparent_30rem)]" />
         <div className="container relative mx-auto px-4">
@@ -91,6 +95,8 @@ export default function ServicesOverviewPage() {
       </section>
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
-    </main>
+      </main>
+      <PageFooter />
+    </>
   )
 }

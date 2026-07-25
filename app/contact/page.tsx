@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Contact } from '@/components/contact'
+import { PageFooter } from '@/components/page-footer'
+import { SiteHeader } from '@/components/site-header'
 
 export const metadata: Metadata = {
   title: 'Contact & Request a Quote',
@@ -13,5 +15,5 @@ export const metadata: Metadata = {
 }
 
 export default function ContactPage() {
-  return <main id="main-content"><Contact headingLevel="h1" showHomeLink /></main>
+  return <><SiteHeader /><main id="main-content"><Contact headingLevel="h1" /></main><PageFooter /></>
 }
