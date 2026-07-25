@@ -1,10 +1,13 @@
 import type React from 'react';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 import './globals.css';
+
+const GOOGLE_ANALYTICS_ID = 'G-QCX3G9KSPC';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://leonislam.com'),
@@ -68,6 +71,18 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GOOGLE_ANALYTICS_ID}');
+          `}
+        </Script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
