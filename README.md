@@ -1,6 +1,6 @@
 # Leon Islam — Website Specialist Portfolio
 
-[![Live website](https://img.shields.io/badge/Live%20website-Visit%20now-4f46e5?style=for-the-badge&logo=vercel&logoColor=white)](https://leonislam.vercel.app/)
+[![Live website](https://img.shields.io/badge/Live%20website-Visit%20now-4f46e5?style=for-the-badge&logo=vercel&logoColor=white)](https://leonislam.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
@@ -8,7 +8,7 @@ Modern portfolio website for **Leon Islam**, a WordPress, Shopify, and Wix speci
 
 ## Live Preview
 
-**[Open the live website →](https://leonislam.vercel.app/)**
+**[Open the live website →](https://leonislam.com/)**
 
 ## What’s inside
 
@@ -59,7 +59,7 @@ npm run start
 
 - Email: [leonislam810@gmail.com](mailto:leonislam810@gmail.com)
 - WhatsApp: [+880 1521 783498](https://wa.me/8801521783498)
-- Website: [leonislam.vercel.app](https://leonislam.vercel.app/)
+- Website: [leonislam.com](https://leonislam.com/)
 
 ---
 

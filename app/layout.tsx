@@ -7,7 +7,7 @@ import { Toaster } from 'sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://leonislam.vercel.app'),
+  metadataBase: new URL('https://leonislam.com'),
   title: {
     default: 'Leon Islam | Website, E-commerce & Admin Support',
     template: '%s | Leon Islam',
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     title: 'Leon Islam - Website, E-commerce & Admin Support',
     description:
       'Reliable support for website updates, e-commerce product listings, Amazon catalog work, data entry, and online admin tasks.',
-    url: 'https://leonislam.vercel.app',
+    url: 'https://leonislam.com',
     siteName: 'Leon Islam Portfolio',
     type: 'website',
   },
@@ -73,22 +73,22 @@ export default function RootLayout({
               '@graph': [
                 {
                   '@type': 'Person',
-                  '@id': 'https://leonislam.vercel.app/#person',
+                  '@id': 'https://leonislam.com/#person',
                   name: 'Leon Islam',
                   jobTitle: 'Website, E-commerce & Admin Support Specialist',
                   description: 'Website, e-commerce, Amazon, data entry, and online admin support.',
                   email: 'leonislam810@gmail.com',
                   telephone: '+8801521783498',
-                  url: 'https://leonislam.vercel.app',
+                  url: 'https://leonislam.com',
                   sameAs: ['https://wa.me/8801521783498'],
                   knowsAbout: ['Website Management', 'Website Data Entry', 'E-commerce Product Listings', 'Amazon Product Listings', 'Virtual Assistance', 'Data Entry'],
                 },
                 {
                   '@type': 'ProfessionalService',
-                  '@id': 'https://leonislam.vercel.app/#service',
+                  '@id': 'https://leonislam.com/#service',
                   name: 'Leon Islam Online Support Services',
-                  url: 'https://leonislam.vercel.app',
-                  provider: { '@id': 'https://leonislam.vercel.app/#person' },
+                  url: 'https://leonislam.com',
+                  provider: { '@id': 'https://leonislam.com/#person' },
                   areaServed: 'Worldwide',
                   serviceType: ['Website management', 'E-commerce product listing', 'Amazon product listing', 'Website data entry', 'Virtual admin support'],
                 },

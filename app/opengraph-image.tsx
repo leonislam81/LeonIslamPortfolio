@@ -13,7 +13,7 @@ export default function OpenGraphImage() {
           <div style={{ display: 'flex', fontSize: 70, fontWeight: 800, letterSpacing: '-3px', lineHeight: 1.05 }}>Website, e-commerce &amp; admin support.</div>
           <div style={{ display: 'flex', fontSize: 30, lineHeight: 1.4, marginTop: 28, opacity: 0.85 }}>Website management · Product listings · Amazon support · Data entry</div>
         </div>
-        <div style={{ display: 'flex', fontSize: 24, opacity: 0.75 }}>leonislam.vercel.app</div>
+        <div style={{ display: 'flex', fontSize: 24, opacity: 0.75 }}>leonislam.com</div>
       </div>
     ),
     size,
