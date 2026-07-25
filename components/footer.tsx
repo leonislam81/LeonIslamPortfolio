@@ -16,6 +16,7 @@ export function Footer() {
       <div className="flex justify-center gap-4 pb-6 text-xs text-muted-foreground">
         <a href="/about" className="font-medium transition hover:text-portfolio-primary">About</a>
         <a href="/services" className="font-medium transition hover:text-portfolio-primary">Services</a>
+        <a href="/contact" className="font-medium transition hover:text-portfolio-primary">Contact</a>
         <a href="/privacy" className="font-medium transition hover:text-portfolio-primary">Privacy Policy</a>
       </div>
     </div>

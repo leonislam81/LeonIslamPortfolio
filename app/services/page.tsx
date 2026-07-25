@@ -64,7 +64,7 @@ export default function ServicesOverviewPage() {
                 <Link href={`/services/${service.slug}`} className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-portfolio-primary/30 hover:text-portfolio-primary">
                   Explore service <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href={`/?service=${encodeURIComponent(service.contactService)}#contact`} className="inline-flex items-center gap-2 rounded-xl bg-portfolio-primary px-4 py-2.5 text-sm font-semibold text-portfolio-primary-foreground shadow-sm transition hover:bg-portfolio-primary/90">
+                <Link href={`/contact?service=${encodeURIComponent(service.contactService)}`} className="inline-flex items-center gap-2 rounded-xl bg-portfolio-primary px-4 py-2.5 text-sm font-semibold text-portfolio-primary-foreground shadow-sm transition hover:bg-portfolio-primary/90">
                   Request a quote
                 </Link>
               </div>
@@ -82,7 +82,7 @@ export default function ServicesOverviewPage() {
                 <h2 className="mt-5 text-2xl font-bold tracking-tight">Not sure which service fits?</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Send a short description of your task, and you&apos;ll receive a practical recommendation for the best next step.</p>
               </div>
-              <Link href="/#contact" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-portfolio-primary px-5 py-3 text-sm font-semibold text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/20 hover:bg-portfolio-primary/90">
+              <Link href="/contact" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-portfolio-primary px-5 py-3 text-sm font-semibold text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/20 hover:bg-portfolio-primary/90">
                 Discuss your needs <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

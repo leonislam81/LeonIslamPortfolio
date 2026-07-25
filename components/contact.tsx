@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -31,7 +32,8 @@ const serviceOptions = [
   "Something else",
 ]
 
-export function Contact() {
+export function Contact({ headingLevel = "h2", showHomeLink = false }: { headingLevel?: "h1" | "h2"; showHomeLink?: boolean }) {
+  const Heading = headingLevel
   const sectionRef = useRef<HTMLElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const [formData, setFormData] = useState<FormData>({
@@ -178,10 +180,11 @@ export function Contact() {
       <div className="absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-sky-100/70 to-transparent dark:from-sky-950/30" />
       <div className="container mx-auto px-4">
         <div className="relative mx-auto mb-12 max-w-3xl text-center sm:mb-16">
+          {showHomeLink && <Link href="/" className="mb-6 inline-flex text-sm font-medium text-portfolio-primary hover:underline">← Back to home</Link>}
           <span className="inline-flex items-center rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[.16em] text-sky-700 shadow-sm dark:border-sky-900 dark:bg-slate-900 dark:text-sky-300">Let’s work together</span>
-          <h2 className="mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+          <Heading className="mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             Get a clear quote for the support you need
-          </h2>
+          </Heading>
           <p className="mt-4 text-lg text-muted-foreground">
             Need website updates, product listing support, Amazon catalog help, or reliable data and admin assistance? Send the details and I’ll reply with the best next step.
           </p>
