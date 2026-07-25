@@ -10,12 +10,15 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Mail, Phone, MessageSquare, CheckCircle, Send, MapPin } from "lucide-react"
 import { toast } from "sonner"
+import { trackEvent } from "@/lib/analytics"
 
 
 interface FormData {
   name: string
   email: string
   message: string
+  service: string
+  timeline: string
   sendChecklist: boolean
   honeypot: string // Hidden field for spam protection
 }
@@ -27,6 +30,8 @@ export function Contact() {
     name: "",
     email: "",
     message: "",
+    service: "",
+    timeline: "",
     sendChecklist: false,
     honeypot: "",
   })
@@ -50,6 +55,10 @@ export function Contact() {
       newErrors.message = "Message is required"
     } else if (formData.message.trim().length < 10) {
       newErrors.message = "Message must be at least 10 characters long"
+    }
+
+    if (!formData.service) {
+      newErrors.service = "Please choose the support you need"
     }
 
     setErrors(newErrors)
@@ -84,6 +93,8 @@ export function Contact() {
           name: formData.name,
           email: formData.email,
           message: formData.message,
+          service: formData.service,
+          timeline: formData.timeline || "Not specified",
           "Send project checklist": formData.sendChecklist ? "Yes" : "No",
           _subject: "New portfolio contact form message",
           _replyto: formData.email,
@@ -92,6 +103,11 @@ export function Contact() {
       })
 
       if (response.ok) {
+        trackEvent("generate_lead", {
+          event_category: "contact",
+          service_interest: formData.service,
+          lead_source: "contact_form",
+        })
         // Success animation
         toast.success("Message sent successfully!", {
           description: "I'll get back to you within 24 hours.",
@@ -102,6 +118,8 @@ export function Contact() {
           name: "",
           email: "",
           message: "",
+          service: "",
+          timeline: "",
           sendChecklist: false,
           honeypot: "",
         })
@@ -126,11 +144,13 @@ export function Contact() {
   }
 
   const openWhatsApp = () => {
+    trackEvent("contact_whatsapp_click", { event_category: "contact", contact_method: "whatsapp" })
     const message = encodeURIComponent("Hi Leon! I'm interested in your website services.")
     window.open(`https://wa.me/8801521783498?text=${message}`, "_blank")
   }
 
   const openEmail = () => {
+    trackEvent("contact_email_click", { event_category: "contact", contact_method: "email" })
     const subject = encodeURIComponent("Website Project Inquiry")
     const body = encodeURIComponent(
       "Hi Leon,\n\nI'm interested in discussing a website project with you.\n\nBest regards,",
@@ -145,7 +165,7 @@ export function Contact() {
         <div className="relative mx-auto mb-12 max-w-3xl text-center sm:mb-16">
           <span className="inline-flex items-center rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[.16em] text-sky-700 shadow-sm dark:border-sky-900 dark:bg-slate-900 dark:text-sky-300">Let’s work together</span>
           <h2 className="mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Tell me what you need help with
+            Get a clear quote for the support you need
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
             Need website updates, product listing support, Amazon catalog help, or reliable data and admin assistance? Send the details and I’ll reply with the best next step.
@@ -158,9 +178,9 @@ export function Contact() {
             <CardHeader className="p-6 pb-2 sm:p-8 sm:pb-3">
               <CardTitle className="flex items-center gap-2">
                 <Send className="w-5 h-5 text-portfolio-primary" />
-                Send a Message
+                Request a Quote
               </CardTitle>
-              <CardDescription>Tell me about the platform, task, timeline, and any files or links you can share.</CardDescription>
+              <CardDescription>Choose the support you need, then share your task, timeline, and any useful links.</CardDescription>
             </CardHeader>
             <CardContent className="p-6 pt-4 sm:p-8 sm:pt-5">
               <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
@@ -205,6 +225,46 @@ export function Contact() {
                   {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
 
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="form-field space-y-2">
+                    <label htmlFor="service" className="text-sm font-medium text-foreground">
+                      Support needed *
+                    </label>
+                    <select
+                      id="service"
+                      value={formData.service}
+                      onChange={(e) => handleInputChange("service", e.target.value)}
+                      className={`flex h-12 w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm text-foreground outline-none transition focus-visible:ring-2 focus-visible:ring-portfolio-primary dark:bg-slate-950 ${errors.service ? "border-destructive" : "border-slate-200 dark:border-slate-700"}`}
+                    >
+                      <option value="">Choose a service</option>
+                      <option value="Website management & updates">Website management & updates</option>
+                      <option value="E-commerce product listings">E-commerce product listings</option>
+                      <option value="Amazon product listing support">Amazon product listing support</option>
+                      <option value="Data entry & admin support">Data entry & admin support</option>
+                      <option value="Something else">Something else</option>
+                    </select>
+                    {errors.service && <p className="text-sm text-destructive">{errors.service}</p>}
+                  </div>
+
+                  <div className="form-field space-y-2">
+                    <label htmlFor="timeline" className="text-sm font-medium text-foreground">
+                      Preferred timeline
+                    </label>
+                    <select
+                      id="timeline"
+                      value={formData.timeline}
+                      onChange={(e) => handleInputChange("timeline", e.target.value)}
+                      className="flex h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-foreground outline-none transition focus-visible:ring-2 focus-visible:ring-portfolio-primary dark:border-slate-700 dark:bg-slate-950"
+                    >
+                      <option value="">Select a timeline</option>
+                      <option value="As soon as possible">As soon as possible</option>
+                      <option value="Within 1 week">Within 1 week</option>
+                      <option value="Within 2-4 weeks">Within 2-4 weeks</option>
+                      <option value="Flexible / planning ahead">Flexible / planning ahead</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div className="form-field space-y-2">
                   <label htmlFor="message" className="text-sm font-medium text-foreground">
                     Message *
@@ -243,7 +303,7 @@ export function Contact() {
                   ) : (
                     <>
                       <Send className="w-4 h-4 mr-2" />
-                      Send Message
+                      Request My Quote
                     </>
                   )}
                 </Button>
