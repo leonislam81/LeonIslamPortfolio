@@ -33,13 +33,34 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
   if (!service) notFound()
 
   const faqSchema = {
-    '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: service.faqs.map((faq) => ({
       '@type': 'Question',
       name: faq.question,
       acceptedAnswer: { '@type': 'Answer', text: faq.answer },
     })),
+  }
+
+  const serviceSchema = {
+    '@type': 'Service',
+    '@id': `${siteUrl}/services/${service.slug}#service`,
+    name: service.title,
+    description: service.description,
+    url: `${siteUrl}/services/${service.slug}`,
+    serviceType: service.title,
+    provider: { '@id': 'https://leonislam.com/#person' },
+    areaServed: 'Worldwide',
+    availableChannel: {
+      '@type': 'ServiceChannel',
+      serviceUrl: `${siteUrl}/?service=${encodeURIComponent(service.contactService)}#contact`,
+      servicePhone: '+8801521783498',
+      serviceSmsNumber: '+8801521783498',
+    },
+  }
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [serviceSchema, faqSchema],
   }
 
   return (
@@ -114,7 +135,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </main>
   )
 }
