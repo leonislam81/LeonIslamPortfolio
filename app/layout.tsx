@@ -31,6 +31,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  verification: {
+    google: 'JbwwISQ3UzURbldzLyuAK0i_VA0zlPgn8x64myPLI3s',
+  },
   openGraph: {
     title: 'Leon Islam - Website, E-commerce & Admin Support',
     description:
