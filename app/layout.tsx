@@ -9,6 +9,10 @@ import './globals.css';
 
 const GOOGLE_ANALYTICS_ID = 'G-QCX3G9KSPC';
 
+export const viewport = {
+  themeColor: '#4338ca',
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://leonislam.com'),
   title: {
@@ -34,6 +38,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  manifest: '/manifest.webmanifest',
   verification: {
     google: 'JbwwISQ3UzURbldzLyuAK0i_VA0zlPgn8x64myPLI3s',
   },
@@ -44,11 +49,13 @@ export const metadata: Metadata = {
     url: 'https://leonislam.com',
     siteName: 'Leon Islam Portfolio',
     type: 'website',
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Leon Islam - Website, E-commerce & Admin Support' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Leon Islam - Website, E-commerce & Admin Support',
     description: 'Website, e-commerce, Amazon, data entry, and admin support services.',
+    images: ['/opengraph-image'],
   },
   robots: {
     index: true,
