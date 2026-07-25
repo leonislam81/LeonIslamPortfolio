@@ -2,7 +2,8 @@ type AnalyticsParameters = Record<string, string | number | boolean | undefined>
 
 declare global {
   interface Window {
-    gtag?: (command: 'event', eventName: string, parameters?: AnalyticsParameters) => void
+    dataLayer?: unknown[][]
+    gtag?: (...args: unknown[]) => void
   }
 }
 

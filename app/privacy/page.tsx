@@ -50,7 +50,7 @@ export default function PrivacyPage() {
           </PolicyCard>
 
           <PolicyCard title="Cookies and analytics controls">
-            <p>Google Analytics may use cookies or similar technologies to measure visitor interactions. You can control or remove cookies through your browser settings. Google also provides an Analytics opt-out browser add-on.</p>
+            <p>Google Analytics may use cookies or similar technologies to measure visitor interactions. Analytics loads only after you choose to accept it in the site&apos;s cookie banner. You can reopen cookie settings from the floating settings button, or control and remove cookies through your browser settings.</p>
           </PolicyCard>
 
           <PolicyCard title="Data retention and security">
