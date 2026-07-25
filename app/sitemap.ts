@@ -9,6 +9,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 1,
     },
+    {
+      url: 'https://leonislam.com/privacy',
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
     ...servicePages.map((service) => ({
       url: `https://leonislam.com/services/${service.slug}`,
       lastModified: new Date(),
