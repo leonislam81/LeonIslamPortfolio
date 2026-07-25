@@ -40,7 +40,7 @@ export default function PrivacyPage() {
 
         <article className="mt-8 space-y-6">
           <PolicyCard title="Information collected">
-            <p>When you submit the contact form, you may provide your name, email address, requested service, timeline, message, and optional checklist preference.</p>
+            <p>When you submit the contact form, you may provide your name, email address, requested service, timeline, message, and optional checklist preference. If you request a checklist, we use your email address to send it to you.</p>
             <p>Google Analytics also collects aggregated usage information, such as pages viewed, device and browser information, and general interaction data. This helps improve the website and understand which services visitors find useful.</p>
           </PolicyCard>
 

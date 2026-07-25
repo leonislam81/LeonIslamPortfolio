@@ -125,7 +125,9 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
         })
         // Success animation
         toast.success("Message sent successfully!", {
-          description: "I'll get back to you within 24 hours.",
+          description: formData.sendChecklist
+            ? "Your project checklist is on its way, and I'll get back to you within 24 hours."
+            : "I'll get back to you within 24 hours.",
         })
 
         // Reset form
