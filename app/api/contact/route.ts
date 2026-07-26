@@ -150,10 +150,61 @@ function createConfirmationEmail(name: string, service: string, timeline: string
         <p style="margin:0 0 8px;"><strong>Support needed:</strong> ${escapeHtml(service)}</p>
         <p style="margin:0;"><strong>Preferred timeline:</strong> ${escapeHtml(timeline)}</p>
       </div>
-      <p>You can expect a practical next step within <strong>2–4 business hours</strong>. If your request is time-sensitive, reply to this email with the deadline and any relevant details.</p>
+      <p>You can expect a practical next step within <strong>2&ndash;4 business hours</strong>. If your request is time-sensitive, reply to this email with the deadline and any relevant details.</p>
       <p style="margin-top:24px;">Best regards,<br /><strong>Leon Islam</strong><br /><a style="color:#0f6b8f;" href="https://leonislam.com">leonislam.com</a></p>
     </div>
   `
+}
+
+type LeadRecord = {
+  name: string
+  email: string
+  service: string
+  timeline: string
+  platform: string
+  websiteUrl: string
+  budget: string
+  message: string
+}
+
+async function appendLeadToGoogleSheet(lead: LeadRecord) {
+  const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL
+  const webhookSecret = process.env.GOOGLE_SHEETS_WEBHOOK_SECRET
+
+  if (!webhookUrl || !webhookSecret) return false
+
+  try {
+    const url = new URL(webhookUrl)
+    if (url.protocol !== "https:") {
+      console.error("Google Sheets webhook must use HTTPS")
+      return false
+    }
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: webhookSecret,
+        lead: {
+          receivedAt: new Date().toISOString(),
+          ...lead,
+          source: "Website quote form",
+          status: "New",
+        },
+      }),
+      cache: "no-store",
+    })
+
+    if (!response.ok) {
+      console.error("Google Sheets webhook error", response.status)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error("Google Sheets webhook request failed", error)
+    return false
+  }
 }
 
 export async function POST(request: Request) {
@@ -222,6 +273,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unable to send your message." }, { status: 502 })
   }
 
+  const leadTracked = await appendLeadToGoogleSheet({
+    name,
+    email,
+    service,
+    timeline,
+    platform,
+    websiteUrl,
+    budget,
+    message,
+  })
+
   let confirmationSent = false
   const { error: confirmationError } = await resend.emails.send({
     from: sender,
@@ -255,5 +317,5 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, checklistSent, confirmationSent })
+  return NextResponse.json({ ok: true, checklistSent, confirmationSent, leadTracked })
 }
