@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Mail, Phone, MessageSquare, CheckCircle, Send, MapPin } from "lucide-react"
 import { toast } from "sonner"
 import { trackEvent } from "@/lib/analytics"
+import { Turnstile } from "@/components/turnstile"
 
 
 interface FormData {
@@ -23,6 +24,7 @@ interface FormData {
   platform: string
   websiteUrl: string
   budget: string
+  turnstileToken: string
   sendChecklist: boolean
   honeypot: string // Hidden field for spam protection
 }
@@ -67,6 +69,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
     platform: "",
     websiteUrl: "",
     budget: "",
+    turnstileToken: "",
     sendChecklist: false,
     honeypot: "",
   })
@@ -101,6 +104,10 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
 
     if (!formData.service) {
       newErrors.service = "Please choose the support you need"
+    }
+
+    if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !formData.turnstileToken) {
+      newErrors.turnstileToken = "Please complete the security check"
     }
 
     setErrors(newErrors)
@@ -140,6 +147,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
           platform: formData.platform,
           websiteUrl: formData.websiteUrl,
           budget: formData.budget,
+          turnstileToken: formData.turnstileToken,
           sendChecklist: formData.sendChecklist,
           honeypot: formData.honeypot,
         }),
@@ -168,6 +176,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
           platform: "",
           websiteUrl: "",
           budget: "",
+          turnstileToken: "",
           sendChecklist: false,
           honeypot: "",
         })
@@ -210,6 +219,15 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
       })
     }
   }
+
+  const handleTurnstileVerify = useCallback((token: string) => {
+    setFormData((current) => ({ ...current, turnstileToken: token }))
+    setErrors((current) => ({ ...current, turnstileToken: undefined }))
+  }, [])
+
+  const handleTurnstileExpire = useCallback(() => {
+    setFormData((current) => ({ ...current, turnstileToken: "" }))
+  }, [])
 
   const openWhatsApp = () => {
     trackEvent("contact_whatsapp_click", { event_category: "contact", contact_method: "whatsapp" })
@@ -385,6 +403,15 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
                   <label htmlFor="checklist" className="text-sm text-muted-foreground">
                     Send me a project checklist to help prepare for our discussion
                   </label>
+                </div>
+
+                <div className="space-y-2">
+                  <Turnstile
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+                    onVerify={handleTurnstileVerify}
+                    onExpire={handleTurnstileExpire}
+                  />
+                  {errors.turnstileToken && <p className="text-sm text-destructive">{errors.turnstileToken}</p>}
                 </div>
 
                 <Button

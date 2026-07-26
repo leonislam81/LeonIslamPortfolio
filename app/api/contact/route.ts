@@ -73,6 +73,7 @@ type ContactPayload = {
   platform?: unknown
   websiteUrl?: unknown
   budget?: unknown
+  turnstileToken?: unknown
   sendChecklist?: unknown
   honeypot?: unknown
 }
@@ -93,6 +94,30 @@ function escapeHtml(value: string) {
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+}
+
+async function verifyTurnstile(token: string, request: Request) {
+  const secret = process.env.TURNSTILE_SECRET_KEY
+  if (!secret) return true
+  if (!token || token.length > 2048) return false
+
+  const remoteIp = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+  const body = new FormData()
+  body.append("secret", secret)
+  body.append("response", token)
+  if (remoteIp) body.append("remoteip", remoteIp)
+
+  try {
+    const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body,
+    })
+    const result = await response.json() as { success?: boolean; action?: string }
+    return response.ok && result.success === true && result.action === "contact"
+  } catch (error) {
+    console.error("Turnstile verification error", error)
+    return false
+  }
 }
 
 function createChecklistEmail(name: string, service: string) {
@@ -135,6 +160,7 @@ export async function POST(request: Request) {
   const platform = isText(payload.platform) ? payload.platform.trim() : "Not specified"
   const websiteUrl = isText(payload.websiteUrl) ? payload.websiteUrl.trim() : "Not provided"
   const budget = isText(payload.budget) ? payload.budget.trim() : "Not specified"
+  const turnstileToken = isText(payload.turnstileToken) ? payload.turnstileToken.trim() : ""
   const sendChecklist = payload.sendChecklist === true
 
   // Bots fill the hidden field. Return success to avoid helping them tune attacks.
@@ -144,6 +170,10 @@ export async function POST(request: Request) {
 
   if (!name || !isValidEmail(email) || message.length < 10 || !service) {
     return NextResponse.json({ error: "Please complete all required fields." }, { status: 400 })
+  }
+
+  if (!(await verifyTurnstile(turnstileToken, request))) {
+    return NextResponse.json({ error: "Please complete the security check and try again." }, { status: 400 })
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY)

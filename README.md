@@ -55,6 +55,17 @@ npm run build
 npm run start
 ```
 
+## Contact form protection
+
+The contact form supports [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) to prevent automated submissions. Create a widget for `leonislam.com`, then add these environment variables in Vercel before deploying:
+
+```bash
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=your-site-key
+TURNSTILE_SECRET_KEY=your-secret-key
+```
+
+The public site key displays the widget; the secret key remains server-side and verifies every submission. Leave both variables unset only while preparing the integration locally.
+
 ## Contact
 
 - Email: [leonislam810@gmail.com](mailto:leonislam810@gmail.com)
