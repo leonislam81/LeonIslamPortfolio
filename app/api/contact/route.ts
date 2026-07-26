@@ -70,6 +70,9 @@ type ContactPayload = {
   message?: unknown
   service?: unknown
   timeline?: unknown
+  platform?: unknown
+  websiteUrl?: unknown
+  budget?: unknown
   sendChecklist?: unknown
   honeypot?: unknown
 }
@@ -129,6 +132,9 @@ export async function POST(request: Request) {
   const message = isText(payload.message) ? payload.message.trim() : ""
   const service = isText(payload.service) ? payload.service.trim() : ""
   const timeline = isText(payload.timeline) ? payload.timeline.trim() : "Not specified"
+  const platform = isText(payload.platform) ? payload.platform.trim() : "Not specified"
+  const websiteUrl = isText(payload.websiteUrl) ? payload.websiteUrl.trim() : "Not provided"
+  const budget = isText(payload.budget) ? payload.budget.trim() : "Not specified"
   const sendChecklist = payload.sendChecklist === true
 
   // Bots fill the hidden field. Return success to avoid helping them tune attacks.
@@ -154,6 +160,9 @@ export async function POST(request: Request) {
       <p><strong>Email:</strong> ${escapeHtml(email)}</p>
       <p><strong>Service:</strong> ${escapeHtml(service)}</p>
       <p><strong>Timeline:</strong> ${escapeHtml(timeline)}</p>
+      <p><strong>Platform or tool:</strong> ${escapeHtml(platform)}</p>
+      <p><strong>Website, store, or file link:</strong> ${escapeHtml(websiteUrl)}</p>
+      <p><strong>Estimated budget:</strong> ${escapeHtml(budget)}</p>
       <p><strong>Project checklist requested:</strong> ${sendChecklist ? "Yes" : "No"}</p>
       <hr />
       <p><strong>Message:</strong></p>

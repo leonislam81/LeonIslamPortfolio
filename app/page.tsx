@@ -1,9 +1,3 @@
-"use client"
-
-import { useRef } from "react"
-import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { ScrollToPlugin } from "gsap/ScrollToPlugin"
 import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
 import { WhyWorkWithMe } from "@/components/why-work-with-me"
@@ -18,19 +12,12 @@ import { Footer } from "@/components/footer"
 import { ScrollProgress } from "@/components/scroll-progress"
 import { BottomDock } from "@/components/bottom-dock"
 
-// Register GSAP plugins
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin)
-}
-
 export default function HomePage() {
-  const mainRef = useRef<HTMLElement>(null)
-
   return (
     <>
       <ScrollProgress />
       <Header />
-      <main id="main-content" ref={mainRef} className="relative overflow-hidden">
+      <main id="main-content" className="relative overflow-hidden">
         <div id="hero">
           <Hero />
         </div>

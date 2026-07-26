@@ -20,6 +20,9 @@ interface FormData {
   message: string
   service: string
   timeline: string
+  platform: string
+  websiteUrl: string
+  budget: string
   sendChecklist: boolean
   honeypot: string // Hidden field for spam protection
 }
@@ -32,6 +35,24 @@ const serviceOptions = [
   "Something else",
 ]
 
+const platformOptions = [
+  "WordPress",
+  "Shopify",
+  "Wix",
+  "Amazon",
+  "WooCommerce",
+  "Google Sheets / Excel",
+  "Other / not sure yet",
+]
+
+const budgetOptions = [
+  "Under $100",
+  "$100–$300",
+  "$300–$750",
+  "$750+",
+  "I'd rather discuss first",
+]
+
 export function Contact({ headingLevel = "h2", showHomeLink = false }: { headingLevel?: "h1" | "h2"; showHomeLink?: boolean }) {
   const Heading = headingLevel
   const sectionRef = useRef<HTMLElement>(null)
@@ -42,6 +63,9 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
     message: "",
     service: "",
     timeline: "",
+    platform: "",
+    websiteUrl: "",
+    budget: "",
     sendChecklist: false,
     honeypot: "",
   })
@@ -112,6 +136,9 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
           message: formData.message,
           service: formData.service,
           timeline: formData.timeline,
+          platform: formData.platform,
+          websiteUrl: formData.websiteUrl,
+          budget: formData.budget,
           sendChecklist: formData.sendChecklist,
           honeypot: formData.honeypot,
         }),
@@ -137,6 +164,9 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
           message: "",
           service: "",
           timeline: "",
+          platform: "",
+          websiteUrl: "",
+          budget: "",
           sendChecklist: false,
           honeypot: "",
         })
@@ -224,8 +254,10 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     className={`h-12 rounded-xl bg-slate-50 dark:bg-slate-950 ${errors.name ? "border-destructive" : "border-slate-200 dark:border-slate-700 focus-visible:ring-portfolio-primary"}`}
                     placeholder="Your full name"
+                    aria-invalid={Boolean(errors.name)}
+                    aria-describedby={errors.name ? "name-error" : undefined}
                   />
-                  {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+                  {errors.name && <p id="name-error" className="text-sm text-destructive">{errors.name}</p>}
                 </div>
 
                 <div className="form-field space-y-2">
@@ -239,8 +271,10 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     className={`h-12 rounded-xl bg-slate-50 dark:bg-slate-950 ${errors.email ? "border-destructive" : "border-slate-200 dark:border-slate-700 focus-visible:ring-portfolio-primary"}`}
                     placeholder="your.email@example.com"
+                    aria-invalid={Boolean(errors.email)}
+                    aria-describedby={errors.email ? "email-error" : undefined}
                   />
-                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                  {errors.email && <p id="email-error" className="text-sm text-destructive">{errors.email}</p>}
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2">
@@ -253,11 +287,13 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
                       value={formData.service}
                       onChange={(e) => handleInputChange("service", e.target.value)}
                       className={`flex h-12 w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm text-foreground outline-none transition focus-visible:ring-2 focus-visible:ring-portfolio-primary dark:bg-slate-950 ${errors.service ? "border-destructive" : "border-slate-200 dark:border-slate-700"}`}
+                      aria-invalid={Boolean(errors.service)}
+                      aria-describedby={errors.service ? "service-error" : undefined}
                     >
                       <option value="">Choose a service</option>
                       {serviceOptions.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
-                    {errors.service && <p className="text-sm text-destructive">{errors.service}</p>}
+                    {errors.service && <p id="service-error" className="text-sm text-destructive">{errors.service}</p>}
                   </div>
 
                   <div className="form-field space-y-2">
@@ -279,6 +315,30 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
                   </div>
                 </div>
 
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="form-field space-y-2">
+                    <label htmlFor="platform" className="text-sm font-medium text-foreground">Platform or tool <span className="text-muted-foreground">(optional)</span></label>
+                    <select id="platform" value={formData.platform} onChange={(e) => handleInputChange("platform", e.target.value)} className="flex h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-foreground outline-none transition focus-visible:ring-2 focus-visible:ring-portfolio-primary dark:border-slate-700 dark:bg-slate-950">
+                      <option value="">Choose a platform</option>
+                      {platformOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="form-field space-y-2">
+                    <label htmlFor="budget" className="text-sm font-medium text-foreground">Estimated budget <span className="text-muted-foreground">(optional)</span></label>
+                    <select id="budget" value={formData.budget} onChange={(e) => handleInputChange("budget", e.target.value)} className="flex h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-foreground outline-none transition focus-visible:ring-2 focus-visible:ring-portfolio-primary dark:border-slate-700 dark:bg-slate-950">
+                      <option value="">Choose a range</option>
+                      {budgetOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-field space-y-2">
+                  <label htmlFor="websiteUrl" className="text-sm font-medium text-foreground">Website, store, or file link <span className="text-muted-foreground">(optional)</span></label>
+                  <Input id="websiteUrl" type="url" value={formData.websiteUrl} onChange={(e) => handleInputChange("websiteUrl", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950" placeholder="https://example.com" />
+                  <p className="text-xs leading-5 text-muted-foreground">Share a link if it helps explain the work. You can also include links in your message.</p>
+                </div>
+
                 <div className="form-field space-y-2">
                   <label htmlFor="message" className="text-sm font-medium text-foreground">
                     Message *
@@ -289,8 +349,10 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
                     onChange={(e) => handleInputChange("message", e.target.value)}
                     className={`min-h-[140px] rounded-xl bg-slate-50 dark:bg-slate-950 ${errors.message ? "border-destructive" : "border-slate-200 dark:border-slate-700 focus-visible:ring-portfolio-primary"}`}
                     placeholder="Tell me about your website, e-commerce, Amazon, data entry, or admin support needs..."
+                    aria-invalid={Boolean(errors.message)}
+                    aria-describedby={errors.message ? "message-error" : undefined}
                   />
-                  {errors.message && <p className="text-sm text-destructive">{errors.message}</p>}
+                  {errors.message && <p id="message-error" className="text-sm text-destructive">{errors.message}</p>}
                 </div>
 
                 <div className="form-field flex items-center space-x-2">
