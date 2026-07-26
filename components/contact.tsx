@@ -57,6 +57,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
   const Heading = headingLevel
   const sectionRef = useRef<HTMLElement>(null)
   const formRef = useRef<HTMLFormElement>(null)
+  const hasTrackedFormStart = useRef(false)
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -190,6 +191,26 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
     }
   }
 
+  const handleFormStart = () => {
+    if (hasTrackedFormStart.current) return
+
+    hasTrackedFormStart.current = true
+    trackEvent("quote_form_start", {
+      event_category: "contact",
+      form_name: "request_quote",
+    })
+  }
+
+  const handleServiceChange = (service: string) => {
+    handleInputChange("service", service)
+    if (service) {
+      trackEvent("quote_service_selected", {
+        event_category: "contact",
+        service_interest: service,
+      })
+    }
+  }
+
   const openWhatsApp = () => {
     trackEvent("contact_whatsapp_click", { event_category: "contact", contact_method: "whatsapp" })
     const message = encodeURIComponent("Hi Leon! I'm interested in your website services.")
@@ -231,7 +252,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
               <CardDescription>Choose the support you need, then share your task, timeline, and any useful links.</CardDescription>
             </CardHeader>
             <CardContent className="p-6 pt-4 sm:p-8 sm:pt-5">
-              <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+              <form ref={formRef} onSubmit={handleSubmit} onFocusCapture={handleFormStart} className="space-y-6">
                 {/* Honeypot field (hidden) */}
                 <input
                   type="text"
@@ -285,7 +306,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
                     <select
                       id="service"
                       value={formData.service}
-                      onChange={(e) => handleInputChange("service", e.target.value)}
+                      onChange={(e) => handleServiceChange(e.target.value)}
                       className={`flex h-12 w-full rounded-xl border bg-slate-50 px-3 py-2 text-sm text-foreground outline-none transition focus-visible:ring-2 focus-visible:ring-portfolio-primary dark:bg-slate-950 ${errors.service ? "border-destructive" : "border-slate-200 dark:border-slate-700"}`}
                       aria-invalid={Boolean(errors.service)}
                       aria-describedby={errors.service ? "service-error" : undefined}
