@@ -4,6 +4,7 @@ import { ArrowDownRight, ArrowRight, CheckCircle2, Code2, Gauge, Globe2, Sparkle
 import { Button } from "@/components/ui/button"
 
 const proofPoints = ["Accurate data handling", "Clear communication", "Reliable delivery"]
+const platforms = ["WordPress", "Shopify", "Wix", "Amazon", "Google Sheets", "Excel"]
 
 export function Hero() {
   const scrollTo = (section: string) => document.querySelector(section)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })
@@ -20,6 +21,10 @@ export function Hero() {
           <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">From website updates and e-commerce product listings to Amazon catalog work and accurate admin support, I handle the details that keep your online operations organized.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Button size="lg" onClick={() => scrollTo("#contact")} className="h-12 rounded-xl bg-portfolio-primary px-6 text-base text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/25 hover:bg-portfolio-primary/90">Start a project <ArrowRight className="ml-2 h-4 w-4" /></Button><Button size="lg" variant="outline" onClick={() => scrollTo("#projects")} className="h-12 rounded-xl border-border bg-card/70 px-6 text-base text-foreground shadow-sm hover:bg-muted">See selected work <ArrowDownRight className="ml-2 h-4 w-4" /></Button></div>
           <div className="mt-9 flex flex-wrap gap-x-5 gap-y-3">{proofPoints.map(point => <span key={point} className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><CheckCircle2 className="h-4 w-4 text-portfolio-accent" />{point}</span>)}</div>
+          <div className="mt-8 border-t border-border/70 pt-5">
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">Platforms and tools</p>
+            <div className="mt-3 flex flex-wrap gap-2">{platforms.map((platform) => <span key={platform} className="rounded-full border border-border bg-card/70 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm">{platform}</span>)}</div>
+          </div>
         </div>
 
         <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
