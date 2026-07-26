@@ -7,7 +7,7 @@ import { Toaster } from 'sonner';
 import { CookieConsent } from '@/components/cookie-consent';
 import './globals.css';
 
-const GOOGLE_ANALYTICS_ID = 'G-QCX3G9KSPC';
+const GOOGLE_ANALYTICS_ID = 'G-CGT7461XKJ';
 
 export const viewport = {
   themeColor: '#4338ca',
