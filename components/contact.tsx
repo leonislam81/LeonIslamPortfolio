@@ -152,6 +152,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
           honeypot: formData.honeypot,
         }),
       })
+      const result = await response.json().catch(() => null) as { checklistSent?: boolean } | null
 
       if (response.ok) {
         trackEvent("generate_lead", {
@@ -161,9 +162,11 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
         })
         // Success animation
         toast.success("Message sent successfully!", {
-          description: formData.sendChecklist
-            ? "Your project checklist is on its way, and I'll get back to you within 24 hours."
-            : "I'll get back to you within 24 hours.",
+          description: formData.sendChecklist && result?.checklistSent === false
+            ? "Your message was sent, but the checklist could not be delivered. I'll get back to you within 24 hours."
+            : formData.sendChecklist
+              ? "Your project checklist is on its way, and I'll get back to you within 24 hours."
+              : "I'll get back to you within 24 hours.",
         })
 
         // Reset form

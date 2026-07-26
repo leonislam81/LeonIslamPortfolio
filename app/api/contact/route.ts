@@ -205,6 +205,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unable to send your message." }, { status: 502 })
   }
 
+  let checklistSent = false
+
   if (sendChecklist) {
     const { error: checklistError } = await resend.emails.send({
       from: sender,
@@ -216,9 +218,10 @@ export async function POST(request: Request) {
 
     if (checklistError) {
       console.error("Resend project checklist error", checklistError)
-      return NextResponse.json({ error: "Your message was sent, but the checklist could not be delivered." }, { status: 502 })
+    } else {
+      checklistSent = true
     }
   }
 
-  return NextResponse.json({ ok: true, checklistSent: sendChecklist })
+  return NextResponse.json({ ok: true, checklistSent })
 }
