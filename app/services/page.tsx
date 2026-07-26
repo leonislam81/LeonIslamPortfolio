@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2, ClipboardList, Sparkles } from 'lucide-react'
+import { ArrowRight, CheckCircle2, ClipboardList, Layers3, RefreshCw, Sparkles } from 'lucide-react'
 import { servicePages } from '@/lib/service-pages'
 import { PageFooter } from '@/components/page-footer'
 import { SiteHeader } from '@/components/site-header'
@@ -17,6 +17,27 @@ export const metadata: Metadata = {
 }
 
 export default function ServicesOverviewPage() {
+  const supportOptions = [
+    {
+      icon: ClipboardList,
+      title: 'One-time task',
+      description: 'Best for a defined update, a small catalog task, a website fix, or a focused data job.',
+      examples: ['A clear list of tasks', 'A practical deadline', 'A completed-work summary'],
+    },
+    {
+      icon: Layers3,
+      title: 'Focused project',
+      description: 'For a larger set of connected tasks that benefit from an organized plan and staged handover.',
+      examples: ['Agreed priorities', 'Organized source files', 'Progress updates as work moves forward'],
+    },
+    {
+      icon: RefreshCw,
+      title: 'Ongoing support',
+      description: 'For recurring website, catalog, research, or admin work that needs a reliable point of contact.',
+      examples: ['A repeatable task list', 'Flexible support cadence', 'Clear reporting and next steps'],
+    },
+  ]
+
   const serviceSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -74,6 +95,28 @@ export default function ServicesOverviewPage() {
               </div>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="border-t border-border bg-muted/25 py-16 sm:py-24">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-[.16em] text-portfolio-primary">Flexible support</p>
+            <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">Choose the level of support that fits the work.</h2>
+            <p className="mt-5 text-lg leading-8 text-muted-foreground">Start with one task, plan a focused project, or keep a dependable partner available for recurring online work.</p>
+          </div>
+          <div className="mx-auto mt-12 grid max-w-6xl gap-5 lg:grid-cols-3">
+            {supportOptions.map(({ icon: Icon, title, description, examples }) => (
+              <article key={title} className="rounded-[2rem] border border-border bg-card p-7 shadow-sm sm:p-8">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-portfolio-primary/10 text-portfolio-primary"><Icon className="h-5 w-5" /></span>
+                <h3 className="mt-6 text-2xl font-bold tracking-tight">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
+                <ul className="mt-6 space-y-3 border-t border-border pt-6">
+                  {examples.map((example) => <li key={example} className="flex gap-3 text-sm leading-6 text-muted-foreground"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-portfolio-accent" />{example}</li>)}
+                </ul>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
