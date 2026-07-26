@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowRight, CheckCircle2, HelpCircle, Mail, Sparkles } from 'lucide-react'
+import { ArrowRight, CalendarDays, CheckCircle2, HelpCircle, Mail, Sparkles } from 'lucide-react'
+import { BookingLink } from '@/components/booking-link'
 import { getServicePage, servicePages } from '@/lib/service-pages'
 import { PageFooter } from '@/components/page-footer'
 import { SiteHeader } from '@/components/site-header'
@@ -79,9 +80,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             </div>
             <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-6xl">{service.title}</h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground sm:text-xl">{service.intro}</p>
-            <Link href={`/contact?service=${encodeURIComponent(service.contactService)}`} className="mt-8 inline-flex items-center gap-2 rounded-xl bg-portfolio-primary px-5 py-3 text-sm font-semibold text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/20 hover:bg-portfolio-primary/90">
-              Discuss this service <ArrowRight className="h-4 w-4" />
-            </Link>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap"><Link href={`/contact?service=${encodeURIComponent(service.contactService)}`} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-portfolio-primary px-5 py-3 text-sm font-semibold text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/20 hover:bg-portfolio-primary/90 sm:w-auto">Discuss this service <ArrowRight className="h-4 w-4" /></Link><BookingLink placement="service" bookingDetails={service.title} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-5 py-3 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted sm:w-auto">Book a call about this <CalendarDays className="h-4 w-4" /></BookingLink></div>
           </div>
         </div>
       </section>
