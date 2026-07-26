@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Mail, Phone, MessageSquare, CheckCircle, Send, MapPin } from "lucide-react"
+import { Mail, Phone, MessageSquare, Send, MapPin } from "lucide-react"
 import { toast } from "sonner"
 import { trackEvent } from "@/lib/analytics"
 import { Turnstile } from "@/components/turnstile"
@@ -504,25 +504,21 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
             </Card>
 
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <h3 className="font-semibold text-foreground mb-3">What happens next?</h3>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-portfolio-primary flex-shrink-0" />
-                  <span>I'll review your project details within 24 hours</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-portfolio-primary flex-shrink-0" />
-                  <span>We'll schedule a call to discuss your requirements</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-portfolio-primary flex-shrink-0" />
-                  <span>I'll provide a detailed proposal and timeline</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-portfolio-primary flex-shrink-0" />
-                  <span>We'll start building your amazing website!</span>
-                </div>
-              </div>
+              <p className="text-xs font-semibold uppercase tracking-[.16em] text-portfolio-primary">Simple process</p>
+              <h3 className="mt-2 text-xl font-semibold text-foreground">What happens after you enquire?</h3>
+              <ol className="mt-6 space-y-5">
+                {[
+                  ["01", "Send the details", "Share the task, relevant links or files, and your ideal timeline."],
+                  ["02", "Get a clear next step", "I&apos;ll review the request and confirm the scope, priorities, and practical approach."],
+                  ["03", "Work moves forward", "You&apos;ll receive organized progress updates while the agreed work is completed."],
+                  ["04", "Review and handover", "Receive completed work, a clear summary, and any useful next steps for ongoing support."],
+                ].map(([number, title, description]) => (
+                  <li key={number} className="flex gap-4">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-portfolio-primary/10 text-xs font-bold text-portfolio-primary">{number}</span>
+                    <div><p className="text-sm font-semibold text-foreground">{title}</p><p className="mt-1 text-sm leading-6 text-muted-foreground">{description}</p></div>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         </div>
