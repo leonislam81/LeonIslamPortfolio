@@ -163,10 +163,10 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
         // Success animation
         toast.success("Message sent successfully!", {
           description: formData.sendChecklist && result?.checklistSent === false
-            ? "Your message was sent, but the checklist could not be delivered. I'll get back to you within 24 hours."
+            ? "Your message was sent, but the checklist could not be delivered. I'll get back to you within 2–4 business hours."
             : formData.sendChecklist
-              ? "Your project checklist is on its way, and I'll get back to you within 24 hours."
-              : "I'll get back to you within 24 hours.",
+              ? "Your project checklist is on its way, and I'll get back to you within 2–4 business hours."
+              : "I'll get back to you within 2–4 business hours.",
         })
 
         // Reset form

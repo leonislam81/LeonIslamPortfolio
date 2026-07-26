@@ -139,6 +139,23 @@ function createChecklistEmail(name: string, service: string) {
   `
 }
 
+function createConfirmationEmail(name: string, service: string, timeline: string) {
+  return `
+    <div style="margin:0 auto;max-width:640px;padding:32px 20px;font-family:Arial,sans-serif;color:#10233f;line-height:1.6;">
+      <p style="margin:0 0 16px;color:#0f6b8f;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:12px;">Leon Islam</p>
+      <h1 style="margin:0 0 16px;font-size:28px;line-height:1.2;">Your enquiry is received</h1>
+      <p>Hi ${escapeHtml(name)},</p>
+      <p>Thanks for getting in touch about <strong>${escapeHtml(service)}</strong>. Your request has been received and will be reviewed carefully.</p>
+      <div style="margin:24px 0;padding:20px 24px;border:1px solid #cfe0ed;border-radius:16px;background:#f7fbff;">
+        <p style="margin:0 0 8px;"><strong>Support needed:</strong> ${escapeHtml(service)}</p>
+        <p style="margin:0;"><strong>Preferred timeline:</strong> ${escapeHtml(timeline)}</p>
+      </div>
+      <p>You can expect a practical next step within <strong>2–4 business hours</strong>. If your request is time-sensitive, reply to this email with the deadline and any relevant details.</p>
+      <p style="margin-top:24px;">Best regards,<br /><strong>Leon Islam</strong><br /><a style="color:#0f6b8f;" href="https://leonislam.com">leonislam.com</a></p>
+    </div>
+  `
+}
+
 export async function POST(request: Request) {
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json({ error: "Email service is not configured." }, { status: 503 })
@@ -205,6 +222,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unable to send your message." }, { status: 502 })
   }
 
+  let confirmationSent = false
+  const { error: confirmationError } = await resend.emails.send({
+    from: sender,
+    to: [email],
+    replyTo: recipient,
+    subject: 'Your enquiry has been received',
+    html: createConfirmationEmail(name, service, timeline),
+  })
+
+  if (confirmationError) {
+    console.error("Resend enquiry confirmation error", confirmationError)
+  } else {
+    confirmationSent = true
+  }
+
   let checklistSent = false
 
   if (sendChecklist) {
@@ -223,5 +255,5 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, checklistSent })
+  return NextResponse.json({ ok: true, checklistSent, confirmationSent })
 }
