@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowDownRight, ArrowRight, CheckCircle2, Code2, Gauge, Globe2, Sparkles, Zap } from "lucide-react"
+import { ArrowDownRight, ArrowRight, CheckCircle2, Clock3, Code2, Gauge, Globe2, Sparkles, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const proofPoints = ["Accurate data handling", "Clear communication", "Reliable delivery"]
@@ -25,6 +25,7 @@ export function Hero() {
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">Platforms and tools</p>
             <div className="mt-3 flex flex-wrap gap-2">{platforms.map((platform) => <span key={platform} className="rounded-full border border-border bg-card/70 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm">{platform}</span>)}</div>
           </div>
+          <div className="mt-5 flex items-center gap-2 text-sm text-muted-foreground"><Clock3 className="h-4 w-4 shrink-0 text-portfolio-primary" />Have a project in mind? Business-day responses are usually within 2–4 hours.</div>
         </div>
 
         <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
