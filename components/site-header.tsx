@@ -24,7 +24,7 @@ export function SiteHeader() {
         </nav>
         <div className="flex shrink-0 items-center gap-1.5">
           <ThemeToggle />
-          <Link href="/contact" className="hidden items-center gap-2 rounded-xl bg-portfolio-primary px-3 py-2 text-sm font-semibold text-portfolio-primary-foreground shadow-sm hover:bg-portfolio-primary/90 sm:inline-flex"><MessageSquare className="h-4 w-4" /> Request a quote</Link>
+          <Link href="/start-project" className="hidden items-center gap-2 rounded-xl bg-portfolio-primary px-3 py-2 text-sm font-semibold text-portfolio-primary-foreground shadow-sm hover:bg-portfolio-primary/90 sm:inline-flex"><MessageSquare className="h-4 w-4" /> Start a project</Link>
         </div>
       </div>
     </header>

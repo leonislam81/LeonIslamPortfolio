@@ -33,6 +33,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.8,
     },
+    {
+      url: 'https://leonislam.com/start-project',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
     ...servicePages.map((service) => ({
       url: `https://leonislam.com/services/${service.slug}`,
       lastModified: new Date(),
