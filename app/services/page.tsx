@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight, CheckCircle2, ClipboardList, Layers3, RefreshCw, Sparkles } from 'lucide-react'
 import { servicePages } from '@/lib/service-pages'
 import { PageFooter } from '@/components/page-footer'
+import { PricingGuide } from '@/components/pricing-guide'
 import { SiteHeader } from '@/components/site-header'
 
 export const metadata: Metadata = {
@@ -147,6 +148,8 @@ export default function ServicesOverviewPage() {
           </div>
         </div>
       </section>
+
+      <PricingGuide />
 
       <section className="border-t border-border bg-muted/25 py-16 sm:py-20">
         <div className="container mx-auto max-w-4xl px-4">

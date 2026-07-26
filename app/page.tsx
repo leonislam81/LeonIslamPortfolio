@@ -7,6 +7,7 @@ import { Projects } from "@/components/projects"
 import { WorkSamples } from "@/components/work-samples"
 import { CommonQuestions } from "@/components/common-questions"
 import { ProjectChecklist } from "@/components/project-checklist"
+import { PricingGuide } from "@/components/pricing-guide"
 import { Experience } from "@/components/experience"
 import { Testimonials } from "@/components/testimonials"
 import { Contact } from "@/components/contact"
@@ -25,6 +26,7 @@ export default function HomePage() {
         </div>
         <WhyWorkWithMe />
         <Services />
+        <PricingGuide />
         <Skills />
         <Projects />
         <WorkSamples />
