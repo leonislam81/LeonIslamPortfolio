@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { Code2, MessageSquare } from 'lucide-react'
+import { CalendarDays, Code2, MessageSquare } from 'lucide-react'
+import { BookingLink } from '@/components/booking-link'
 import { ThemeToggle } from '@/components/theme-toggle'
 
 const links = [
@@ -24,7 +25,8 @@ export function SiteHeader() {
         </nav>
         <div className="flex shrink-0 items-center gap-1.5">
           <ThemeToggle />
-          <Link href="/start-project" className="hidden items-center gap-2 rounded-xl bg-portfolio-primary px-3 py-2 text-sm font-semibold text-portfolio-primary-foreground shadow-sm hover:bg-portfolio-primary/90 sm:inline-flex"><MessageSquare className="h-4 w-4" /> Start a project</Link>
+          <BookingLink placement="header" className="hidden items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted lg:inline-flex"><CalendarDays className="h-4 w-4" /> Book a call</BookingLink>
+          <Link href="/start-project" className="hidden items-center gap-2 rounded-xl bg-portfolio-primary px-3 py-2 text-sm font-semibold text-portfolio-primary-foreground shadow-sm hover:bg-portfolio-primary/90 lg:inline-flex"><MessageSquare className="h-4 w-4" /> Start a project</Link>
         </div>
       </div>
     </header>

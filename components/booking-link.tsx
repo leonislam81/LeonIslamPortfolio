@@ -6,7 +6,7 @@ import { trackEvent } from '@/lib/analytics'
 type BookingLinkProps = {
   children: ReactNode
   className?: string
-  placement: 'hero' | 'start_project'
+  placement: 'header' | 'hero' | 'start_project'
 }
 
 export function BookingLink({ children, className, placement }: BookingLinkProps) {
