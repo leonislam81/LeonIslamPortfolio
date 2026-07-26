@@ -92,7 +92,7 @@ export function ProjectAssistant() {
           </div>
         </section>
       )}
-      <button type="button" onClick={isOpen ? () => setIsOpen(false) : openAssistant} aria-expanded={isOpen} aria-controls="project-assistant-panel" className="ml-auto flex h-14 items-center gap-2 rounded-full bg-portfolio-primary px-4 text-sm font-semibold text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/30 transition hover:bg-portfolio-primary/90"><Bot className="h-5 w-5" />{isOpen ? 'Close assistant' : 'Need help?'}</button>
+      <button type="button" onClick={isOpen ? () => setIsOpen(false) : openAssistant} aria-expanded={isOpen} aria-controls="project-assistant-panel" aria-label={isOpen ? 'Close project assistant' : 'Open project assistant'} className="ml-auto flex h-12 w-12 items-center justify-center rounded-full bg-portfolio-primary text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/30 transition hover:bg-portfolio-primary/90 sm:h-14 sm:w-auto sm:gap-2 sm:px-4 sm:text-sm sm:font-semibold"><Bot className="h-5 w-5" /><span className="hidden sm:inline">{isOpen ? 'Close assistant' : 'Need help?'}</span></button>
     </div>
   )
 }

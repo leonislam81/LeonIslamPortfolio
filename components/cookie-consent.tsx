@@ -50,15 +50,15 @@ export function CookieConsent({ measurementId }: { measurementId: string }) {
         variant="outline"
         size="sm"
         onClick={() => setChoice(null)}
-        className="fixed bottom-5 left-5 z-50 rounded-full border-border bg-card/95 px-4 shadow-lg backdrop-blur hover:bg-muted"
+        className="fixed bottom-24 left-3 z-50 rounded-full border-border bg-card/95 px-3 shadow-lg backdrop-blur hover:bg-muted sm:bottom-5 sm:left-5 sm:px-4"
       >
-        <Settings2 className="mr-2 h-4 w-4" /> Cookie settings
+        <Settings2 className="h-4 w-4 sm:mr-2" /><span className="hidden sm:inline">Cookie settings</span><span className="sr-only sm:hidden">Cookie settings</span>
       </Button>
     )
   }
 
   return (
-    <aside className="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-xl rounded-3xl border border-border bg-card p-5 shadow-2xl shadow-slate-950/20 backdrop-blur sm:bottom-6 sm:p-6" aria-label="Cookie preferences">
+    <aside className="fixed inset-x-4 bottom-24 z-50 mx-auto max-w-xl rounded-3xl border border-border bg-card p-5 shadow-2xl shadow-slate-950/20 backdrop-blur sm:bottom-6 sm:p-6" aria-label="Cookie preferences">
       <div className="flex gap-4">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-portfolio-primary/10 text-portfolio-primary">
           <Cookie className="h-5 w-5" />
