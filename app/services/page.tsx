@@ -38,6 +38,13 @@ export default function ServicesOverviewPage() {
     },
   ]
 
+  const serviceComparison = [
+    { service: 'Website management', bestFor: 'Keeping a website accurate, current, and easy to use', examples: 'Content updates, fixes, product uploads, routine checks', platforms: 'WordPress, Shopify, Wix' },
+    { service: 'E-commerce listings', bestFor: 'Organizing a store catalog for customers to browse and buy', examples: 'Titles, descriptions, images, categories, variants', platforms: 'Shopify, WooCommerce, marketplaces' },
+    { service: 'Amazon catalog support', bestFor: 'Preparing or updating product data for Amazon workflows', examples: 'Attributes, variations, bullets, catalog spreadsheets', platforms: 'Amazon Seller Central, spreadsheets' },
+    { service: 'Data & admin support', bestFor: 'Handling accurate, repeatable online business tasks', examples: 'Research, cleanup, list building, CRM and reporting', platforms: 'Google Sheets, Excel, online tools' },
+  ]
+
   const serviceSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -95,6 +102,27 @@ export default function ServicesOverviewPage() {
               </div>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="border-t border-border bg-background py-16 sm:py-24">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-[.16em] text-portfolio-primary">Quick comparison</p>
+            <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">Find the support that matches your task.</h2>
+            <p className="mt-5 text-lg leading-8 text-muted-foreground">Use this guide to identify the best starting point. Services can be combined when a project needs more than one type of support.</p>
+          </div>
+          <div className="mx-auto mt-12 hidden max-w-6xl overflow-hidden rounded-[2rem] border border-border bg-card shadow-sm md:block">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-muted/60 text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground"><tr><th className="px-6 py-4">Service</th><th className="px-6 py-4">Best for</th><th className="px-6 py-4">Typical tasks</th><th className="px-6 py-4">Platforms</th></tr></thead>
+              <tbody className="divide-y divide-border">
+                {serviceComparison.map((item) => <tr key={item.service} className="align-top"><th scope="row" className="px-6 py-5 font-semibold text-foreground">{item.service}</th><td className="px-6 py-5 leading-6 text-muted-foreground">{item.bestFor}</td><td className="px-6 py-5 leading-6 text-muted-foreground">{item.examples}</td><td className="px-6 py-5 leading-6 text-muted-foreground">{item.platforms}</td></tr>)}
+              </tbody>
+            </table>
+          </div>
+          <div className="mx-auto mt-10 grid max-w-6xl gap-4 md:hidden">
+            {serviceComparison.map((item) => <article key={item.service} className="rounded-3xl border border-border bg-card p-6 shadow-sm"><h3 className="text-lg font-semibold text-foreground">{item.service}</h3><dl className="mt-5 space-y-4 text-sm"><div><dt className="font-medium text-foreground">Best for</dt><dd className="mt-1 leading-6 text-muted-foreground">{item.bestFor}</dd></div><div><dt className="font-medium text-foreground">Typical tasks</dt><dd className="mt-1 leading-6 text-muted-foreground">{item.examples}</dd></div><div><dt className="font-medium text-foreground">Platforms</dt><dd className="mt-1 leading-6 text-muted-foreground">{item.platforms}</dd></div></dl></article>)}
+          </div>
         </div>
       </section>
 
