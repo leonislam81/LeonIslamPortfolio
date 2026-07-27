@@ -244,7 +244,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
     const body = encodeURIComponent(
       "Hi Leon,\n\nI'm interested in discussing a website project with you.\n\nBest regards,",
     )
-    window.open(`mailto:leonislam810@gmail.com?subject=${subject}&body=${body}`, "_blank")
+    window.open(`mailto:info@leonislam.com?subject=${subject}&body=${body}`, "_blank")
   }
 
   return (
@@ -455,7 +455,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
                   className="w-full justify-start border-portfolio-primary/25 bg-portfolio-primary/5 text-portfolio-primary shadow-sm hover:bg-portfolio-primary/10 hover:text-portfolio-primary dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 dark:hover:text-white"
                 >
                   <Mail className="w-4 h-4 mr-2" />
-                  leonislam810@gmail.com
+                  info@leonislam.com
                 </Button>
               </CardContent>
             </Card>

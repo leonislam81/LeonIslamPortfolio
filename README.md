@@ -68,7 +68,7 @@ The public site key displays the widget; the secret key remains server-side and 
 
 ## Contact
 
-- Email: [leonislam810@gmail.com](mailto:leonislam810@gmail.com)
+- Email: [info@leonislam.com](mailto:info@leonislam.com)
 - WhatsApp: [+880 1521 783498](https://wa.me/8801521783498)
 - Website: [leonislam.com](https://leonislam.com/)
 

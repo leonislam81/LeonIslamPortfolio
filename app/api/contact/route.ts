@@ -3,7 +3,7 @@ import { Resend } from "resend"
 
 export const runtime = "nodejs"
 
-const recipient = "leonislam810@gmail.com"
+const recipient = "info@leonislam.com"
 const sender = "Leon Islam Website <info@leonislam.com>"
 
 const projectChecklists: Record<string, { title: string; intro: string; items: string[] }> = {

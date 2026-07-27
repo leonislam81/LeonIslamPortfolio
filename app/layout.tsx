@@ -91,7 +91,7 @@ export default function RootLayout({
                   name: 'Leon Islam',
                   jobTitle: 'Website, E-commerce & Admin Support Specialist',
                   description: 'Website, e-commerce, Amazon, data entry, and online admin support.',
-                  email: 'leonislam810@gmail.com',
+                  email: 'info@leonislam.com',
                   telephone: '+8801521783498',
                   url: 'https://leonislam.com',
                   sameAs: ['https://wa.me/8801521783498'],
