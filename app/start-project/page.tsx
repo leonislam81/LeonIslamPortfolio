@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { CalendarCheck2, CalendarDays, CheckCircle2, ClipboardList, FileText, Send } from 'lucide-react'
 import { BookingLink } from '@/components/booking-link'
-import { Contact } from '@/components/contact'
+import { ProjectRequestWizard } from '@/components/project-request-wizard'
 import { PageFooter } from '@/components/page-footer'
 import { SiteHeader } from '@/components/site-header'
 
@@ -40,7 +40,7 @@ export default function StartProjectPage() {
             </div>
           </div>
         </section>
-        <Contact headingLevel="h2" showHomeLink />
+        <ProjectRequestWizard />
       </main>
       <PageFooter />
     </>
