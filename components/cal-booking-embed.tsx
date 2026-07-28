@@ -7,11 +7,14 @@ export function CalBookingEmbed() {
   const theme = resolvedTheme === 'dark' ? 'dark' : 'light'
 
   return (
-    <iframe
-      title="Book a project discovery call with Leon Islam"
-      src={`https://cal.com/leobislam/project-discovery?embed=1&theme=${theme}`}
-      className="h-[760px] w-full rounded-3xl border-0 bg-card"
-      loading="eager"
-    />
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+      <iframe
+        key={theme}
+        title="Book a project discovery call with Leon Islam"
+        src={`https://cal.com/leobislam/project-discovery?embed=1&theme=${theme}`}
+        className="block h-[860px] w-full border-0 bg-card sm:h-[620px] lg:h-[560px]"
+        loading="eager"
+      />
+    </div>
   )
 }
