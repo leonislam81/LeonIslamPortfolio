@@ -169,7 +169,7 @@ export function Header() {
       return
     }
 
-    window.location.assign(`https://translate.google.com/translate?sl=auto&tl=${language}&u=${encodeURIComponent(originalUrl)}`)
+    window.open(`https://translate.google.com/translate?sl=auto&tl=${language}&u=${encodeURIComponent(originalUrl)}`, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -185,14 +185,14 @@ export function Header() {
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-cyan-400 shadow-lg shadow-sky-500/25">
                 <Code className="w-5 h-5 text-portfolio-primary-foreground" />
               </div>
-              <div className="hidden sm:block">
+              <div className="hidden xl:block">
                 <div className="font-bold text-lg tracking-tight text-foreground">Leon Islam</div>
                 <div className="-mt-1 text-xs text-muted-foreground">Digital specialist</div>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <nav aria-label="Main navigation" className="hidden items-center gap-1 rounded-full border border-slate-200/80 bg-white/70 p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900/70 md:flex">
+            <nav aria-label="Main navigation" className="hidden items-center gap-1 rounded-full border border-slate-200/80 bg-white/70 p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900/70 xl:flex">
               {navItems.map((item) => (
                 <Button
                   key={item.name}
@@ -230,7 +230,7 @@ export function Header() {
                       </button>
                     ))}
                   </div>
-                  <p className="px-3 pb-1 pt-2 text-xs leading-4 text-muted-foreground">Translation is provided by Google Translate. English is the original site.</p>
+                  <p className="px-3 pb-1 pt-2 text-xs leading-4 text-muted-foreground">Opens a translated copy in a new tab. English is the original site.</p>
                 </div>
               </details>
 
@@ -238,14 +238,14 @@ export function Header() {
               <Button
                 size="sm"
                 onClick={() => scrollToSection("#contact")}
-                className="hidden rounded-full bg-portfolio-primary px-4 shadow-md shadow-sky-500/20 hover:bg-portfolio-primary/90 md:flex"
+                className="hidden rounded-full bg-portfolio-primary px-4 shadow-md shadow-sky-500/20 hover:bg-portfolio-primary/90 xl:flex"
               >
                 <Zap className="w-4 h-4 mr-1" />
                 Hire Me
               </Button>
 
               {/* Mobile menu button */}
-              <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Toggle mobile menu" aria-expanded={isMobileMenuOpen} aria-controls="mobile-navigation" className="md:hidden">
+              <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Toggle mobile menu" aria-expanded={isMobileMenuOpen} aria-controls="mobile-navigation" className="xl:hidden">
                 <Menu className="w-5 h-5" />
               </Button>
             </div>
@@ -255,7 +255,7 @@ export function Header() {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden" onClick={toggleMobileMenu} aria-hidden="true" />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 xl:hidden" onClick={toggleMobileMenu} aria-hidden="true" />
       )}
 
       {/* Mobile Menu */}
@@ -267,7 +267,7 @@ export function Header() {
         aria-label="Mobile navigation"
         aria-hidden={!isMobileMenuOpen}
         inert={!isMobileMenuOpen}
-        className={`fixed top-0 right-0 h-full w-full overflow-y-auto border-l border-slate-200 bg-white text-slate-900 shadow-2xl shadow-slate-950/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 z-50 sm:w-80 md:hidden ${
+        className={`fixed top-0 right-0 h-full w-full overflow-y-auto border-l border-slate-200 bg-white text-slate-900 shadow-2xl shadow-slate-950/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 z-50 sm:w-80 xl:hidden ${
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-out`}
       >
