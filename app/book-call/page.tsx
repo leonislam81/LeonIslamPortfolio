@@ -44,7 +44,7 @@ export default function BookCallPage() {
         </section>
 
         <section className="relative overflow-hidden bg-[radial-gradient(circle_at_50%_0%,oklch(0.93_0.06_255_/_0.75),transparent_43rem)] px-4 py-8 dark:bg-[radial-gradient(circle_at_50%_0%,oklch(0.32_0.08_255_/_0.38),transparent_43rem)] sm:py-12">
-          <div className="relative mx-auto max-w-6xl">
+          <div className="relative mx-auto max-w-5xl">
             <CalBookingEmbed />
           </div>
           <p className="relative mt-6 text-center text-sm text-muted-foreground">
