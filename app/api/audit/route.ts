@@ -54,7 +54,9 @@ async function runPageSpeed(target: URL, key: string) {
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
-      const response = await fetch(endpoint, { cache: "no-store", signal: AbortSignal.timeout(45_000) })
+      // Keep a recent successful report for the same URL. This avoids losing useful
+      // PageSpeed detail when Google's service briefly rate-limits or times out.
+      const response = await fetch(endpoint, { next: { revalidate: 21_600 }, signal: AbortSignal.timeout(45_000) })
       if (response.ok) return await response.json() as PageSpeedResult
       if (!retryableStatuses.has(response.status) || attempt === 2) return null
     } catch {
@@ -124,7 +126,18 @@ function buildFallbackFindings(checks: ReturnType<typeof auditHtml>["checks"]): 
     ["hasViewport", "Mobile viewport settings are missing", "The page may not scale correctly on phones.", "Add a responsive viewport meta tag and test the layout on a small screen."],
   ]
 
-  return missing.filter(([check]) => !checks[check]).map(([, title, detail, action]) => ({ category: "SEO" as const, priority: "high" as const, title, detail, action })).slice(0, 6)
+  const seoFindings = missing.filter(([check]) => !checks[check]).map(([, title, detail, action]) => ({ category: "SEO" as const, priority: "high" as const, title, detail, action }))
+
+  return [
+    {
+      category: "Technical" as const,
+      priority: "medium" as const,
+      title: "Detailed PageSpeed data is temporarily unavailable",
+      detail: "The site is reachable, but Google did not return the full mobile performance diagnostic for this check.",
+      action: "Run the audit again shortly for the complete performance breakdown. The availability and SEO checks below are still valid.",
+    },
+    ...seoFindings,
+  ].slice(0, 6)
 }
 
 async function runFallbackAudit(target: URL) {
