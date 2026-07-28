@@ -6,8 +6,13 @@ import { Turnstile } from "@/components/turnstile"
 
 type AuditResult = {
   url: string
-  performance: number
   seo: number
+  source: "pagespeed" | "fallback"
+  performance?: number
+  status?: number
+  loadTime?: number
+  title?: string | null
+  notice?: string
 }
 
 type AuditState = "idle" | "loading" | "error"
@@ -98,7 +103,7 @@ export default function FreeAuditPage() {
           name: "Free audit visitor",
           email,
           service: "Something else",
-          message: `Free website audit requested for ${result.url}. Performance score: ${result.performance}. SEO score: ${result.seo}.`,
+          message: `Free website audit requested for ${result.url}. ${result.source === "pagespeed" ? `Performance score: ${result.performance}.` : `Direct availability check: HTTP ${result.status}, response time: ${result.loadTime}ms.`} SEO score: ${result.seo}.`,
           turnstileToken,
         }),
       })
@@ -175,11 +180,26 @@ export default function FreeAuditPage() {
               <p className="truncate text-sm text-slate-500" title={result.url}>{result.url}</p>
             </div>
 
-            <div className="mt-7 grid gap-4 sm:grid-cols-2">
-              <ScoreCard label="Performance" score={result.performance} detail="How quickly your page loads and responds on a mobile connection." icon={<Gauge className="size-4" />} />
-              <ScoreCard label="SEO" score={result.seo} detail="Fundamental checks that help search engines understand your page." icon={<Search className="size-4" />} />
-            </div>
-            <p className="mt-5 text-sm text-slate-500">Scores are from Google PageSpeed Insights. A score of 90 or above is generally considered strong.</p>
+            {result.source === "pagespeed" ? (
+              <>
+                <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                  <ScoreCard label="Performance" score={result.performance ?? 0} detail="How quickly your page loads and responds on a mobile connection." icon={<Gauge className="size-4" />} />
+                  <ScoreCard label="SEO" score={result.seo} detail="Fundamental checks that help search engines understand your page." icon={<Search className="size-4" />} />
+                </div>
+                <p className="mt-5 text-sm text-slate-500">Scores are from Google PageSpeed Insights. A score of 90 or above is generally considered strong.</p>
+              </>
+            ) : (
+              <>
+                <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                  <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <div className="flex items-start justify-between gap-4"><div><div className="flex items-center gap-2 text-sm font-semibold text-slate-700"><span className="text-sky-700"><Gauge className="size-4" /></span>Website response</div><p className="mt-2 text-sm leading-6 text-slate-500">Direct check of the public website when Google PageSpeed cannot run.</p></div><span className="text-3xl font-bold tracking-tight text-slate-950">{result.status}</span></div>
+                    <p className="mt-5 text-sm font-medium text-emerald-700">Reached in {result.loadTime} ms</p>
+                  </article>
+                  <ScoreCard label="SEO essentials" score={result.seo} detail="Checks for title, description, viewport, language, canonical URL, and main heading." icon={<Search className="size-4" />} />
+                </div>
+                <p className="mt-5 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">{result.notice}</p>
+              </>
+            )}
 
             <div className="mt-10 rounded-3xl bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/15 sm:p-9">
               {leadState === "success" ? (
