@@ -5,7 +5,7 @@ import { gsap } from "gsap"
 import { ScrollToPlugin } from "gsap/ScrollToPlugin"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Menu, X, Code, Zap } from "lucide-react"
+import { Languages, Menu, X, Code, Zap } from "lucide-react"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollToPlugin)
@@ -20,6 +20,18 @@ const navItems = [
   { name: "Process", href: "#testimonials", id: "testimonials" },
   { name: "Contact", href: "#contact", id: "contact" },
 ]
+
+const languages = [
+  ['en', 'English'], ['bn', 'বাংলা'], ['hr', 'Hrvatski'], ['nl', 'Nederlands'],
+  ['fr', 'Français'], ['de', 'Deutsch'], ['es', 'Español'], ['it', 'Italiano'],
+  ['hi', 'हिन्दी'], ['ta', 'தமிழ்'], ['te', 'తెలుగు'], ['mr', 'मराठी'],
+  ['gu', 'ગુજરાતી'], ['pa', 'ਪੰਜਾਬੀ'], ['kn', 'ಕನ್ನಡ'], ['ml', 'മലയാളം'], ['ur', 'اردو'],
+  ['ar', 'العربية'], ['pt', 'Português'], ['tr', 'Türkçe'], ['pl', 'Polski'],
+  ['ru', 'Русский'], ['uk', 'Українська'], ['zh-CN', '中文'], ['ja', '日本語'], ['ko', '한국어'],
+  ['vi', 'Tiếng Việt'], ['id', 'Bahasa Indonesia'], ['th', 'ไทย'], ['el', 'Ελληνικά'],
+  ['ro', 'Română'], ['hu', 'Magyar'], ['cs', 'Čeština'], ['sv', 'Svenska'], ['da', 'Dansk'],
+  ['no', 'Norsk'], ['fi', 'Suomi'],
+] as const
 
 export function Header() {
   const headerRef = useRef<HTMLElement>(null)
@@ -138,6 +150,11 @@ export function Header() {
     }
   }
 
+  const translatePage = (language: string) => {
+    const currentUrl = window.location.href
+    window.location.assign(`https://translate.google.com/translate?sl=auto&tl=${language}&u=${encodeURIComponent(currentUrl)}`)
+  }
+
   return (
     <>
       <header
@@ -183,6 +200,23 @@ export function Header() {
             <div className="flex items-center gap-2">
               <ThemeToggle />
 
+              <details className="relative hidden md:block">
+                <summary className="flex h-9 cursor-pointer list-none items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-portfolio-primary/30 hover:text-portfolio-primary dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-200">
+                  <Languages className="h-4 w-4" /> <span>English</span>
+                </summary>
+                <div className="absolute right-0 top-11 z-50 w-72 overflow-hidden rounded-2xl border border-border bg-card p-2 shadow-xl shadow-slate-950/15">
+                  <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Choose language</p>
+                  <div className="grid max-h-72 grid-cols-2 gap-1 overflow-y-auto">
+                    {languages.map(([code, name]) => (
+                      <button key={code} type="button" onClick={() => code === 'en' ? undefined : translatePage(code)} className={`rounded-xl px-3 py-2 text-left text-sm transition hover:bg-portfolio-primary/10 hover:text-portfolio-primary ${code === 'en' ? 'bg-portfolio-primary/10 font-semibold text-portfolio-primary' : 'text-foreground'}`}>
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="px-3 pb-1 pt-2 text-xs leading-4 text-muted-foreground">Translation is provided by Google Translate. English is the original site.</p>
+                </div>
+              </details>
+
               {/* CTA Button - Desktop */}
               <Button
                 size="sm"
@@ -194,7 +228,7 @@ export function Header() {
               </Button>
 
               {/* Mobile menu button */}
-              <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Toggle mobile menu" aria-expanded={isMobileMenuOpen} aria-controls="mobile-navigation">
+              <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Toggle mobile menu" aria-expanded={isMobileMenuOpen} aria-controls="mobile-navigation" className="md:hidden">
                 <Menu className="w-5 h-5" />
               </Button>
             </div>
@@ -233,6 +267,12 @@ export function Header() {
         </div>
 
         <div className="p-4">
+          <details className="mb-5 rounded-2xl border border-border bg-card p-3">
+            <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-foreground"><Languages className="h-4 w-4 text-portfolio-primary" /> Language: English</summary>
+            <div className="mt-3 grid max-h-52 grid-cols-2 gap-1 overflow-y-auto">
+              {languages.map(([code, name]) => <button key={code} type="button" onClick={() => code === 'en' ? undefined : translatePage(code)} className={`rounded-lg px-2 py-2 text-left text-sm transition hover:bg-portfolio-primary/10 hover:text-portfolio-primary ${code === 'en' ? 'bg-portfolio-primary/10 font-semibold text-portfolio-primary' : 'text-foreground'}`}>{name}</button>)}
+            </div>
+          </details>
           <div className="space-y-2">
             {navItems.map((item) => (
               <Button
