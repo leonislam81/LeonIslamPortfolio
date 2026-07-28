@@ -25,7 +25,6 @@ const navItems = [
 export function Header() {
   const headerRef = useRef<HTMLElement>(null)
   const logoRef = useRef<HTMLDivElement>(null)
-  const mobileMenuRef = useRef<HTMLDivElement>(null)
   const [activeSection, setActiveSection] = useState("hero")
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -88,7 +87,7 @@ export function Header() {
     if (!isMobileMenuOpen) return
 
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") toggleMobileMenu()
+      if (event.key === "Escape") closeMobileMenu()
     }
 
     window.addEventListener("keydown", closeOnEscape)
@@ -108,34 +107,20 @@ export function Header() {
         })
       }
     }
+    closeMobileMenu()
+  }
+
+  const closeMobileMenu = () => {
     setIsMobileMenuOpen(false)
+    document.body.style.overflow = ""
   }
 
   const toggleMobileMenu = () => {
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-
-    if (!isMobileMenuOpen) {
+    if (isMobileMenuOpen) {
+      closeMobileMenu()
+    } else {
       setIsMobileMenuOpen(true)
       document.body.style.overflow = "hidden"
-
-      if (!prefersReducedMotion && mobileMenuRef.current) {
-        gsap.fromTo(mobileMenuRef.current, { x: "100%" }, { x: "0%", duration: 0.3, ease: "power2.out" })
-      }
-    } else {
-      if (!prefersReducedMotion && mobileMenuRef.current) {
-        gsap.to(mobileMenuRef.current, {
-          x: "100%",
-          duration: 0.3,
-          ease: "power2.in",
-          onComplete: () => {
-            setIsMobileMenuOpen(false)
-            document.body.style.overflow = "auto"
-          },
-        })
-      } else {
-        setIsMobileMenuOpen(false)
-        document.body.style.overflow = "auto"
-      }
     }
   }
 
@@ -206,20 +191,18 @@ export function Header() {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 xl:hidden" onClick={toggleMobileMenu} aria-hidden="true" />
+        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm xl:hidden" onClick={closeMobileMenu} aria-hidden="true" />
       )}
 
       {/* Mobile Menu */}
       <div
-        ref={mobileMenuRef}
         id="mobile-navigation"
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation"
         aria-hidden={!isMobileMenuOpen}
-        inert={!isMobileMenuOpen}
-        className={`fixed top-0 right-0 h-full w-full overflow-y-auto border-l border-slate-200 bg-white text-slate-900 shadow-2xl shadow-slate-950/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 z-50 sm:w-80 xl:hidden ${
-          isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 z-[70] h-full w-full overflow-y-auto border-l border-slate-200 bg-white text-slate-900 shadow-2xl shadow-slate-950/20 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 sm:w-80 xl:hidden ${
+          isMobileMenuOpen ? "pointer-events-auto translate-x-0" : "pointer-events-none translate-x-full"
         } transition-transform duration-300 ease-out`}
       >
         <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-800">
@@ -229,9 +212,12 @@ export function Header() {
             </div>
             <span className="font-semibold text-slate-900 dark:text-slate-100">Leon Islam</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Close mobile menu" className="text-slate-900 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-100 dark:hover:bg-slate-900 dark:hover:text-white">
-            <X className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <LanguageSwitcher />
+            <Button variant="ghost" size="icon" type="button" onClick={closeMobileMenu} aria-label="Close mobile menu" className="text-slate-900 hover:bg-slate-100 hover:text-slate-950 dark:text-slate-100 dark:hover:bg-slate-900 dark:hover:text-white">
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
 
         <div className="p-4">
