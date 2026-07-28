@@ -7,12 +7,12 @@ export function CalBookingEmbed() {
   const theme = resolvedTheme === 'dark' ? 'dark' : 'light'
 
   return (
-    <div className="booking-frame overflow-hidden rounded-[1.4rem] p-px">
+    <div className="booking-frame py-4 sm:py-5">
       <iframe
         key={theme}
         title="Book a project discovery call with Leon Islam"
         src={`https://cal.com/leobislam/project-discovery?embed=1&theme=${theme}`}
-        className="block h-[860px] w-full rounded-[calc(1.4rem-1px)] border-0 bg-card sm:h-[620px] lg:h-[560px]"
+        className="block h-[860px] w-full rounded-[1.4rem] border-0 bg-card sm:h-[620px] lg:h-[560px]"
         loading="eager"
       />
     </div>

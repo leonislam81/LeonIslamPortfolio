@@ -221,16 +221,6 @@
   justify-content: center;
 }
 
-.booking-frame {
-  background: linear-gradient(135deg, color-mix(in oklab, var(--portfolio-primary) 34%, transparent), color-mix(in oklab, var(--portfolio-accent) 22%, transparent));
-  box-shadow: 0 22px 55px -34px color-mix(in oklab, var(--portfolio-primary) 54%, transparent), 0 10px 24px -20px rgb(15 23 42 / 0.35);
-}
-
-.dark .booking-frame {
-  background: linear-gradient(135deg, color-mix(in oklab, var(--portfolio-primary) 48%, transparent), color-mix(in oklab, var(--portfolio-accent) 38%, transparent));
-  box-shadow: 0 24px 62px -34px rgb(0 0 0 / 0.78);
-}
-
 @media screen and (min-width: 768px) {
   .heroBox__container {
     min-height: 92vh;
