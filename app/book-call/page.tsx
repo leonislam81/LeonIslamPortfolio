@@ -43,9 +43,12 @@ export default function BookCallPage() {
           </div>
         </section>
 
-        <section className="container mx-auto max-w-4xl px-4 py-6 sm:py-8">
-          <CalBookingEmbed />
-          <p className="mt-5 text-center text-sm text-muted-foreground">
+        <section className="relative overflow-hidden bg-[radial-gradient(circle_at_50%_0%,oklch(0.93_0.06_255_/_0.75),transparent_43rem)] px-4 py-8 dark:bg-[radial-gradient(circle_at_50%_0%,oklch(0.32_0.08_255_/_0.38),transparent_43rem)] sm:py-12">
+          <div className="relative mx-auto max-w-5xl">
+            <div aria-hidden="true" className="absolute -inset-x-8 -top-10 -bottom-8 -z-10 rounded-[3rem] bg-white/55 blur-2xl dark:bg-slate-900/25" />
+            <CalBookingEmbed />
+          </div>
+          <p className="relative mt-6 text-center text-sm text-muted-foreground">
             Prefer to write first? <Link href="/start-project" className="font-semibold text-portfolio-primary hover:underline">Start a project request</Link>.
           </p>
         </section>
