@@ -76,6 +76,25 @@ type ContactPayload = {
   turnstileToken?: unknown
   sendChecklist?: unknown
   honeypot?: unknown
+  audit?: unknown
+}
+
+type AuditFinding = {
+  category: "Performance" | "SEO" | "Technical"
+  priority: "high" | "medium" | "low"
+  title: string
+  detail: string
+  action: string
+}
+
+type AuditReport = {
+  url: string
+  source: "pagespeed" | "fallback"
+  performance?: number
+  seo: number
+  status?: number
+  loadTime?: number
+  findings: AuditFinding[]
 }
 
 function isText(value: unknown): value is string {
@@ -94,6 +113,42 @@ function escapeHtml(value: string) {
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
+}
+
+function score(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100 ? Math.round(value) : undefined
+}
+
+function auditText(value: unknown, maximum = 280) {
+  return isText(value) ? value.trim().slice(0, maximum) : ""
+}
+
+function parseAudit(value: unknown): AuditReport | null {
+  if (!isRecord(value)) return null
+  const url = auditText(value.url, 2_000)
+  const source = value.source === "pagespeed" || value.source === "fallback" ? value.source : null
+  const seo = score(value.seo)
+
+  try {
+    const parsed = new URL(url)
+    if (!source || seo === undefined || !/^https?:$/.test(parsed.protocol)) return null
+  } catch {
+    return null
+  }
+
+  const findings = Array.isArray(value.findings) ? value.findings.slice(0, 6).flatMap((item): AuditFinding[] => {
+    if (!isRecord(item) || !(item.category === "Performance" || item.category === "SEO" || item.category === "Technical") || !(item.priority === "high" || item.priority === "medium" || item.priority === "low")) return []
+    const title = auditText(item.title, 120)
+    const detail = auditText(item.detail)
+    const action = auditText(item.action)
+    return title && detail && action ? [{ category: item.category, priority: item.priority, title, detail, action }] : []
+  }) : []
+
+  return { url, source, seo, performance: score(value.performance), status: score(value.status), loadTime: score(value.loadTime), findings }
 }
 
 async function verifyTurnstile(token: string, request: Request) {
@@ -151,6 +206,33 @@ function createConfirmationEmail(name: string, service: string, timeline: string
         <p style="margin:0;"><strong>Preferred timeline:</strong> ${escapeHtml(timeline)}</p>
       </div>
       <p>You can expect a practical next step within <strong>2&ndash;4 business hours</strong>. If your request is time-sensitive, reply to this email with the deadline and any relevant details.</p>
+      <p style="margin-top:24px;">Best regards,<br /><strong>Leon Islam</strong><br /><a style="color:#0f6b8f;" href="https://leonislam.com">leonislam.com</a></p>
+    </div>
+  `
+}
+
+function createAuditReportEmail(name: string, audit: AuditReport) {
+  const scoreCards = audit.source === "pagespeed"
+    ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:24px 0;border-collapse:separate;border-spacing:12px 0;"><tr><td style="width:50%;padding:20px;border:1px solid #cfe0ed;border-radius:14px;background:#f7fbff;"><p style="margin:0;color:#52657c;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Mobile performance</p><p style="margin:8px 0 0;font-size:32px;font-weight:700;color:#10233f;">${audit.performance ?? "—"}<span style="font-size:14px;">/100</span></p></td><td style="width:50%;padding:20px;border:1px solid #cfe0ed;border-radius:14px;background:#f7fbff;"><p style="margin:0;color:#52657c;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">SEO essentials</p><p style="margin:8px 0 0;font-size:32px;font-weight:700;color:#10233f;">${audit.seo}<span style="font-size:14px;">/100</span></p></td></tr></table>`
+    : `<div style="margin:24px 0;padding:20px;border:1px solid #cfe0ed;border-radius:14px;background:#f7fbff;"><p style="margin:0 0 8px;font-weight:700;">Website availability and SEO snapshot</p><p style="margin:0;">The public website responded with HTTP ${audit.status ?? "—"}. SEO essentials score: <strong>${audit.seo}/100</strong>.</p></div>`
+
+  const findings = audit.findings.length
+    ? audit.findings.map((finding) => `<div style="margin:0 0 14px;padding:18px;border:1px solid #dbe6ef;border-radius:12px;"><p style="margin:0 0 6px;color:#0f6b8f;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;">${escapeHtml(finding.category)} · ${escapeHtml(finding.priority)} priority</p><p style="margin:0 0 7px;font-weight:700;">${escapeHtml(finding.title)}</p><p style="margin:0 0 8px;color:#40536a;">${escapeHtml(finding.detail)}</p><p style="margin:0;color:#10233f;"><strong>Recommended fix:</strong> ${escapeHtml(finding.action)}</p></div>`).join("")
+    : `<div style="padding:18px;border:1px solid #b7e4c7;border-radius:12px;background:#f2fff6;"><strong>No major automated issues were flagged.</strong> A manual review can still reveal content, trust, and conversion improvements.</div>`
+
+  return `
+    <div style="margin:0 auto;max-width:640px;padding:32px 20px;font-family:Arial,sans-serif;color:#10233f;line-height:1.6;">
+      <p style="margin:0 0 16px;color:#0f6b8f;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:12px;">Leon Islam · Free website audit</p>
+      <h1 style="margin:0 0 16px;font-size:28px;line-height:1.2;">Your website improvement report</h1>
+      <p>Hi ${escapeHtml(name)},</p>
+      <p>Here is the snapshot for <a style="color:#0f6b8f;word-break:break-all;" href="${escapeHtml(audit.url)}">${escapeHtml(audit.url)}</a>. It is based on a public mobile performance and SEO check.</p>
+      ${scoreCards}
+      <h2 style="margin:30px 0 12px;font-size:20px;">Where the audit found opportunities</h2>
+      ${findings}
+      <h2 style="margin:30px 0 12px;font-size:20px;">Design and conversion ideas to review</h2>
+      <ul style="margin:0;padding-left:20px;color:#40536a;"><li style="margin-bottom:8px;">Make the main offer and the next action obvious in the first screen, especially on mobile.</li><li style="margin-bottom:8px;">Use proof near key calls to action: reviews, results, client logos, guarantees, or concise case studies.</li><li style="margin-bottom:8px;">Give each important service page one clear search intent, a focused heading, useful supporting copy, and a relevant call to action.</li></ul>
+      <div style="margin:28px 0;padding:20px 24px;border-radius:14px;background:#10233f;color:#ffffff;"><p style="margin:0 0 8px;font-weight:700;font-size:18px;">Want a focused action plan?</p><p style="margin:0;color:#dbeafe;">Reply with your main business goal — more leads, sales, bookings, or search traffic — and I&apos;ll suggest the highest-value first improvements.</p></div>
+      <p style="font-size:13px;color:#60738a;">This is an automated public-page snapshot. It highlights likely issues, but it does not test every page, login area, form flow, or browser/device combination.</p>
       <p style="margin-top:24px;">Best regards,<br /><strong>Leon Islam</strong><br /><a style="color:#0f6b8f;" href="https://leonislam.com">leonislam.com</a></p>
     </div>
   `
@@ -230,6 +312,7 @@ export async function POST(request: Request) {
   const budget = isText(payload.budget) ? payload.budget.trim() : "Not specified"
   const turnstileToken = isText(payload.turnstileToken) ? payload.turnstileToken.trim() : ""
   const sendChecklist = payload.sendChecklist === true
+  const audit = parseAudit(payload.audit)
 
   // Bots fill the hidden field. Return success to avoid helping them tune attacks.
   if (isText(payload.honeypot) && payload.honeypot.trim()) {
@@ -251,7 +334,7 @@ export async function POST(request: Request) {
     from: sender,
     to: [recipient],
     replyTo: email,
-    subject: `New website enquiry: ${service}`,
+    subject: audit ? `New free website audit lead: ${audit.url}` : `New website enquiry: ${service}`,
     html: `
       <h1>New website enquiry</h1>
       <p><strong>Name:</strong> ${escapeHtml(name)}</p>
@@ -262,6 +345,7 @@ export async function POST(request: Request) {
       <p><strong>Website, store, or file link:</strong> ${escapeHtml(websiteUrl)}</p>
       <p><strong>Estimated budget:</strong> ${escapeHtml(budget)}</p>
       <p><strong>Project checklist requested:</strong> ${sendChecklist ? "Yes" : "No"}</p>
+      ${audit ? `<p><strong>Audit source:</strong> ${escapeHtml(audit.source)}</p><p><strong>Performance:</strong> ${audit.performance ?? "Not available"}/100</p><p><strong>SEO:</strong> ${audit.seo}/100</p><p><strong>Priority findings:</strong> ${audit.findings.length}</p>` : ""}
       <hr />
       <p><strong>Message:</strong></p>
       <p>${safeMessage}</p>
@@ -289,8 +373,8 @@ export async function POST(request: Request) {
     from: sender,
     to: [email],
     replyTo: recipient,
-    subject: 'Your enquiry has been received',
-    html: createConfirmationEmail(name, service, timeline),
+    subject: audit ? `Your website audit: ${audit.findings.length ? `${audit.findings.length} priority improvements` : "your results"}` : "Your enquiry has been received",
+    html: audit ? createAuditReportEmail(name, audit) : createConfirmationEmail(name, service, timeline),
   })
 
   if (confirmationError) {

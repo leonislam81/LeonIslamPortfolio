@@ -1,7 +1,7 @@
 "use client"
 
 import { FormEvent, useCallback, useState } from "react"
-import { ArrowRight, Check, ChevronLeft, CircleCheck, Gauge, LockKeyhole, Search, Zap } from "lucide-react"
+import { ArrowRight, Check, ChevronLeft, CircleAlert, CircleCheck, Gauge, LockKeyhole, Search, Wrench, Zap } from "lucide-react"
 import { Turnstile } from "@/components/turnstile"
 
 type AuditResult = {
@@ -13,6 +13,15 @@ type AuditResult = {
   loadTime?: number
   title?: string | null
   notice?: string
+  findings?: AuditFinding[]
+}
+
+type AuditFinding = {
+  category: "Performance" | "SEO" | "Technical"
+  priority: "high" | "medium" | "low"
+  title: string
+  detail: string
+  action: string
 }
 
 type AuditState = "idle" | "loading" | "error"
@@ -104,6 +113,15 @@ export default function FreeAuditPage() {
           email,
           service: "Something else",
           message: `Free website audit requested for ${result.url}. ${result.source === "pagespeed" ? `Performance score: ${result.performance}.` : `Direct availability check: HTTP ${result.status}, response time: ${result.loadTime}ms.`} SEO score: ${result.seo}.`,
+          audit: {
+            url: result.url,
+            source: result.source,
+            performance: result.performance,
+            seo: result.seo,
+            status: result.status,
+            loadTime: result.loadTime,
+            findings: result.findings ?? [],
+          },
           turnstileToken,
         }),
       })
@@ -201,19 +219,46 @@ export default function FreeAuditPage() {
               </>
             )}
 
+            <div className="mt-7">
+              <div className="flex items-start gap-3">
+                <div className="rounded-xl bg-sky-100 p-2 text-sky-800"><CircleAlert className="size-5" /></div>
+                <div>
+                  <h3 className="font-bold text-slate-950">Priority improvements</h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">These are the clearest issues found in this automated snapshot. They are practical starting points, not a substitute for a full manual review.</p>
+                </div>
+              </div>
+              {result.findings?.length ? (
+                <div className="mt-5 grid gap-4 md:grid-cols-2">
+                  {result.findings.map((finding) => (
+                    <article key={`${finding.category}-${finding.title}`} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-bold uppercase tracking-[.12em] text-sky-700">{finding.category}</span>
+                        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${finding.priority === "high" ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-800"}`}>{finding.priority} priority</span>
+                      </div>
+                      <h4 className="mt-3 font-bold text-slate-950">{finding.title}</h4>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">{finding.detail}</p>
+                      <div className="mt-4 flex gap-2 border-t border-slate-100 pt-4 text-sm leading-6 text-slate-700"><Wrench className="mt-1 size-4 shrink-0 text-sky-700" />{finding.action}</div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm leading-6 text-emerald-900"><Check className="mr-2 inline size-4" />No major automated issues were flagged in this snapshot. A manual review can still uncover conversion, content, and user-journey improvements.</div>
+              )}
+            </div>
+
             <div className="mt-10 rounded-3xl bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/15 sm:p-9">
               {leadState === "success" ? (
                 <div className="max-w-xl py-2">
                   <CircleCheck className="size-9 text-emerald-400" />
-                  <h3 className="mt-4 text-2xl font-bold">Your report request is on its way.</h3>
-                  <p className="mt-2 leading-7 text-slate-300">Check your inbox for confirmation. I&apos;ll review the result and follow up with practical next steps.</p>
+                  <h3 className="mt-4 text-2xl font-bold">Your detailed report is on its way.</h3>
+                  <p className="mt-2 leading-7 text-slate-300">Check your inbox for the scores, issues found, and practical improvement ideas for your website.</p>
                 </div>
               ) : (
                 <div className="grid gap-8 lg:grid-cols-[1fr_1.05fr] lg:items-center">
                   <div>
                     <p className="text-sm font-bold uppercase tracking-[0.16em] text-sky-300">What&apos;s next</p>
                     <h3 className="mt-3 text-2xl font-bold tracking-tight">Want the practical next steps?</h3>
-                    <p className="mt-3 leading-7 text-slate-300">Send the result to your inbox and I&apos;ll follow up with clear, useful ways to improve your site.</p>
+                    <p className="mt-3 leading-7 text-slate-300">Email yourself a clearer report with the issues found, SEO and content opportunities, plus ideas to improve trust and conversions.</p>
                     <ul className="mt-5 space-y-2 text-sm text-slate-300">
                       {["A copy of your scores", "A human review of the biggest opportunities", "No spam — just relevant follow-up"].map((item) => <li key={item} className="flex items-center gap-2"><Check className="size-4 text-emerald-400" />{item}</li>)}
                     </ul>

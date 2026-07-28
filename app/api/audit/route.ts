@@ -4,13 +4,27 @@ import { NextResponse } from "next/server"
 
 export const runtime = "nodejs"
 
+type LighthouseAudits = Record<string, {
+  score?: number | null
+  displayValue?: string
+}>
+
 type PageSpeedResult = {
   lighthouseResult?: {
     categories?: {
       performance?: { score?: number }
       seo?: { score?: number }
     }
+    audits?: LighthouseAudits
   }
+}
+
+type AuditFinding = {
+  category: "Performance" | "SEO" | "Technical"
+  priority: "high" | "medium" | "low"
+  title: string
+  detail: string
+  action: string
 }
 
 const retryableStatuses = new Set([429, 500, 502, 503, 504])
@@ -63,7 +77,54 @@ function auditHtml(html: string) {
   const title = html.match(/<title\b[^>]*>([^<]*)<\/title>/i)?.[1]?.trim()
 
   const signals = [hasTitle, hasDescription, hasViewport, hasCanonical, hasLanguage, hasHeading]
-  return { seo: Math.round((signals.filter(Boolean).length / signals.length) * 100), title: title?.slice(0, 160) || null }
+  return {
+    seo: Math.round((signals.filter(Boolean).length / signals.length) * 100),
+    title: title?.slice(0, 160) || null,
+    checks: { hasTitle, hasDescription, hasViewport, hasCanonical, hasLanguage, hasHeading },
+  }
+}
+
+function priorityFor(score: number | null | undefined, threshold = 0.5): AuditFinding["priority"] {
+  if (score === null || score === undefined || score < threshold) return "high"
+  return "medium"
+}
+
+function buildPageSpeedFindings(audits: LighthouseAudits | undefined) {
+  const findings: AuditFinding[] = []
+  const addIfFailing = (id: string, category: AuditFinding["category"], title: string, detail: string, action: string, threshold = 0.9) => {
+    const audit = audits?.[id]
+    if (!audit || audit.score === undefined || audit.score === null || audit.score >= threshold) return
+    findings.push({ category, priority: priorityFor(audit.score), title, detail: audit.displayValue ? `${detail} Current result: ${audit.displayValue}.` : detail, action })
+  }
+
+  addIfFailing("largest-contentful-paint", "Performance", "Main content loads too slowly", "The largest visible page element takes longer than recommended to appear.", "Optimise the hero image, reduce server work, and preload the main visual.")
+  addIfFailing("total-blocking-time", "Performance", "The page is slow to respond", "JavaScript is keeping the browser busy during the first visit.", "Remove unused scripts and delay non-essential widgets until after the page is interactive.")
+  addIfFailing("cumulative-layout-shift", "Performance", "Elements move while the page loads", "Layout movement can make visitors tap the wrong item or lose their place.", "Set image and embed dimensions, and reserve space for banners, fonts, and dynamic content.")
+  addIfFailing("render-blocking-resources", "Performance", "Files delay the first render", "Some stylesheets or scripts are holding back the first visible content.", "Inline critical styles and defer non-critical CSS and JavaScript.")
+  addIfFailing("uses-optimized-images", "Performance", "Images are heavier than needed", "Page images could be delivered in a more efficient size or format.", "Compress large images and serve correctly sized WebP or AVIF versions.")
+  addIfFailing("unused-javascript", "Performance", "Unused JavaScript adds weight", "Visitors download code that is not needed for the initial page.", "Remove unused packages and code-split features that are not needed above the fold.")
+  addIfFailing("errors-in-console", "Technical", "Browser errors were detected", "PageSpeed found messages in the browser console that may indicate a broken interaction or third-party script problem.", "Check the browser console and fix the affected script before it impacts visitors.", 1)
+
+  addIfFailing("document-title", "SEO", "The page title needs attention", "Search engines need a clear, unique title to understand the page topic.", "Write a concise, keyword-focused page title that matches the visitor's intent.", 1)
+  addIfFailing("meta-description", "SEO", "The meta description is missing or weak", "A useful description can improve how the page is presented in search results.", "Add a specific 140–160 character description with the page value and a natural keyword.", 1)
+  addIfFailing("link-text", "SEO", "Some links are not descriptive", "Generic link labels make navigation less clear for people and search engines.", "Replace labels such as “click here” or “learn more” with text that names the destination.", 1)
+  addIfFailing("image-alt", "SEO", "Some images need alt text", "Missing image descriptions reduce accessibility and image-search context.", "Add short, accurate alt text to meaningful images; leave decorative images empty.", 1)
+  addIfFailing("heading-order", "SEO", "Heading structure needs review", "Headings should describe a clear content hierarchy.", "Use one relevant H1 and organise supporting sections with logical H2 and H3 headings.", 1)
+
+  return findings.slice(0, 6)
+}
+
+function buildFallbackFindings(checks: ReturnType<typeof auditHtml>["checks"]): AuditFinding[] {
+  const missing: Array<[keyof typeof checks, string, string, string]> = [
+    ["hasTitle", "The page title is missing", "Search engines and browser tabs need a clear page title.", "Add a unique, benefit-led title that describes the page topic."],
+    ["hasDescription", "The meta description is missing", "Search results may not show a compelling summary of this page.", "Add a concise description that explains the offer and encourages the right visitor to click."],
+    ["hasHeading", "The main page heading is missing", "Visitors and search engines need a clear primary topic for the page.", "Add one descriptive H1 that matches the page purpose and target search intent."],
+    ["hasCanonical", "The canonical URL is missing", "Search engines may struggle to identify the preferred version of this page.", "Add a self-referencing canonical URL to reduce duplicate-content ambiguity."],
+    ["hasLanguage", "The page language is not declared", "Screen readers and search engines use this setting to interpret the page correctly.", "Add the correct lang attribute to the HTML element."],
+    ["hasViewport", "Mobile viewport settings are missing", "The page may not scale correctly on phones.", "Add a responsive viewport meta tag and test the layout on a small screen."],
+  ]
+
+  return missing.filter(([check]) => !checks[check]).map(([, title, detail, action]) => ({ category: "SEO" as const, priority: "high" as const, title, detail, action })).slice(0, 6)
 }
 
 async function runFallbackAudit(target: URL) {
@@ -91,9 +152,9 @@ async function runFallbackAudit(target: URL) {
     const loadTime = Math.round(performance.now() - startedAt)
     const contentType = response.headers.get("content-type") || ""
     const html = contentType.includes("text/html") ? await response.text() : ""
-    const { seo, title } = auditHtml(html.slice(0, 750_000))
+    const { seo, title, checks } = auditHtml(html.slice(0, 750_000))
 
-    return { url: current.href, status: response.status, loadTime, seo, title }
+    return { url: current.href, status: response.status, loadTime, seo, title, findings: buildFallbackFindings(checks) }
   }
 
   throw new Error("The website redirected too many times or returned an unsupported response.")
@@ -113,14 +174,17 @@ export async function POST(request: Request) {
   const key = process.env.PAGESPEED_API_KEY
   if (key) {
     const pageSpeed = await runPageSpeed(target, key)
-    const categories = pageSpeed?.lighthouseResult?.categories
+    const lighthouse = pageSpeed?.lighthouseResult
+    const categories = lighthouse?.categories
 
     if (categories?.performance?.score !== undefined && categories.seo?.score !== undefined) {
+      const audits = lighthouse?.audits
       return NextResponse.json({
         url: target.href,
         performance: Math.round(categories.performance.score * 100),
         seo: Math.round(categories.seo.score * 100),
         source: "pagespeed",
+        findings: buildPageSpeedFindings(audits),
       })
     }
   }
