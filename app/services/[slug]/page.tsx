@@ -73,7 +73,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
       <section className="relative overflow-hidden border-b border-border bg-muted/35 py-20 sm:py-28">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(99,102,241,.13),transparent_30rem),radial-gradient(circle_at_85%_75%,rgba(20,184,166,.10),transparent_28rem)]" />
         <div className="container relative mx-auto px-4">
-          <Link href="/" className="text-sm font-medium text-portfolio-primary hover:underline">← Back to home</Link>
+          <Link href="/" className="text-sm font-medium text-portfolio-primary hover:underline">â† Back to home</Link>
           <div className="mt-8 max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-portfolio-primary/20 bg-card px-3 py-1 text-sm font-medium text-portfolio-primary">
               <Sparkles className="h-4 w-4" />{service.eyebrow}
@@ -110,7 +110,7 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
                 </div>
               ))}
             </div>
-            <a href="mailto:leonislam810@gmail.com?subject=Service%20Inquiry" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-portfolio-primary hover:underline">
+            <a href="mailto:info@leonislam.com?subject=Service%20Inquiry" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-portfolio-primary hover:underline">
               <Mail className="h-4 w-4" />Email Leon directly
             </a>
           </aside>

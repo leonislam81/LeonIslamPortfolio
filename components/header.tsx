@@ -267,10 +267,10 @@ export function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open("mailto:leonislam810@gmail.com", "_blank")}
+                onClick={() => window.open("mailto:info@leonislam.com", "_blank")}
                 className="mobile-nav-item !opacity-100 w-full border-slate-300 bg-white text-slate-700 text-xs hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
               >
-                leonislam810@gmail.com
+                info@leonislam.com
               </Button>
               <Button
                 variant="outline"

@@ -341,11 +341,11 @@ export function Navigation() {
                 variant="outline"
                 size="sm"
                 onClick={() =>
-                  window.open('mailto:leonislam810@gmail.com', '_blank')
+                  window.open('mailto:info@leonislam.com', '_blank')
                 }
                 className="mobile-nav-item w-full text-xs text-muted-foreground"
               >
-                leonislam810@gmail.com
+                info@leonislam.com
               </Button>
               <Button
                 variant="outline"

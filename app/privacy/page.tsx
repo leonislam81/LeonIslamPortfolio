@@ -63,8 +63,8 @@ export default function PrivacyPage() {
 
           <PolicyCard title="Your choices and contact">
             <p>You can ask about, correct, or request deletion of the personal information you have provided by contacting Leon Islam. This policy may be updated when the website or its services change.</p>
-            <a href="mailto:leonislam810@gmail.com" className="mt-4 inline-flex items-center gap-2 font-semibold text-portfolio-primary hover:underline">
-              <Mail className="h-4 w-4" /> leonislam810@gmail.com
+            <a href="mailto:info@leonislam.com" className="mt-4 inline-flex items-center gap-2 font-semibold text-portfolio-primary hover:underline">
+              <Mail className="h-4 w-4" /> info@leonislam.com
             </a>
           </PolicyCard>
         </article>

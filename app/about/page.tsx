@@ -29,7 +29,7 @@ export default function AboutPage() {
       <section className="relative overflow-hidden border-b border-border bg-muted/35 py-20 sm:py-28">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_15%,rgba(99,102,241,.16),transparent_28rem),radial-gradient(circle_at_88%_72%,rgba(20,184,166,.12),transparent_30rem)]" />
         <div className="container relative mx-auto px-4">
-          <Link href="/" className="text-sm font-medium text-portfolio-primary hover:underline">← Back to home</Link>
+          <Link href="/" className="text-sm font-medium text-portfolio-primary hover:underline">â† Back to home</Link>
           <div className="mt-10 grid items-center gap-12 lg:grid-cols-[1.1fr_.9fr]">
             <div className="max-w-3xl">
               <span className="inline-flex items-center gap-2 rounded-full border border-portfolio-primary/20 bg-card px-3 py-1 text-xs font-semibold uppercase tracking-[.16em] text-portfolio-primary shadow-sm"><Sparkles className="h-3.5 w-3.5" /> About Leon Islam</span>
@@ -56,7 +56,7 @@ export default function AboutPage() {
             <p className="text-sm font-semibold uppercase tracking-[.16em] text-portfolio-primary">How I work</p>
             <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Simple processes. Useful progress.</h2>
             <p className="mt-5 text-base leading-8 text-muted-foreground">The focus is on taking repetitive, detail-heavy tasks off your plate, keeping the work organized, and making it easy for you to see what has been completed.</p>
-            <a href="mailto:leonislam810@gmail.com" className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-portfolio-primary hover:underline"><Mail className="h-4 w-4" /> leonislam810@gmail.com</a>
+            <a href="mailto:info@leonislam.com" className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-portfolio-primary hover:underline"><Mail className="h-4 w-4" /> info@leonislam.com</a>
           </div>
           <div className="grid gap-4">
             {principles.map(({ icon: Icon, title, text }) => (
@@ -72,7 +72,7 @@ export default function AboutPage() {
       <section className="border-t border-border bg-muted/25 py-16 sm:py-20">
         <div className="container mx-auto max-w-4xl px-4 text-center">
           <p className="text-sm font-semibold uppercase tracking-[.16em] text-portfolio-primary">Support areas</p>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Website, catalog, and admin tasks—handled with care.</h2>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Website, catalog, and admin tasksâ€”handled with care.</h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-muted-foreground">From a single update to an ongoing workflow, you can request help with website management, e-commerce listings, Amazon product data, research, data entry, and online admin work.</p>
           <Link href="/services" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-portfolio-primary px-5 py-3 text-sm font-semibold text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/20 hover:bg-portfolio-primary/90">See all services <ArrowRight className="h-4 w-4" /></Link>
         </div>
