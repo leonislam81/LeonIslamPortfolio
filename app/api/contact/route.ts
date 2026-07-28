@@ -379,9 +379,10 @@ export async function POST(request: Request) {
 
   if (confirmationError) {
     console.error("Resend enquiry confirmation error", confirmationError)
-  } else {
-    confirmationSent = true
+    return NextResponse.json({ error: "We received your request, but could not deliver the report email. Please check the address and try again." }, { status: 502 })
   }
+
+  confirmationSent = true
 
   let checklistSent = false
 

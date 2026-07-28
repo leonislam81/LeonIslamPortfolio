@@ -250,8 +250,8 @@ export default function FreeAuditPage() {
               {leadState === "success" ? (
                 <div className="max-w-xl py-2">
                   <CircleCheck className="size-9 text-emerald-400" />
-                  <h3 className="mt-4 text-2xl font-bold">Your detailed report is on its way.</h3>
-                  <p className="mt-2 leading-7 text-slate-300">Check your inbox for the scores, issues found, and practical improvement ideas for your website.</p>
+                  <h3 className="mt-4 text-2xl font-bold">Your detailed report has been accepted for delivery.</h3>
+                  <p className="mt-2 leading-7 text-slate-300">Check your inbox, Promotions, and Spam folders for the scores, issues found, and practical improvement ideas for your website.</p>
                 </div>
               ) : (
                 <div className="grid gap-8 lg:grid-cols-[1fr_1.05fr] lg:items-center">
