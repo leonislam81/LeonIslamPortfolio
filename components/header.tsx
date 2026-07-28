@@ -5,6 +5,7 @@ import { gsap } from "gsap"
 import { ScrollToPlugin } from "gsap/ScrollToPlugin"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { Menu, X, Code, Zap } from "lucide-react"
 
 if (typeof window !== "undefined") {
@@ -182,6 +183,7 @@ export function Header() {
             {/* Right side actions */}
             <div className="flex items-center gap-2">
               <ThemeToggle />
+              <LanguageSwitcher />
 
               {/* CTA Button - Desktop */}
               <Button
