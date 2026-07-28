@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Check, ChevronDown, Globe2, LoaderCircle } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { Check, Globe2, LoaderCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 type Language = {
@@ -73,6 +74,7 @@ export function LanguageSwitcher() {
   const [error, setError] = useState("")
   const menuRef = useRef<HTMLDivElement>(null)
   const applyingRef = useRef(false)
+  const pathname = usePathname()
 
   const restoreEnglish = () => {
     const nodes = collectTextNodes()
@@ -159,10 +161,24 @@ export function LanguageSwitcher() {
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("leon-site-language")
-    if (savedLanguage && getLanguage(savedLanguage).code === savedLanguage) {
-      void selectLanguage(savedLanguage)
+    if (savedLanguage && savedLanguage !== "EN" && getLanguage(savedLanguage).code === savedLanguage) {
+      setIsTranslating(true)
+      setError("")
+      void translatePage(savedLanguage)
+        .then(() => setSelectedCode(savedLanguage))
+        .catch((translationError) => {
+          restoreEnglish()
+          setSelectedCode("EN")
+          localStorage.setItem("leon-site-language", "EN")
+          setError(translationError instanceof Error ? translationError.message : "Translation could not be completed.")
+        })
+        .finally(() => setIsTranslating(false))
+    } else {
+      setSelectedCode("EN")
     }
+  }, [pathname])
 
+  useEffect(() => {
     void fetch("/api/language-recommendations")
       .then((response) => response.json())
       .then((data: { languages?: string[] }) => setRecommendedCodes(data.languages?.filter((code) => getLanguage(code).code === code) || []))
@@ -175,7 +191,6 @@ export function LanguageSwitcher() {
     return () => document.removeEventListener("mousedown", onClickOutside)
   }, [])
 
-  const selectedLanguage = getLanguage(selectedCode)
   const recommendedLanguages = languages.filter((language) => recommendedCodes.includes(language.code) && language.code !== "EN")
   const otherLanguages = languages.filter((language) => !recommendedCodes.includes(language.code) || language.code === "EN")
 
@@ -183,16 +198,15 @@ export function LanguageSwitcher() {
     <div ref={menuRef} className="relative" data-no-translate>
       <Button
         variant="outline"
-        size="sm"
+        size="icon"
         type="button"
         onClick={() => setOpen((value) => !value)}
+        aria-label="Change website language"
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="gap-1.5 rounded-full border-slate-200 bg-white/80 px-3 shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:bg-slate-800"
+        className="h-9 w-9 shrink-0 rounded-full border-slate-200 bg-white/80 shadow-sm hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:bg-slate-800"
       >
         {isTranslating ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Globe2 className="h-3.5 w-3.5" />}
-        <span className="hidden sm:inline">{selectedLanguage.native}</span>
-        <ChevronDown className="h-3.5 w-3.5" />
       </Button>
 
       {open && (
