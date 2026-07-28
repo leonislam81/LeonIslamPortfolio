@@ -151,8 +151,25 @@ export function Header() {
   }
 
   const translatePage = (language: string) => {
-    const currentUrl = window.location.href
-    window.location.assign(`https://translate.google.com/translate?sl=auto&tl=${language}&u=${encodeURIComponent(currentUrl)}`)
+    const currentUrl = new URL(window.location.href)
+
+    // Google Translate serves translated pages from a translate.goog address. Always
+    // return to the real site URL before changing languages, so visitors can switch
+    // back to English or choose another language without nesting translated pages.
+    if (currentUrl.hostname.endsWith('.translate.goog')) {
+      currentUrl.hostname = 'leonislam.com'
+      ;[...currentUrl.searchParams.keys()].forEach((key) => {
+        if (key.startsWith('_x_tr_')) currentUrl.searchParams.delete(key)
+      })
+    }
+
+    const originalUrl = currentUrl.toString()
+    if (language === 'en') {
+      window.location.assign(originalUrl)
+      return
+    }
+
+    window.location.assign(`https://translate.google.com/translate?sl=auto&tl=${language}&u=${encodeURIComponent(originalUrl)}`)
   }
 
   return (
@@ -208,7 +225,7 @@ export function Header() {
                   <p className="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Choose language</p>
                   <div className="grid max-h-72 grid-cols-2 gap-1 overflow-y-auto">
                     {languages.map(([code, name]) => (
-                      <button key={code} type="button" onClick={() => code === 'en' ? undefined : translatePage(code)} className={`rounded-xl px-3 py-2 text-left text-sm transition hover:bg-portfolio-primary/10 hover:text-portfolio-primary ${code === 'en' ? 'bg-portfolio-primary/10 font-semibold text-portfolio-primary' : 'text-foreground'}`}>
+                      <button key={code} type="button" onClick={() => translatePage(code)} className={`rounded-xl px-3 py-2 text-left text-sm transition hover:bg-portfolio-primary/10 hover:text-portfolio-primary ${code === 'en' ? 'bg-portfolio-primary/10 font-semibold text-portfolio-primary' : 'text-foreground'}`}>
                         {name}
                       </button>
                     ))}
@@ -270,7 +287,7 @@ export function Header() {
           <details className="mb-5 rounded-2xl border border-border bg-card p-3">
             <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-foreground"><Languages className="h-4 w-4 text-portfolio-primary" /> Language: English</summary>
             <div className="mt-3 grid max-h-52 grid-cols-2 gap-1 overflow-y-auto">
-              {languages.map(([code, name]) => <button key={code} type="button" onClick={() => code === 'en' ? undefined : translatePage(code)} className={`rounded-lg px-2 py-2 text-left text-sm transition hover:bg-portfolio-primary/10 hover:text-portfolio-primary ${code === 'en' ? 'bg-portfolio-primary/10 font-semibold text-portfolio-primary' : 'text-foreground'}`}>{name}</button>)}
+              {languages.map(([code, name]) => <button key={code} type="button" onClick={() => translatePage(code)} className={`rounded-lg px-2 py-2 text-left text-sm transition hover:bg-portfolio-primary/10 hover:text-portfolio-primary ${code === 'en' ? 'bg-portfolio-primary/10 font-semibold text-portfolio-primary' : 'text-foreground'}`}>{name}</button>)}
             </div>
           </details>
           <div className="space-y-2">
