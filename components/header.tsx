@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { gsap } from "gsap"
 import { ScrollToPlugin } from "gsap/ScrollToPlugin"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { Menu, X, Code, Zap } from "lucide-react"
@@ -171,13 +172,8 @@ export function Header() {
               <LanguageSwitcher />
 
               {/* CTA Button - Desktop */}
-              <Button
-                size="sm"
-                onClick={() => scrollToSection("#contact")}
-                className="hidden rounded-full bg-portfolio-primary px-4 shadow-md shadow-sky-500/20 hover:bg-portfolio-primary/90 xl:flex"
-              >
-                <Zap className="w-4 h-4 mr-1" />
-                Hire Me
+              <Button asChild size="sm" className="hidden rounded-full bg-portfolio-primary px-4 shadow-md shadow-sky-500/20 hover:bg-portfolio-primary/90 xl:flex">
+                <Link href="/free-audit"><Zap className="mr-1 h-4 w-4" />Free audit</Link>
               </Button>
 
               {/* Mobile menu button */}
@@ -240,6 +236,9 @@ export function Header() {
           </div>
 
           <div className="mt-8 border-t border-slate-200 pt-8 dark:border-slate-800">
+            <Link href="/free-audit" onClick={closeMobileMenu} className="mobile-nav-item mb-3 flex w-full items-center justify-center rounded-md border border-portfolio-primary/30 bg-portfolio-primary/10 px-4 py-2 text-sm font-semibold text-portfolio-primary hover:bg-portfolio-primary/15">
+              <Zap className="mr-2 h-4 w-4" /> Free website audit
+            </Link>
             <Button
               onClick={() => scrollToSection("#contact")}
               className="mobile-nav-item !opacity-100 w-full bg-portfolio-primary hover:bg-portfolio-primary/90 text-portfolio-primary-foreground"

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2, ClipboardList, Layers3, RefreshCw, Sparkles } from 'lucide-react'
+import { ArrowRight, CheckCircle2, ClipboardList, Gauge, Layers3, RefreshCw, Sparkles } from 'lucide-react'
 import { servicePages } from '@/lib/service-pages'
 import { PageFooter } from '@/components/page-footer'
 import { PricingGuide } from '@/components/pricing-guide'
@@ -160,9 +160,14 @@ export default function ServicesOverviewPage() {
                 <h2 className="mt-5 text-2xl font-bold tracking-tight">Not sure which service fits?</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Send a short description of your task, and you&apos;ll receive a practical recommendation for the best next step.</p>
               </div>
-              <Link href="/contact" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-portfolio-primary px-5 py-3 text-sm font-semibold text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/20 hover:bg-portfolio-primary/90">
-                Discuss your needs <ArrowRight className="h-4 w-4" />
-              </Link>
+              <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+                <Link href="/free-audit" className="inline-flex items-center justify-center gap-2 rounded-xl border border-portfolio-primary/25 bg-card px-5 py-3 text-sm font-semibold text-portfolio-primary transition hover:bg-portfolio-primary/10">
+                  Free website audit <Gauge className="h-4 w-4" />
+                </Link>
+                <Link href="/contact" className="inline-flex items-center justify-center gap-2 rounded-xl bg-portfolio-primary px-5 py-3 text-sm font-semibold text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/20 hover:bg-portfolio-primary/90">
+                  Discuss your needs <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
