@@ -14,6 +14,7 @@ import { Contact } from "@/components/contact"
 import { Footer } from "@/components/footer"
 import { ScrollProgress } from "@/components/scroll-progress"
 import { BottomDock } from "@/components/bottom-dock"
+import { AuditPopup } from "@/components/audit-popup"
 
 export default function HomePage() {
   return (
@@ -38,6 +39,7 @@ export default function HomePage() {
       </main>
       <Footer />
       <BottomDock />
+      <AuditPopup />
     </>
   )
 }
