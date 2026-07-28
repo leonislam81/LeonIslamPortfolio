@@ -466,7 +466,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
                   <MessageSquare className="w-5 h-5 text-portfolio-primary" />
                   WhatsApp Chat
                 </CardTitle>
-                <CardDescription>Quick questions? Let's chat on WhatsApp.</CardDescription>
+                <CardDescription>Quick questions? Let&apos;s chat on WhatsApp.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button

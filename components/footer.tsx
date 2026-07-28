@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import { ArrowUpRight, Code2, Mail, MapPin, Phone, Sparkles } from "lucide-react"
 
 export function Footer() {
@@ -14,10 +15,10 @@ export function Footer() {
       <div className="grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr]"><div><div className="flex items-center gap-2 font-bold"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-portfolio-primary text-portfolio-primary-foreground"><Code2 className="h-5 w-5" /></span>Leon Islam</div><p className="mt-5 max-w-sm text-sm leading-7 text-muted-foreground">Website, e-commerce, Amazon, and admin support for businesses that need accurate, dependable online help.</p><div className="mt-6 flex flex-wrap gap-2 text-xs text-muted-foreground"><span className="rounded-full border border-border px-3 py-1.5">Website support</span><span className="rounded-full border border-border px-3 py-1.5">Product listings</span><span className="rounded-full border border-border px-3 py-1.5">Admin tasks</span></div></div><div><h3 className="text-sm font-semibold uppercase tracking-[.16em] text-muted-foreground">Navigate</h3><div className="mt-5 grid grid-cols-2 gap-y-3">{links.map(link => <button key={link} onClick={() => scrollTo(link)} className="text-left text-sm text-muted-foreground transition hover:text-portfolio-primary">{link}</button>)}</div></div><div><h3 className="text-sm font-semibold uppercase tracking-[.16em] text-muted-foreground">Say hello</h3><div className="mt-5 space-y-3 text-sm text-muted-foreground"><a href="mailto:info@leonislam.com" className="flex items-center gap-3 transition hover:text-portfolio-primary"><Mail className="h-4 w-4 text-portfolio-primary" />info@leonislam.com</a><a href="https://wa.me/8801521783498" target="_blank" rel="noreferrer" className="flex items-center gap-3 transition hover:text-portfolio-primary"><Phone className="h-4 w-4 text-portfolio-accent" />+880 1521 783498</a><span className="flex items-center gap-3"><MapPin className="h-4 w-4 text-muted-foreground" />Bangladesh Â· working globally</span></div></div></div>
       <div className="flex flex-col gap-3 border-t border-border py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><span>Â© {currentYear} Leon Islam. Built with care.</span><span>Clear communication Â· Reliable delivery Â· Practical results</span></div>
       <div className="flex justify-center gap-4 pb-6 text-xs text-muted-foreground">
-        <a href="/about" className="font-medium transition hover:text-portfolio-primary">About</a>
-        <a href="/services" className="font-medium transition hover:text-portfolio-primary">Services</a>
-        <a href="/contact" className="font-medium transition hover:text-portfolio-primary">Contact</a>
-        <a href="/privacy" className="font-medium transition hover:text-portfolio-primary">Privacy Policy</a>
+        <Link href="/about" className="font-medium transition hover:text-portfolio-primary">About</Link>
+        <Link href="/services" className="font-medium transition hover:text-portfolio-primary">Services</Link>
+        <Link href="/contact" className="font-medium transition hover:text-portfolio-primary">Contact</Link>
+        <Link href="/privacy" className="font-medium transition hover:text-portfolio-primary">Privacy Policy</Link>
       </div>
     </div>
   </footer>
