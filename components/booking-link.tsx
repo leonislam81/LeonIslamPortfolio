@@ -8,7 +8,7 @@ type BookingLinkProps = {
   bookingDetails?: string
   children: ReactNode
   className?: string
-  placement: 'header' | 'hero' | 'service' | 'start_project'
+  placement: 'header' | 'hero' | 'service' | 'start_project' | 'free_audit'
 }
 
 export function BookingLink({ bookingDetails, children, className, placement }: BookingLinkProps) {

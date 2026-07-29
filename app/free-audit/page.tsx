@@ -1,8 +1,9 @@
 "use client"
 
 import { FormEvent, useCallback, useState } from "react"
-import { ArrowRight, Check, ChevronLeft, CircleAlert, CircleCheck, Gauge, LockKeyhole, Search, ShieldCheck, Target, Wrench, X, Zap } from "lucide-react"
+import { ArrowRight, CalendarDays, Check, ChevronLeft, CircleAlert, CircleCheck, Download, Gauge, LockKeyhole, Search, ShieldCheck, Target, Wrench, X, Zap } from "lucide-react"
 import { Turnstile } from "@/components/turnstile"
+import { BookingLink } from "@/components/booking-link"
 
 type AuditResult = {
   url: string
@@ -160,6 +161,29 @@ export default function FreeAuditPage() {
   const isAuditing = auditState === "loading"
   const isSending = leadState === "sending"
 
+  const downloadReport = () => {
+    if (!result) return
+    const lines = [
+      "Website audit report",
+      `Website: ${result.url}`,
+      result.source === "pagespeed" ? `Mobile performance: ${result.performance}/100` : `Website response: HTTP ${result.status} in ${result.loadTime}ms`,
+      `SEO essentials: ${result.seo}/100`,
+      "",
+      "Priority improvements:",
+      ...(result.findings?.map((finding) => `- ${finding.title}: ${finding.action}`) ?? ["- No major automated issues were flagged."]),
+      "",
+      "Website health checks:",
+      ...(result.checks?.map((check) => `- ${check.label}: ${check.status === "pass" ? "Looks good" : check.detail}`) ?? []),
+    ]
+    const file = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" })
+    const fileUrl = URL.createObjectURL(file)
+    const link = document.createElement("a")
+    link.href = fileUrl
+    link.download = "website-audit-report.txt"
+    link.click()
+    URL.revokeObjectURL(fileUrl)
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <div className="border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -209,12 +233,12 @@ export default function FreeAuditPage() {
       {result && (
         <section aria-live="polite" className="px-5 py-14 sm:px-8 sm:py-20">
           <div className="mx-auto max-w-4xl">
-            <div className="flex flex-col gap-2 border-b border-slate-200 pb-7 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-4 border-b border-slate-200 pb-7 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-bold uppercase tracking-[0.16em] text-sky-700">Your snapshot</p>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Your website audit is ready.</h2>
               </div>
-              <p className="truncate text-sm text-slate-500" title={result.url}>{result.url}</p>
+              <div className="flex flex-wrap items-center gap-3 sm:justify-end"><p className="max-w-64 truncate text-sm text-slate-500" title={result.url}>{result.url}</p><button type="button" onClick={downloadReport} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"><Download className="size-4" />Download</button></div>
             </div>
 
             {result.source === "pagespeed" ? (
@@ -274,6 +298,7 @@ export default function FreeAuditPage() {
                   <CircleCheck className="size-9 text-emerald-400" />
                   <h3 className="mt-4 text-2xl font-bold">Your detailed report has been accepted for delivery.</h3>
                   <p className="mt-2 leading-7 text-slate-300">Check your inbox, Promotions, and Spam folders for the scores, issues found, and practical improvement ideas for your website.</p>
+                  <BookingLink placement="free_audit" bookingDetails={`Website audit: ${result.url}`} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-50"><CalendarDays className="size-4" />Book a free audit review</BookingLink>
                 </div>
               ) : (
                 <div className="grid gap-8 lg:grid-cols-[1fr_1.05fr] lg:items-center">
@@ -285,6 +310,8 @@ export default function FreeAuditPage() {
                       {["A copy of your scores", "A human review of the biggest opportunities", "No spam — just relevant follow-up"].map((item) => <li key={item} className="flex items-center gap-2"><Check className="size-4 text-emerald-400" />{item}</li>)}
                     </ul>
                   </div>
+                  <div className="space-y-4">
+                    <BookingLink placement="free_audit" bookingDetails={`Website audit: ${result.url}`} className="inline-flex items-center gap-2 rounded-xl border border-sky-300/50 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"><CalendarDays className="size-4" />Book a free 20-minute review</BookingLink>
                   <form onSubmit={handleLead} className="rounded-2xl bg-white p-5 text-slate-900 sm:p-6">
                     <label htmlFor="audit-email" className="text-sm font-semibold">Your email address</label>
                     <input id="audit-email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@company.com" className="mt-2 min-h-12 w-full rounded-xl border border-slate-200 px-4 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100" />
@@ -301,6 +328,7 @@ export default function FreeAuditPage() {
                     </button>
                     <p className="mt-3 text-xs leading-5 text-slate-500">By sending, you agree to receive audit-related follow-up from Leon Islam. You can opt out at any time.</p>
                   </form>
+                  </div>
                 </div>
               )}
             </div>
