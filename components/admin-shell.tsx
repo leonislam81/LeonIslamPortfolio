@@ -1,12 +1,13 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { BarChart3, CalendarDays, ChevronRight, ClipboardList, ExternalLink, LayoutDashboard, Settings2, Sparkles } from "lucide-react"
+import { BarChart3, CalendarDays, ChevronRight, ClipboardList, ExternalLink, FilePenLine, LayoutDashboard, Settings2, Sparkles } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { DashboardSignOutButton } from "@/components/dashboard-sign-out-button"
 
 const navigation = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Site management", href: "/dashboard/site-management", icon: FilePenLine },
   { label: "Leads inbox", href: "/dashboard/leads", icon: ClipboardList },
   { label: "Audit & leads", href: "/dashboard#pipeline", icon: CalendarDays },
   { label: "Analytics", href: "/dashboard#analytics", icon: BarChart3 },
