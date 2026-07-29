@@ -87,6 +87,18 @@ function getAuditPriority(audit: AuditResult) {
   return { score, label: "Good foundation", detail: "No major automated issues were found. Keep monitoring and use the recommendations to improve conversion over time.", tone: "border-emerald-200 bg-emerald-50 text-emerald-800" }
 }
 
+function buildOpportunitySignals(audit: AuditResult) {
+  const conversionAttention = audit.conversion?.filter((check) => check.status === "attention") ?? []
+  const mobileAttention = audit.checks?.filter((check) => mobileCheckLabels.includes(check.label) && check.status === "attention") ?? []
+  const seoFindings = audit.findings?.filter((finding) => finding.category === "SEO").length ?? 0
+
+  return [
+    conversionAttention.length ? { title: "Lead conversion opportunity", detail: `${conversionAttention.length} visitor-decision signal${conversionAttention.length === 1 ? " needs" : "s need"} attention. Clearer next steps and stronger proof can reduce friction before an enquiry.` } : { title: "Lead conversion foundation", detail: "The automated page signals include the main paths visitors need to take the next step. A manual review can refine the message and journey." },
+    audit.seo < 80 || seoFindings ? { title: "Search visibility opportunity", detail: `${seoFindings || "Some"} SEO signal${seoFindings === 1 ? " needs" : "s need"} improvement. Better page context can help the right visitors find and understand the offer.` } : { title: "Search visibility foundation", detail: "The main automated SEO signals are in place. Keep building helpful content around the services and questions customers search for." },
+    audit.source === "pagespeed" && ((audit.performance ?? 100) < 90 || mobileAttention.length) ? { title: "Mobile experience opportunity", detail: `${mobileAttention.length ? `${mobileAttention.length} mobile usability signal${mobileAttention.length === 1 ? " needs" : "s need"} attention, and ` : ""}improving load speed and mobile usability can help more visitors stay engaged.` } : { title: "Mobile experience foundation", detail: "No major automated mobile usability signals were flagged. Recheck after changing layouts, images, or third-party tools." },
+  ]
+}
+
 type ActionPlanItem = { title: string; detail: string }
 
 function buildActionPlan(audit: AuditResult) {
@@ -303,6 +315,7 @@ export default function FreeAuditPage() {
   const actionPlan = result ? buildActionPlan(result) : null
   const mobileChecks = result?.checks?.filter((check) => mobileCheckLabels.includes(check.label)) ?? []
   const auditPriority = result ? getAuditPriority(result) : null
+  const opportunitySignals = result ? buildOpportunitySignals(result) : []
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -388,6 +401,8 @@ export default function FreeAuditPage() {
             {auditPriority ? <section className={`mt-7 rounded-2xl border p-5 ${auditPriority.tone}`}><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-bold uppercase tracking-[.16em]">Audit priority</p><h3 className="mt-2 text-2xl font-bold text-slate-950">{auditPriority.label}</h3><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-700">{auditPriority.detail}</p></div><div className="rounded-2xl bg-white px-5 py-4 text-center shadow-sm"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Priority score</p><p className="mt-1 text-3xl font-bold text-slate-950">{auditPriority.score}<span className="text-base text-slate-500">/10</span></p></div></div></section> : null}
 
             {result.competitor ? <section className="mt-8 rounded-2xl border border-violet-200 bg-violet-50 p-5"><p className="text-sm font-bold uppercase tracking-[.16em] text-violet-700">Competitor comparison</p><h3 className="mt-2 text-xl font-bold text-slate-950">See how the public mobile scores compare</h3><p className="mt-1 truncate text-sm text-slate-600" title={result.competitor.url}>{result.competitor.url}</p><div className="mt-4 grid gap-3 sm:grid-cols-2"><div className="rounded-xl bg-white p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Mobile performance</p><p className="mt-2 text-lg font-bold text-slate-950">You: {result.performance ?? "—"} <span className="text-slate-400">vs</span> Competitor: {result.competitor.performance}</p><p className="mt-1 text-sm text-slate-600">{(result.performance ?? 0) >= result.competitor.performance ? "Your site is matching or ahead on this score." : `Opportunity: ${result.competitor.performance - (result.performance ?? 0)} points behind.`}</p></div><div className="rounded-xl bg-white p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">SEO essentials</p><p className="mt-2 text-lg font-bold text-slate-950">You: {result.seo} <span className="text-slate-400">vs</span> Competitor: {result.competitor.seo}</p><p className="mt-1 text-sm text-slate-600">{result.seo >= result.competitor.seo ? "Your site is matching or ahead on this score." : `Opportunity: ${result.competitor.seo - result.seo} points behind.`}</p></div></div></section> : null}
+
+            <section className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-5"><p className="text-sm font-bold uppercase tracking-[.16em] text-emerald-700">Business opportunity</p><h3 className="mt-2 text-xl font-bold text-slate-950">Where improvements could help the most</h3><p className="mt-1 text-sm leading-6 text-slate-600">These are practical impact signals from the automated checks—not a forecast of leads, sales, or revenue.</p><div className="mt-4 grid gap-3 lg:grid-cols-3">{opportunitySignals.map((signal) => <div key={signal.title} className="rounded-xl bg-white p-4"><p className="font-semibold text-slate-950">{signal.title}</p><p className="mt-2 text-sm leading-6 text-slate-600">{signal.detail}</p></div>)}</div></section>
 
             {mobileChecks.length ? <section className="mt-8 rounded-2xl border border-sky-200 bg-sky-50 p-5"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-sky-700">Mobile usability</p><h3 className="mt-2 text-xl font-bold text-slate-950">How the site behaves on a phone</h3><p className="mt-1 text-sm leading-6 text-slate-600">These checks focus on whether visitors can read, tap, and view the page comfortably on a small screen.</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{mobileChecks.map((check) => <div key={check.label} className="rounded-xl bg-white p-4"><div className="flex items-center gap-2 text-sm font-semibold text-slate-950">{check.status === "pass" ? <Check className="size-4 text-emerald-600" /> : <X className="size-4 text-amber-600" />}{check.label}</div><p className="mt-2 text-sm leading-6 text-slate-600">{check.status === "pass" ? "Looks good in this automated check." : check.detail}</p></div>)}</div></section> : null}
 

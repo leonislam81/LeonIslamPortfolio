@@ -147,6 +147,18 @@ function getAuditPriority(audit: AuditReport) {
   return { score, label: "Good foundation", detail: "No major automated issues were found. Keep monitoring and use the recommendations to improve conversion over time.", color: "#166534", background: "#f0fdf4", border: "#bbf7d0" }
 }
 
+function buildOpportunitySignals(audit: AuditReport) {
+  const conversionAttention = audit.conversion.filter((check) => check.status === "attention")
+  const mobileLabels = ["Mobile viewport", "Mobile text size", "Mobile tap targets", "Mobile content width"]
+  const mobileAttention = audit.checks.filter((check) => mobileLabels.includes(check.label) && check.status === "attention")
+  const seoFindings = audit.findings.filter((finding) => finding.category === "SEO").length
+  return [
+    conversionAttention.length ? { title: "Lead conversion opportunity", detail: `${conversionAttention.length} visitor-decision signal${conversionAttention.length === 1 ? " needs" : "s need"} attention. Clearer next steps and stronger proof can reduce friction before an enquiry.` } : { title: "Lead conversion foundation", detail: "The automated page signals include the main paths visitors need to take the next step. A manual review can refine the message and journey." },
+    audit.seo < 80 || seoFindings ? { title: "Search visibility opportunity", detail: `${seoFindings || "Some"} SEO signal${seoFindings === 1 ? " needs" : "s need"} improvement. Better page context can help the right visitors find and understand the offer.` } : { title: "Search visibility foundation", detail: "The main automated SEO signals are in place. Keep building helpful content around the services and questions customers search for." },
+    audit.source === "pagespeed" && ((audit.performance ?? 100) < 90 || mobileAttention.length) ? { title: "Mobile experience opportunity", detail: `${mobileAttention.length ? `${mobileAttention.length} mobile usability signal${mobileAttention.length === 1 ? " needs" : "s need"} attention, and ` : ""}improving load speed and mobile usability can help more visitors stay engaged.` } : { title: "Mobile experience foundation", detail: "No major automated mobile usability signals were flagged. Recheck after changing layouts, images, or third-party tools." },
+  ]
+}
+
 function auditText(value: unknown, maximum = 280) {
   return isText(value) ? value.trim().slice(0, maximum) : ""
 }
@@ -302,6 +314,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
   const quickWins = buildQuickWins(audit).map((step, index) => `<li style="margin-bottom:12px;"><strong>${index + 1}. ${escapeHtml(step.title)}</strong><br />${escapeHtml(step.action)}</li>`).join("")
   const reminder = buildReauditReminder(audit)
   const priority = getAuditPriority(audit)
+  const opportunitySignals = buildOpportunitySignals(audit).map((signal) => `<li style="margin-bottom:12px;"><strong>${escapeHtml(signal.title)}</strong><br />${escapeHtml(signal.detail)}</li>`).join("")
   const competitorComparison = audit.competitor ? `<h2 style="margin:30px 0 12px;font-size:20px;">Competitor comparison</h2><div style="padding:18px;border:1px solid #ddd6fe;border-radius:12px;background:#faf5ff;"><p style="margin:0 0 8px;"><strong>Compared website:</strong> ${escapeHtml(audit.competitor.url)}</p><p style="margin:0 0 6px;">Mobile performance: <strong>Your site ${audit.performance ?? "—"}/100</strong> vs competitor <strong>${audit.competitor.performance}/100</strong></p><p style="margin:0;">SEO essentials: <strong>Your site ${audit.seo}/100</strong> vs competitor <strong>${audit.competitor.seo}/100</strong></p></div>` : ""
 
   return `
@@ -313,6 +326,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
       ${scoreCards}
       <div style="margin:24px 0;padding:20px;border:1px solid ${priority.border};border-radius:14px;background:${priority.background};"><p style="margin:0 0 6px;color:${priority.color};font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Audit priority · ${priority.score}/10</p><p style="margin:0 0 8px;font-weight:700;font-size:20px;">${priority.label}</p><p style="margin:0;color:#40536a;">${priority.detail}</p></div>
       ${competitorComparison}
+      <div style="margin:28px 0;padding:20px 24px;border:1px solid #a7f3d0;border-radius:14px;background:#f0fdf4;"><h2 style="margin:0 0 10px;font-size:20px;">Business opportunity</h2><p style="margin:0 0 12px;color:#40536a;">These are practical impact signals from the automated checks—not a forecast of leads, sales, or revenue.</p><ul style="margin:0;padding-left:20px;color:#40536a;">${opportunitySignals}</ul></div>
       <h2 style="margin:30px 0 12px;font-size:20px;">Where the audit found opportunities</h2>
       ${findings}
       <div style="margin:28px 0;padding:20px 24px;border:1px solid #b8d9ed;border-radius:14px;background:#f2faff;"><h2 style="margin:0 0 12px;font-size:20px;">Three quick wins to start with</h2><ol style="margin:0;padding-left:20px;color:#40536a;">${quickWins}</ol></div>
