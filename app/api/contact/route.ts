@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
 import { createSupabaseAdminClient } from "@/lib/supabase/admin"
+import { getAuditWorkflowSettings } from "@/lib/dashboard-settings"
 
 export const runtime = "nodejs"
 
@@ -439,9 +440,10 @@ export async function POST(request: Request) {
   const sendChecklist = payload.sendChecklist === true
   const audit = parseAudit(payload.audit)
   const businessGoal = auditGoals.includes(payload.businessGoal as AuditGoal) ? payload.businessGoal as AuditGoal : null
-  const followUpDate = audit ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1_000).toISOString().slice(0, 10) : null
+  const workflowSettings = audit ? await getAuditWorkflowSettings() : null
+  const followUpDate = audit ? new Date(Date.now() + (workflowSettings?.firstFollowUpDays ?? 3) * 24 * 60 * 60 * 1_000).toISOString().slice(0, 10) : null
   const reAuditFollowUp = payload.reAuditFollowUp === true && Boolean(audit)
-  const reAuditFollowUpDate = reAuditFollowUp ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1_000).toISOString().slice(0, 10) : null
+  const reAuditFollowUpDate = reAuditFollowUp ? new Date(Date.now() + (workflowSettings?.reAuditDays ?? 30) * 24 * 60 * 60 * 1_000).toISOString().slice(0, 10) : null
 
   // Bots fill the hidden field. Return success to avoid helping them tune attacks.
   if (isText(payload.honeypot) && payload.honeypot.trim()) {
