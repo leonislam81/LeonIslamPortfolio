@@ -17,6 +17,7 @@ type AuditResult = {
   findings?: AuditFinding[]
   metrics?: AuditMetric[]
   checks?: AuditCheck[]
+  conversion?: AuditCheck[]
   savedAt?: string
 }
 
@@ -71,7 +72,7 @@ type ActionPlanItem = { title: string; detail: string }
 
 function buildActionPlan(audit: AuditResult) {
   const findings = audit.findings ?? []
-  const healthIssues = (audit.checks ?? []).filter((check) => check.status === "attention").map((check) => ({ title: check.label, detail: check.detail }))
+  const healthIssues = [...(audit.checks ?? []), ...(audit.conversion ?? [])].filter((check) => check.status === "attention").map((check) => ({ title: check.label, detail: check.detail }))
   const urgent: ActionPlanItem[] = findings.filter((finding) => finding.priority === "high").map((finding) => ({ title: finding.title, detail: finding.action }))
   const next: ActionPlanItem[] = findings.filter((finding) => finding.priority !== "high").map((finding) => ({ title: finding.title, detail: finding.action }))
 
@@ -219,6 +220,7 @@ export default function FreeAuditPage() {
             loadTime: result.loadTime,
             findings: result.findings ?? [],
             checks: result.checks ?? [],
+            conversion: result.conversion ?? [],
           },
           businessGoal,
           turnstileToken,
@@ -359,6 +361,8 @@ export default function FreeAuditPage() {
             )}
 
             {previousAudit ? <section className="mt-8 rounded-2xl border border-sky-200 bg-sky-50 p-5"><div className="flex items-center gap-2"><Gauge className="size-5 text-sky-700" /><h3 className="font-bold text-slate-950">Improvement since your previous check</h3></div><p className="mt-1 text-sm text-slate-600">Compared with the saved audit from {previousAudit.savedAt ? new Date(previousAudit.savedAt).toLocaleDateString() : "an earlier visit"}.</p><div className="mt-4 grid gap-3 sm:grid-cols-3">{result.source === "pagespeed" && previousAudit.performance !== undefined ? <div className="rounded-xl bg-white p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Performance</p><p className="mt-2 text-xl font-bold text-slate-950">{result.performance}/100</p><p className={`mt-1 text-sm font-semibold ${changeLabel(result.performance ?? 0, previousAudit.performance).tone}`}>{changeLabel(result.performance ?? 0, previousAudit.performance).text}</p></div> : null}<div className="rounded-xl bg-white p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">SEO</p><p className="mt-2 text-xl font-bold text-slate-950">{result.seo}/100</p><p className={`mt-1 text-sm font-semibold ${changeLabel(result.seo, previousAudit.seo).tone}`}>{changeLabel(result.seo, previousAudit.seo).text}</p></div><div className="rounded-xl bg-white p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Health issues</p><p className="mt-2 text-xl font-bold text-slate-950">{attentionCount(result)}</p><p className={`mt-1 text-sm font-semibold ${changeLabel(attentionCount(result), attentionCount(previousAudit), true).tone}`}>{changeLabel(attentionCount(result), attentionCount(previousAudit), true).text}</p></div></div></section> : null}
+
+            {result.conversion?.length ? <section className="mt-8 rounded-2xl border border-violet-200 bg-violet-50 p-5"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-violet-700">Conversion snapshot</p><h3 className="mt-2 text-xl font-bold text-slate-950">How easy is it for a visitor to take the next step?</h3><p className="mt-1 text-sm leading-6 text-slate-600">This is an automated check of public page signals, not a full user test.</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{result.conversion.map((check) => <div key={check.label} className="rounded-xl bg-white p-4"><div className="flex items-center gap-2 text-sm font-semibold text-slate-950">{check.status === "pass" ? <Check className="size-4 text-emerald-600" /> : <X className="size-4 text-violet-700" />}{check.label}</div><p className="mt-2 text-sm leading-6 text-slate-600">{check.status === "pass" ? "This signal is present in the page markup." : check.detail}</p></div>)}</div></section> : null}
 
             {actionPlan ? <section className="mt-8"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-sky-700">Your next steps</p><h3 className="mt-2 text-2xl font-bold tracking-tight text-slate-950">A practical action plan</h3><p className="mt-2 text-sm leading-6 text-slate-600">Start with the items that remove the biggest visitor or search barrier, then work through the next layer.</p></div><div className="mt-5 grid gap-4 lg:grid-cols-3">{[{ title: "Fix this week", items: actionPlan.urgent, tone: "border-rose-200 bg-rose-50", empty: "No urgent automated issues were found. Keep the main page clear and fast." }, { title: "Improve next", items: actionPlan.next, tone: "border-amber-200 bg-amber-50", empty: "Use this time to strengthen your service message, proof, and calls to action." }, { title: "Keep monitoring", items: actionPlan.monitor, tone: "border-sky-200 bg-sky-50", empty: "Recheck the site after meaningful changes." }].map((column) => <div key={column.title} className={`rounded-2xl border p-5 ${column.tone}`}><h4 className="font-bold text-slate-950">{column.title}</h4><div className="mt-4 space-y-4">{column.items.length ? column.items.map((item) => <div key={`${column.title}-${item.title}`}><p className="text-sm font-semibold text-slate-950">{item.title}</p><p className="mt-1 text-sm leading-6 text-slate-600">{item.detail}</p></div>) : <p className="text-sm leading-6 text-slate-600">{column.empty}</p>}</div></div>)}</div></section> : null}
 

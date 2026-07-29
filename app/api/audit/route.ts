@@ -93,6 +93,10 @@ function auditHtml(html: string) {
   const hasOpenGraphImage = /<meta\b[^>]*(?:property|name)=["']og:image["']/i.test(html)
   const hasFavicon = /<link\b[^>]*rel=["'][^"']*(?:icon|shortcut icon)[^"']*["']/i.test(html)
   const hasStructuredData = /<script\b[^>]*type=["']application\/ld\+json["']/i.test(html)
+  const hasContactPath = /href=["'](?:mailto:|tel:)|href=["'][^"']*\/contact|whatsapp|contact\s+us/i.test(html)
+  const hasBookingPath = /book\s+(?:a\s+)?(?:call|consultation|appointment)|schedule\s+(?:a\s+)?(?:call|consultation)|calendly|href=["'][^"']*\/(?:book|booking)/i.test(html)
+  const callToActionCount = html.match(/(?:get started|contact us|book now|book a call|request (?:a )?quote|free consultation|schedule a call|buy now|shop now|start a project)/gi)?.length ?? 0
+  const trustSignalCount = html.match(/(?:testimonial|testimonials|review|reviews|trusted by|case stud(?:y|ies)|client logo|google rating|years of experience)/gi)?.length ?? 0
   const title = html.match(/<title\b[^>]*>([^<]*)<\/title>/i)?.[1]?.trim()
   const pageText = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ")
   const wordCount = pageText.match(/[\p{L}\p{N}][\p{L}\p{N}'-]*/gu)?.length ?? 0
@@ -101,7 +105,7 @@ function auditHtml(html: string) {
   return {
     seo: Math.round((signals.filter(Boolean).length / signals.length) * 100),
     title: title?.slice(0, 160) || null,
-    checks: { hasTitle, hasDescription, hasViewport, hasCanonical, hasLanguage, hasHeading, hasOpenGraphTitle, hasOpenGraphDescription, hasOpenGraphImage, hasFavicon, hasStructuredData, wordCount },
+    checks: { hasTitle, hasDescription, hasViewport, hasCanonical, hasLanguage, hasHeading, hasOpenGraphTitle, hasOpenGraphDescription, hasOpenGraphImage, hasFavicon, hasStructuredData, hasContactPath, hasBookingPath, callToActionCount, trustSignalCount, wordCount },
   }
 }
 
@@ -176,6 +180,16 @@ function buildContentChecks(checks: ReturnType<typeof auditHtml>["checks"]): Aud
   ]
 }
 
+function buildConversionChecks(checks: ReturnType<typeof auditHtml>["checks"]): AuditCheck[] {
+  return [
+    { label: "Clear main offer", status: checks.hasHeading && checks.wordCount >= 80 ? "pass" : "attention", detail: "Add a clear main heading and supporting copy that explains who the offer is for and why it matters." },
+    { label: "Calls to action", status: checks.callToActionCount >= 2 ? "pass" : "attention", detail: "Add clear, repeated next steps such as booking, contacting, requesting a quote, or buying." },
+    { label: "Contact path", status: checks.hasContactPath ? "pass" : "attention", detail: "Make a direct contact path easy to find with a contact page, phone number, email, or messaging link." },
+    { label: "Booking path", status: checks.hasBookingPath ? "pass" : "attention", detail: "If calls or consultations drive business, add a direct booking action for ready visitors." },
+    { label: "Trust signals", status: checks.trustSignalCount >= 2 ? "pass" : "attention", detail: "Add visible proof such as testimonials, reviews, results, client logos, or case studies near decision points." },
+  ]
+}
+
 function buildFallbackFindings(checks: ReturnType<typeof auditHtml>["checks"]): AuditFinding[] {
   const missing: Array<[keyof typeof checks, string, string, string]> = [
     ["hasTitle", "The page title is missing", "Search engines and browser tabs need a clear page title.", "Add a unique, benefit-led title that describes the page topic."],
@@ -227,7 +241,7 @@ async function runFallbackAudit(target: URL) {
     const html = contentType.includes("text/html") ? await response.text() : ""
     const { seo, title, checks } = auditHtml(html.slice(0, 750_000))
 
-    return { url: current.href, status: response.status, loadTime, seo, title, findings: buildFallbackFindings(checks), checks: buildContentChecks(checks) }
+    return { url: current.href, status: response.status, loadTime, seo, title, findings: buildFallbackFindings(checks), checks: buildContentChecks(checks), conversion: buildConversionChecks(checks) }
   }
 
   throw new Error("The website redirected too many times or returned an unsupported response.")
@@ -263,6 +277,7 @@ export async function POST(request: Request) {
         findings: buildPageSpeedFindings(audits),
         metrics: buildPageSpeedMetrics(audits),
         checks: [...buildPageSpeedChecks(audits), ...(direct?.checks ?? [])],
+        conversion: direct?.conversion ?? [],
       })
     }
   }

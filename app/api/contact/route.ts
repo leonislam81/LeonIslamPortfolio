@@ -103,6 +103,7 @@ type AuditReport = {
   loadTime?: number
   findings: AuditFinding[]
   checks: AuditCheck[]
+  conversion: AuditCheck[]
 }
 
 const auditGoals = ["More leads", "More sales", "More bookings", "More search traffic"] as const
@@ -166,7 +167,14 @@ function parseAudit(value: unknown): AuditReport | null {
     return label && detail ? [{ label, detail, status: item.status }] : []
   }) : []
 
-  return { url, source, seo, performance: score(value.performance), status: score(value.status), loadTime: score(value.loadTime), findings, checks }
+  const conversion = Array.isArray(value.conversion) ? value.conversion.slice(0, 6).flatMap((item): AuditCheck[] => {
+    if (!isRecord(item) || !(item.status === "pass" || item.status === "attention")) return []
+    const label = auditText(item.label, 80)
+    const detail = auditText(item.detail, 180)
+    return label && detail ? [{ label, detail, status: item.status }] : []
+  }) : []
+
+  return { url, source, seo, performance: score(value.performance), status: score(value.status), loadTime: score(value.loadTime), findings, checks, conversion }
 }
 
 async function verifyTurnstile(token: string, request: Request) {
@@ -245,6 +253,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
     : `<div style="padding:18px;border:1px solid #b7e4c7;border-radius:12px;background:#f2fff6;"><strong>No major automated issues were flagged.</strong> A manual review can still reveal content, trust, and conversion improvements.</div>`
 
   const healthChecks = audit.checks.length ? `<h2 style="margin:30px 0 12px;font-size:20px;">Website health checks</h2><ul style="margin:0;padding-left:20px;color:#40536a;">${audit.checks.map((check) => `<li style="margin-bottom:8px;"><strong>${escapeHtml(check.label)}:</strong> ${check.status === "pass" ? "Looks good in this check." : escapeHtml(check.detail)}</li>`).join("")}</ul>` : ""
+  const conversionChecks = audit.conversion.length ? `<h2 style="margin:30px 0 12px;font-size:20px;">Conversion snapshot</h2><ul style="margin:0;padding-left:20px;color:#40536a;">${audit.conversion.map((check) => `<li style="margin-bottom:8px;"><strong>${escapeHtml(check.label)}:</strong> ${check.status === "pass" ? "Signal detected on the page." : escapeHtml(check.detail)}</li>`).join("")}</ul>` : ""
 
   return `
     <div style="margin:0 auto;max-width:640px;padding:32px 20px;font-family:Arial,sans-serif;color:#10233f;line-height:1.6;">
@@ -256,6 +265,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
       <h2 style="margin:30px 0 12px;font-size:20px;">Where the audit found opportunities</h2>
       ${findings}
       ${healthChecks}
+      ${conversionChecks}
       <h2 style="margin:30px 0 12px;font-size:20px;">Design and conversion ideas to review</h2>
       <ul style="margin:0;padding-left:20px;color:#40536a;"><li style="margin-bottom:8px;">Make the main offer and the next action obvious in the first screen, especially on mobile.</li><li style="margin-bottom:8px;">Use proof near key calls to action: reviews, results, client logos, guarantees, or concise case studies.</li><li style="margin-bottom:8px;">Give each important service page one clear search intent, a focused heading, useful supporting copy, and a relevant call to action.</li></ul>
       ${businessGoal ? `<div style="margin:24px 0;padding:18px;border:1px solid #b8d9ed;border-radius:12px;background:#f2faff;"><p style="margin:0 0 7px;font-weight:700;">Your goal: ${escapeHtml(businessGoal)}</p><p style="margin:0;color:#40536a;">${escapeHtml(goalAdvice[businessGoal])}</p></div>` : ""}
