@@ -4,8 +4,7 @@ import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
-import { CookieConsent } from '@/components/cookie-consent';
-import { ProjectAssistant } from '@/components/project-assistant';
+import { PublicSiteOverlays } from '@/components/public-site-overlays';
 import './globals.css';
 
 const GOOGLE_ANALYTICS_ID = 'G-CGT7461XKJ';
@@ -123,9 +122,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
-          <ProjectAssistant />
+          <PublicSiteOverlays measurementId={GOOGLE_ANALYTICS_ID} />
           <Toaster position="top-center" richColors closeButton />
-          <CookieConsent measurementId={GOOGLE_ANALYTICS_ID} />
         </ThemeProvider>
       </body>
     </html>
