@@ -1,8 +1,20 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { BarChart3, CalendarDays, ChevronRight, ClipboardList, ExternalLink, FilePenLine, FolderKanban, LayoutDashboard, Settings2, Sparkles } from "lucide-react"
+import {
+  ChevronRight,
+  ClipboardList,
+  ExternalLink,
+  FilePenLine,
+  FolderKanban,
+  LayoutDashboard,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Settings2,
+  Sparkles,
+} from "lucide-react"
 import { usePathname } from "next/navigation"
+import { useState } from "react"
 import { DashboardSignOutButton } from "@/components/dashboard-sign-out-button"
 
 const navigation = [
@@ -10,13 +22,48 @@ const navigation = [
   { label: "Site management", href: "/dashboard/site-management", icon: FilePenLine },
   { label: "Projects", href: "/dashboard/projects", icon: FolderKanban },
   { label: "Leads inbox", href: "/dashboard/leads", icon: ClipboardList },
-  { label: "Audit & leads", href: "/dashboard#pipeline", icon: CalendarDays },
-  { label: "Analytics", href: "/dashboard#analytics", icon: BarChart3 },
   { label: "Workflow settings", href: "/dashboard/settings", icon: Settings2 },
 ]
 
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
+  const [collapsed, setCollapsed] = useState(false)
+
   if (pathname === "/dashboard/login") return <>{children}</>
-  return <div className="min-h-screen bg-slate-100 text-slate-950 lg:grid lg:grid-cols-[260px_1fr]"><aside className="hidden min-h-screen flex-col bg-slate-950 px-4 py-6 text-slate-100 lg:flex"><a href="/dashboard" className="flex items-center gap-3 rounded-2xl px-3 py-3"><span className="flex size-9 items-center justify-center rounded-xl bg-sky-500 text-slate-950"><Sparkles className="size-5" /></span><span><span className="block text-sm font-bold">Leon Islam</span><span className="block text-xs text-slate-400">Admin workspace</span></span></a><nav className="mt-8 space-y-1">{navigation.map((item) => { const Icon = item.icon; const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href.split("#")[0]); return <a key={item.label} href={item.href} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition ${active ? "bg-sky-500 text-slate-950" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}><Icon className="size-4" />{item.label}</a> })}</nav><div className="mt-8 border-t border-slate-800 pt-6"><p className="px-3 text-xs font-bold uppercase tracking-[.14em] text-slate-500">Coming soon</p><div className="mt-3 space-y-1 px-3 text-sm text-slate-500"><p>Content manager</p><p>Site health</p><p>Projects</p><p>Reports</p></div></div><div className="mt-auto space-y-3 border-t border-slate-800 pt-5"><a href="/" className="flex items-center gap-2 px-3 text-sm font-semibold text-slate-300 hover:text-white"><ExternalLink className="size-4" />View public site</a><DashboardSignOutButton /></div></aside><div className="min-w-0"><header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/95 px-5 py-3 backdrop-blur lg:hidden"><a href="/dashboard" className="font-bold">Leon Islam Admin</a><a href="/dashboard/settings" className="inline-flex items-center gap-1 text-sm font-semibold text-sky-700">Menu <ChevronRight className="size-4" /></a></header>{children}</div></div>
+
+  return (
+    <div className={`min-h-screen bg-slate-100 text-slate-950 transition-[grid-template-columns] duration-300 lg:grid ${collapsed ? "lg:grid-cols-[76px_1fr]" : "lg:grid-cols-[260px_1fr]"}`}>
+      <aside className={`hidden min-h-screen flex-col bg-slate-950 px-3 py-6 text-slate-100 transition-all duration-300 lg:flex ${collapsed ? "items-center" : ""}`}>
+        <div className={`flex w-full items-center ${collapsed ? "justify-center" : "justify-between"}`}>
+          <a href="/dashboard" className="flex items-center gap-3 rounded-2xl p-2" title="Leon Islam Admin">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-sky-500 text-slate-950"><Sparkles className="size-5" /></span>
+            {!collapsed && <span><span className="block text-sm font-bold">Leon Islam</span><span className="block text-xs text-slate-400">Admin workspace</span></span>}
+          </a>
+          {!collapsed && <button type="button" onClick={() => setCollapsed(true)} className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white" aria-label="Collapse sidebar"><PanelLeftClose className="size-4" /></button>}
+        </div>
+
+        {collapsed && <button type="button" onClick={() => setCollapsed(false)} className="mt-6 rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white" aria-label="Expand sidebar"><PanelLeftOpen className="size-4" /></button>}
+
+        <nav className="mt-8 w-full space-y-1" aria-label="Admin navigation">
+          {navigation.map((item) => {
+            const Icon = item.icon
+            const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href)
+            return <a key={item.label} href={item.href} title={collapsed ? item.label : undefined} className={`flex items-center rounded-xl py-3 text-sm font-semibold transition ${collapsed ? "justify-center px-3" : "gap-3 px-3"} ${active ? "bg-sky-500 text-slate-950" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}><Icon className="size-4 shrink-0" />{!collapsed && item.label}</a>
+          })}
+        </nav>
+
+        {!collapsed && <div className="mt-8 w-full border-t border-slate-800 pt-6"><p className="px-3 text-xs font-bold uppercase tracking-[.14em] text-slate-500">Upcoming modules</p><div className="mt-3 space-y-1 px-3 text-sm text-slate-500"><p>Content manager</p><p>Site health</p><p>Reports</p></div></div>}
+
+        <div className={`mt-auto w-full space-y-3 border-t border-slate-800 pt-5 ${collapsed ? "flex flex-col items-center" : ""}`}>
+          <a href="/" title={collapsed ? "View public site" : undefined} className={`flex items-center text-sm font-semibold text-slate-300 transition hover:text-white ${collapsed ? "justify-center p-2" : "gap-2 px-3"}`}><ExternalLink className="size-4" />{!collapsed && "View public site"}</a>
+          <DashboardSignOutButton />
+        </div>
+      </aside>
+
+      <div className="min-w-0">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/95 px-5 py-3 backdrop-blur lg:hidden"><a href="/dashboard" className="font-bold">Leon Islam Admin</a><a href="/dashboard/settings" className="inline-flex items-center gap-1 text-sm font-semibold text-sky-700">Menu <ChevronRight className="size-4" /></a></header>
+        {children}
+      </div>
+    </div>
+  )
 }
