@@ -529,6 +529,8 @@ export async function POST(request: Request) {
         owner_id: ownerId,
         website_url: audit.url,
         email,
+        lead_name: name,
+        message,
         status: reAuditFollowUpDate ? `Report sent - re-audit requested ${reAuditFollowUpDate}` : "Report sent",
         business_goal: businessGoal,
         performance: audit.performance ?? null,
