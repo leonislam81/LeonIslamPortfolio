@@ -329,53 +329,65 @@ export default function FreeAuditPage() {
 
   const downloadPdfReport = () => {
     if (!result) return
-
-    const rawLines = [
-      "LEON ISLAM - WEBSITE AUDIT REPORT",
-      `Website: ${result.url}`,
-      `Generated: ${new Date().toLocaleDateString()}`,
-      "",
-      result.source === "pagespeed" ? `Mobile performance: ${result.performance}/100` : `Website response: HTTP ${result.status} in ${result.loadTime}ms`,
-      `SEO essentials: ${result.seo}/100`,
-      "",
-      "PRIORITY IMPROVEMENTS",
-      ...(result.findings?.map((finding) => `${finding.title}: ${finding.action}`) ?? ["No major automated issues were flagged."]),
-      "",
-      "WEBSITE HEALTH CHECKS",
-      ...(result.checks?.map((check) => `${check.label}: ${check.status === "pass" ? "Looks good" : check.detail}`) ?? []),
-      ...(result.competitor ? ["", "COMPETITOR COMPARISON", `Competitor: ${result.competitor.url}`, `Mobile performance: You ${result.performance ?? "Not available"}/100 | Competitor ${result.competitor.performance}/100`, `SEO essentials: You ${result.seo}/100 | Competitor ${result.competitor.seo}/100`] : []),
-      "",
-      "This automated public-page snapshot highlights likely improvements. It does not test every page, form, or device.",
-    ]
     const sanitise = (value: string) => value.normalize("NFKD").replace(/[^\x20-\x7E]/g, "").replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)")
-    const lines = rawLines.flatMap((line) => {
-      const words = sanitise(line).split(/\s+/)
-      const wrapped: string[] = []
-      let current = ""
+    const colour = (hex: string) => `${parseInt(hex.slice(1, 3), 16) / 255} ${parseInt(hex.slice(3, 5), 16) / 255} ${parseInt(hex.slice(5, 7), 16) / 255}`
+    const text = (value: string, x: number, y: number, size = 10, hex = "#10233f", bold = false) => `${colour(hex)} rg BT /${bold ? "F2" : "F1"} ${size} Tf ${x} ${y} Td (${sanitise(value)}) Tj ET`
+    const box = (x: number, y: number, width: number, height: number, hex: string) => `${colour(hex)} rg ${x} ${y} ${width} ${height} re f`
+    const border = (x: number, y: number, width: number, height: number, hex: string) => `${colour(hex)} RG 0.7 w ${x} ${y} ${width} ${height} re S`
+    const wrap = (value: string, length = 74) => {
+      const words = sanitise(value).split(/\s+/)
+      const lines: string[] = []
+      let line = ""
       for (const word of words) {
-        if ((current ? `${current} ${word}` : word).length > 88) {
-          if (current) wrapped.push(current)
-          current = word
-        } else current = current ? `${current} ${word}` : word
+        if ((line ? `${line} ${word}` : word).length > length) { if (line) lines.push(line); line = word } else line = line ? `${line} ${word}` : word
       }
-      if (current || !line) wrapped.push(current)
-      return wrapped
-    })
-    const pages = Array.from({ length: Math.max(1, Math.ceil(lines.length / 46)) }, (_, index) => lines.slice(index * 46, index * 46 + 46))
-    const pageIds = pages.map((_, index) => 4 + index * 2)
+      if (line) lines.push(line)
+      return lines
+    }
+    const pages: string[][] = []
+    let commands: string[] = []
+    let y = 0
+    const startPage = () => {
+      commands = [box(0, 0, 612, 792, "#ffffff"), box(0, 702, 612, 90, "#081426"), text("LEON ISLAM", 48, 756, 11, "#7dd3fc", true), text("Website audit report", 48, 728, 22, "#ffffff", true), text(`Page ${pages.length + 1}`, 510, 756, 9, "#cbd5e1")]
+      y = 670
+    }
+    const finishPage = () => { commands.push(text("leonislam.com  |  Automated public-page snapshot", 48, 34, 8, "#64748b")); pages.push(commands) }
+    const nextPage = () => { finishPage(); startPage() }
+    const ensure = (height: number) => { if (y - height < 62) nextPage() }
+    const section = (label: string) => { ensure(34); commands.push(text(label.toUpperCase(), 48, y, 9, "#0369a1", true)); y -= 22 }
+    const paragraph = (value: string, size = 10, hex = "#475569", bold = false) => { const lines = wrap(value); ensure(lines.length * 14 + 8); lines.forEach((line) => { commands.push(text(line, 48, y, size, hex, bold)); y -= 14 }); y -= 6 }
+    const scoreColour = (score: number) => score >= 90 ? "#059669" : score >= 50 ? "#d97706" : "#dc2626"
+
+    startPage()
+    commands.push(text(result.url, 48, y, 11, "#475569"), text(`Generated ${new Date().toLocaleDateString()}`, 48, y - 18, 9, "#64748b"))
+    y -= 58
+    const performanceValue = result.source === "pagespeed" ? result.performance ?? 0 : result.status ?? 0
+    const scoreCards = [{ label: result.source === "pagespeed" ? "MOBILE PERFORMANCE" : "WEBSITE RESPONSE", value: result.source === "pagespeed" ? `${performanceValue}/100` : `HTTP ${performanceValue}`, detail: result.source === "pagespeed" ? "Mobile visitor experience" : `Reached in ${result.loadTime ?? "-"} ms`, score: result.source === "pagespeed" ? performanceValue : 100 }, { label: "SEO ESSENTIALS", value: `${result.seo}/100`, detail: "Search visibility basics", score: result.seo }]
+    scoreCards.forEach((card, index) => { const x = 48 + index * 260; commands.push(box(x, y - 112, 238, 112, "#f8fafc"), border(x, y - 112, 238, 112, "#dbe6ef"), text(card.label, x + 16, y - 24, 8, "#64748b", true), text(card.value, x + 16, y - 62, 25, "#10233f", true), text(card.detail, x + 16, y - 84, 9, "#64748b"), box(x + 16, y - 101, 202, 5, "#e2e8f0"), box(x + 16, y - 101, Math.max(8, 202 * card.score / 100), 5, scoreColour(card.score))) })
+    y -= 142
+    const priority = getAuditPriority(result)
+    commands.push(box(48, y - 72, 516, 72, priority.score >= 7 ? "#fff1f2" : priority.score >= 4 ? "#fffbeb" : "#f0fdf4"), border(48, y - 72, 516, 72, priority.score >= 7 ? "#fecdd3" : priority.score >= 4 ? "#fde68a" : "#bbf7d0"), text("AUDIT PRIORITY", 64, y - 22, 8, "#64748b", true), text(`${priority.label} - ${priority.score}/10`, 64, y - 47, 16, "#10233f", true))
+    y -= 102
+    section("Priority improvements")
+    const findings = result.findings?.length ? result.findings : [{ title: "No major automated issues were flagged", detail: "The automated checks did not find a major blocker.", action: "Keep the main offer clear, fast, and easy to act on.", category: "Technical" as const, priority: "low" as const }]
+    findings.forEach((finding) => { const detailLines = wrap(`${finding.title}: ${finding.action}`, 70); ensure(detailLines.length * 14 + 26); commands.push(box(48, y - detailLines.length * 14 - 16, 5, detailLines.length * 14 + 16, finding.priority === "high" ? "#dc2626" : "#d97706")); detailLines.forEach((line, index) => commands.push(text(line, 66, y - index * 14, 10, "#334155", index === 0))); y -= detailLines.length * 14 + 14 })
+    section("Website health checks")
+    ;(result.checks ?? []).forEach((check) => { const detailLines = wrap(`${check.label}: ${check.status === "pass" ? "Looks good in this automated check." : check.detail}`, 72); ensure(detailLines.length * 13 + 18); commands.push(box(48, y - 5, 7, 7, check.status === "pass" ? "#10b981" : "#f59e0b")); detailLines.forEach((line, index) => commands.push(text(line, 66, y - index * 13, 9, "#475569", index === 0))); y -= detailLines.length * 13 + 10 })
+    if (result.competitor) { section("Competitor comparison"); paragraph(`Compared website: ${result.competitor.url}`, 10, "#334155", true); paragraph(`Mobile performance: you ${result.performance ?? "not available"}/100 vs competitor ${result.competitor.performance}/100. SEO essentials: you ${result.seo}/100 vs competitor ${result.competitor.seo}/100.`) }
+    section("Recommended next step")
+    paragraph("Use the priority action plan to make the most important fixes first, test the visitor journey on a phone, then run a fresh audit to compare the result.", 10, "#334155")
+    finishPage()
+
+    const pageIds = pages.map((_, index) => 5 + index * 2)
     const objects = [
       "<< /Type /Catalog /Pages 2 0 R >>",
       `<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(" ")}] /Count ${pages.length} >>`,
       "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>",
       ...pages.flatMap((page, index) => {
-        const content = [
-          "BT /F1 16 Tf 50 782 Td (Leon Islam - Website Audit Report) Tj",
-          "/F1 9 Tf 0 -24 Td",
-          ...page.flatMap((line) => [`(${line}) Tj`, "0 -14 Td"]),
-          "ET",
-        ].join("\n")
+        const content = page.join("\n")
         return [
-          `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents ${pageIds[index] + 1} 0 R >>`,
+          `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${pageIds[index] + 1} 0 R >>`,
           `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
         ]
       }),
