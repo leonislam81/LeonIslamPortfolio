@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useCallback, useEffect, useState } from "react"
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react"
 import { ArrowRight, CalendarDays, Check, ChevronLeft, CircleAlert, CircleCheck, Copy, Download, Gauge, LockKeyhole, Search, ShieldCheck, Target, Wrench, X, Zap } from "lucide-react"
 import { Turnstile } from "@/components/turnstile"
 import { BookingLink } from "@/components/booking-link"
@@ -179,6 +179,8 @@ export default function FreeAuditPage() {
   const [shareMessage, setShareMessage] = useState("")
   const [isSharedReport, setIsSharedReport] = useState(false)
   const [completedChecklistItems, setCompletedChecklistItems] = useState<Record<string, boolean>>({})
+  const [completionNotice, setCompletionNotice] = useState(false)
+  const resultSectionRef = useRef<HTMLElement>(null)
 
   const saveAudit = useCallback((audit: AuditResult) => {
     const savedAudit = { ...audit, savedAt: new Date().toISOString() }
@@ -223,6 +225,7 @@ export default function FreeAuditPage() {
     event.preventDefault()
     setAuditState("loading")
     setIsSharedReport(false)
+    setCompletionNotice(false)
     setAuditError("")
     setLeadState("idle")
     setLeadError("")
@@ -241,6 +244,8 @@ export default function FreeAuditPage() {
       setEmail("")
       setTurnstileToken("")
       setAuditState("idle")
+      setCompletionNotice(true)
+      window.setTimeout(() => resultSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 150)
     } catch (error) {
       setResult(null)
       setAuditError(error instanceof Error ? error.message : "We could not complete the audit. Please try again.")
@@ -473,6 +478,7 @@ export default function FreeAuditPage() {
           <label className="block w-full text-left" htmlFor="competitor-url"><span className="text-xs font-semibold text-slate-600">Optional: compare one competitor</span><input id="competitor-url" type="url" value={competitorUrl} onChange={(event) => setCompetitorUrl(event.target.value)} placeholder="https://competitor.com" className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100" /></label>
         </form>
         {auditError && <p role="alert" className="mx-auto mt-4 max-w-2xl rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{auditError}</p>}
+        {completionNotice && result ? <div role="status" className="mx-auto mt-4 flex max-w-2xl flex-col items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-center shadow-sm sm:flex-row sm:text-left"><span className="rounded-full bg-emerald-500 p-2 text-white"><CircleCheck className="size-5" /></span><div className="flex-1"><p className="font-bold text-emerald-950">Your audit is complete.</p><p className="mt-1 text-sm text-emerald-800">Your personalised report is ready just below, including scores, issues, and recommended next steps.</p></div><button type="button" onClick={() => resultSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })} className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800">View report <ArrowRight className="size-4" /></button></div> : null}
         <p className="mt-4 text-center text-xs text-slate-500">No account required. We only check the public URL you enter.</p>
       </section>
 
@@ -490,12 +496,12 @@ export default function FreeAuditPage() {
       </section>
 
       {result && (
-        <section aria-live="polite" className="px-5 py-14 sm:px-8 sm:py-20">
+        <section ref={resultSectionRef} aria-live="polite" tabIndex={-1} className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-6 px-5 py-14 duration-700 sm:px-8 sm:py-20">
           <div className="mx-auto max-w-4xl">
             {isSharedReport ? <section className="mb-7 rounded-2xl border border-violet-200 bg-violet-50 p-5 sm:flex sm:items-center sm:justify-between sm:gap-6"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-violet-700">Shared website audit</p><h2 className="mt-2 text-xl font-bold text-slate-950">A colleague shared this public audit snapshot with you.</h2><p className="mt-2 text-sm leading-6 text-slate-600">It contains website scores and public-page findings only—no email address or private lead details are included.</p></div><a href="/free-audit" className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:mt-0">Run your own audit <ArrowRight className="size-4" /></a></section> : null}
             <div className="flex flex-col gap-4 border-b border-slate-200 pb-7 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[0.16em] text-sky-700">Your snapshot</p>
+                <p className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-emerald-700"><CircleCheck className="size-4" />Report ready</p>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Your website audit is ready.</h2>
               </div>
               <div className="flex flex-wrap items-center gap-3 sm:justify-end"><p className="max-w-64 truncate text-sm text-slate-500" title={result.url}>{result.url}</p><button type="button" onClick={downloadPdfReport} className="inline-flex items-center gap-2 rounded-lg bg-sky-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-sky-800"><Download className="size-4" />PDF report</button><button type="button" onClick={downloadReport} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"><Download className="size-4" />Text</button><button type="button" onClick={shareReport} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"><Copy className="size-4" />Share</button></div>
