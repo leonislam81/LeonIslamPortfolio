@@ -176,6 +176,7 @@ export default function FreeAuditPage() {
   const [leadError, setLeadError] = useState("")
   const [recentAudits, setRecentAudits] = useState<AuditResult[]>([])
   const [shareMessage, setShareMessage] = useState("")
+  const [isSharedReport, setIsSharedReport] = useState(false)
 
   const saveAudit = useCallback((audit: AuditResult) => {
     const savedAudit = { ...audit, savedAt: new Date().toISOString() }
@@ -198,6 +199,7 @@ export default function FreeAuditPage() {
         if (isAuditResult(sharedReport)) {
           setResult(sharedReport)
           setUrl(sharedReport.url)
+          setIsSharedReport(true)
         }
       }
     } catch {
@@ -208,6 +210,7 @@ export default function FreeAuditPage() {
   const handleAudit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setAuditState("loading")
+    setIsSharedReport(false)
     setAuditError("")
     setLeadState("idle")
     setLeadError("")
@@ -455,6 +458,7 @@ export default function FreeAuditPage() {
       {result && (
         <section aria-live="polite" className="px-5 py-14 sm:px-8 sm:py-20">
           <div className="mx-auto max-w-4xl">
+            {isSharedReport ? <section className="mb-7 rounded-2xl border border-violet-200 bg-violet-50 p-5 sm:flex sm:items-center sm:justify-between sm:gap-6"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-violet-700">Shared website audit</p><h2 className="mt-2 text-xl font-bold text-slate-950">A colleague shared this public audit snapshot with you.</h2><p className="mt-2 text-sm leading-6 text-slate-600">It contains website scores and public-page findings only—no email address or private lead details are included.</p></div><a href="/free-audit" className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:mt-0">Run your own audit <ArrowRight className="size-4" /></a></section> : null}
             <div className="flex flex-col gap-4 border-b border-slate-200 pb-7 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-bold uppercase tracking-[0.16em] text-sky-700">Your snapshot</p>
