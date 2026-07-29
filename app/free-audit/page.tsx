@@ -312,6 +312,75 @@ export default function FreeAuditPage() {
     URL.revokeObjectURL(fileUrl)
   }
 
+  const downloadPdfReport = () => {
+    if (!result) return
+
+    const rawLines = [
+      "LEON ISLAM - WEBSITE AUDIT REPORT",
+      `Website: ${result.url}`,
+      `Generated: ${new Date().toLocaleDateString()}`,
+      "",
+      result.source === "pagespeed" ? `Mobile performance: ${result.performance}/100` : `Website response: HTTP ${result.status} in ${result.loadTime}ms`,
+      `SEO essentials: ${result.seo}/100`,
+      "",
+      "PRIORITY IMPROVEMENTS",
+      ...(result.findings?.map((finding) => `${finding.title}: ${finding.action}`) ?? ["No major automated issues were flagged."]),
+      "",
+      "WEBSITE HEALTH CHECKS",
+      ...(result.checks?.map((check) => `${check.label}: ${check.status === "pass" ? "Looks good" : check.detail}`) ?? []),
+      ...(result.competitor ? ["", "COMPETITOR COMPARISON", `Competitor: ${result.competitor.url}`, `Mobile performance: You ${result.performance ?? "Not available"}/100 | Competitor ${result.competitor.performance}/100`, `SEO essentials: You ${result.seo}/100 | Competitor ${result.competitor.seo}/100`] : []),
+      "",
+      "This automated public-page snapshot highlights likely improvements. It does not test every page, form, or device.",
+    ]
+    const sanitise = (value: string) => value.normalize("NFKD").replace(/[^\x20-\x7E]/g, "").replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)")
+    const lines = rawLines.flatMap((line) => {
+      const words = sanitise(line).split(/\s+/)
+      const wrapped: string[] = []
+      let current = ""
+      for (const word of words) {
+        if ((current ? `${current} ${word}` : word).length > 88) {
+          if (current) wrapped.push(current)
+          current = word
+        } else current = current ? `${current} ${word}` : word
+      }
+      if (current || !line) wrapped.push(current)
+      return wrapped
+    })
+    const pages = Array.from({ length: Math.max(1, Math.ceil(lines.length / 46)) }, (_, index) => lines.slice(index * 46, index * 46 + 46))
+    const pageIds = pages.map((_, index) => 4 + index * 2)
+    const objects = [
+      "<< /Type /Catalog /Pages 2 0 R >>",
+      `<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(" ")}] /Count ${pages.length} >>`,
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+      ...pages.flatMap((page, index) => {
+        const content = [
+          "BT /F1 16 Tf 50 782 Td (Leon Islam - Website Audit Report) Tj",
+          "/F1 9 Tf 0 -24 Td",
+          ...page.flatMap((line) => [`(${line}) Tj`, "0 -14 Td"]),
+          "ET",
+        ].join("\n")
+        return [
+          `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents ${pageIds[index] + 1} 0 R >>`,
+          `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
+        ]
+      }),
+    ]
+    let pdf = "%PDF-1.4\n"
+    const offsets = [0]
+    objects.forEach((object, index) => {
+      offsets.push(pdf.length)
+      pdf += `${index + 1} 0 obj\n${object}\nendobj\n`
+    })
+    const xrefOffset = pdf.length
+    pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${offsets.slice(1).map((offset) => `${String(offset).padStart(10, "0")} 00000 n `).join("\n")}\ntrailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`
+    const fileUrl = URL.createObjectURL(new Blob([pdf], { type: "application/pdf" }))
+    const link = document.createElement("a")
+    link.href = fileUrl
+    link.download = "website-audit-report.pdf"
+    link.click()
+    URL.revokeObjectURL(fileUrl)
+  }
+
   const shareReport = async () => {
     if (!result) return
     try {
@@ -391,7 +460,7 @@ export default function FreeAuditPage() {
                 <p className="text-sm font-bold uppercase tracking-[0.16em] text-sky-700">Your snapshot</p>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Your website audit is ready.</h2>
               </div>
-              <div className="flex flex-wrap items-center gap-3 sm:justify-end"><p className="max-w-64 truncate text-sm text-slate-500" title={result.url}>{result.url}</p><button type="button" onClick={downloadReport} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"><Download className="size-4" />Download</button><button type="button" onClick={shareReport} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"><Copy className="size-4" />Share</button></div>
+              <div className="flex flex-wrap items-center gap-3 sm:justify-end"><p className="max-w-64 truncate text-sm text-slate-500" title={result.url}>{result.url}</p><button type="button" onClick={downloadPdfReport} className="inline-flex items-center gap-2 rounded-lg bg-sky-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-sky-800"><Download className="size-4" />PDF report</button><button type="button" onClick={downloadReport} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"><Download className="size-4" />Text</button><button type="button" onClick={shareReport} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"><Copy className="size-4" />Share</button></div>
             </div>
             {shareMessage && <p role="status" className="mt-3 text-sm font-medium text-emerald-700">{shareMessage}</p>}
 
