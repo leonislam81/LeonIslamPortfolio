@@ -18,7 +18,14 @@ type AuditResult = {
   metrics?: AuditMetric[]
   checks?: AuditCheck[]
   conversion?: AuditCheck[]
+  competitor?: CompetitorSnapshot
   savedAt?: string
+}
+
+type CompetitorSnapshot = {
+  url: string
+  performance: number
+  seo: number
 }
 
 type AuditFinding = {
@@ -134,6 +141,7 @@ function ScoreCard({ label, score, detail, icon }: { label: string; score: numbe
 
 export default function FreeAuditPage() {
   const [url, setUrl] = useState("")
+  const [competitorUrl, setCompetitorUrl] = useState("")
   const [email, setEmail] = useState("")
   const [businessGoal, setBusinessGoal] = useState("")
   const [turnstileToken, setTurnstileToken] = useState("")
@@ -184,7 +192,7 @@ export default function FreeAuditPage() {
       const response = await fetch("/api/audit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, competitorUrl }),
       })
       const data = await response.json()
 
@@ -233,6 +241,7 @@ export default function FreeAuditPage() {
             findings: result.findings ?? [],
             checks: result.checks ?? [],
             conversion: result.conversion ?? [],
+            competitor: result.competitor,
           },
           businessGoal,
           turnstileToken,
@@ -261,6 +270,7 @@ export default function FreeAuditPage() {
       `Website: ${result.url}`,
       result.source === "pagespeed" ? `Mobile performance: ${result.performance}/100` : `Website response: HTTP ${result.status} in ${result.loadTime}ms`,
       `SEO essentials: ${result.seo}/100`,
+      ...(result.competitor ? ["", "Competitor comparison:", `Competitor: ${result.competitor.url}`, `Your mobile performance: ${result.performance ?? "Not available"}/100 | Competitor: ${result.competitor.performance}/100`, `Your SEO: ${result.seo}/100 | Competitor: ${result.competitor.seo}/100`] : []),
       "",
       "Priority improvements:",
       ...(result.findings?.map((finding) => `- ${finding.title}: ${finding.action}`) ?? ["- No major automated issues were flagged."]),
@@ -315,13 +325,14 @@ export default function FreeAuditPage() {
           <p className="mx-auto mt-5 max-w-2xl text-pretty text-base leading-7 text-slate-600 sm:text-lg">Get a quick, mobile-first view of your website&apos;s performance and SEO health — powered by Google PageSpeed Insights.</p>
         </div>
 
-        <form onSubmit={handleAudit} className="mx-auto mt-10 max-w-2xl rounded-2xl border border-slate-200 bg-white p-3 shadow-xl shadow-slate-900/5 sm:flex sm:gap-3">
+        <form onSubmit={handleAudit} className="mx-auto mt-10 max-w-2xl rounded-2xl border border-slate-200 bg-white p-3 shadow-xl shadow-slate-900/5 sm:flex sm:flex-wrap sm:gap-3">
           <label className="sr-only" htmlFor="website-url">Website address</label>
           <input id="website-url" type="url" required value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://yourwebsite.com" className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100" />
           <button type="submit" disabled={isAuditing} className="mt-3 inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-sky-700 px-5 font-semibold text-white transition hover:bg-sky-800 disabled:cursor-wait disabled:opacity-70 sm:mt-0 sm:w-auto">
             {isAuditing ? "Checking site…" : "Run free audit"}
             {!isAuditing && <ArrowRight className="size-4" />}
           </button>
+          <label className="block w-full text-left" htmlFor="competitor-url"><span className="text-xs font-semibold text-slate-600">Optional: compare one competitor</span><input id="competitor-url" type="url" value={competitorUrl} onChange={(event) => setCompetitorUrl(event.target.value)} placeholder="https://competitor.com" className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100" /></label>
         </form>
         {auditError && <p role="alert" className="mx-auto mt-4 max-w-2xl rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{auditError}</p>}
         <p className="mt-4 text-center text-xs text-slate-500">No account required. We only check the public URL you enter.</p>
@@ -375,6 +386,8 @@ export default function FreeAuditPage() {
             )}
 
             {auditPriority ? <section className={`mt-7 rounded-2xl border p-5 ${auditPriority.tone}`}><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-bold uppercase tracking-[.16em]">Audit priority</p><h3 className="mt-2 text-2xl font-bold text-slate-950">{auditPriority.label}</h3><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-700">{auditPriority.detail}</p></div><div className="rounded-2xl bg-white px-5 py-4 text-center shadow-sm"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Priority score</p><p className="mt-1 text-3xl font-bold text-slate-950">{auditPriority.score}<span className="text-base text-slate-500">/10</span></p></div></div></section> : null}
+
+            {result.competitor ? <section className="mt-8 rounded-2xl border border-violet-200 bg-violet-50 p-5"><p className="text-sm font-bold uppercase tracking-[.16em] text-violet-700">Competitor comparison</p><h3 className="mt-2 text-xl font-bold text-slate-950">See how the public mobile scores compare</h3><p className="mt-1 truncate text-sm text-slate-600" title={result.competitor.url}>{result.competitor.url}</p><div className="mt-4 grid gap-3 sm:grid-cols-2"><div className="rounded-xl bg-white p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Mobile performance</p><p className="mt-2 text-lg font-bold text-slate-950">You: {result.performance ?? "—"} <span className="text-slate-400">vs</span> Competitor: {result.competitor.performance}</p><p className="mt-1 text-sm text-slate-600">{(result.performance ?? 0) >= result.competitor.performance ? "Your site is matching or ahead on this score." : `Opportunity: ${result.competitor.performance - (result.performance ?? 0)} points behind.`}</p></div><div className="rounded-xl bg-white p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">SEO essentials</p><p className="mt-2 text-lg font-bold text-slate-950">You: {result.seo} <span className="text-slate-400">vs</span> Competitor: {result.competitor.seo}</p><p className="mt-1 text-sm text-slate-600">{result.seo >= result.competitor.seo ? "Your site is matching or ahead on this score." : `Opportunity: ${result.competitor.seo - result.seo} points behind.`}</p></div></div></section> : null}
 
             {mobileChecks.length ? <section className="mt-8 rounded-2xl border border-sky-200 bg-sky-50 p-5"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-sky-700">Mobile usability</p><h3 className="mt-2 text-xl font-bold text-slate-950">How the site behaves on a phone</h3><p className="mt-1 text-sm leading-6 text-slate-600">These checks focus on whether visitors can read, tap, and view the page comfortably on a small screen.</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{mobileChecks.map((check) => <div key={check.label} className="rounded-xl bg-white p-4"><div className="flex items-center gap-2 text-sm font-semibold text-slate-950">{check.status === "pass" ? <Check className="size-4 text-emerald-600" /> : <X className="size-4 text-amber-600" />}{check.label}</div><p className="mt-2 text-sm leading-6 text-slate-600">{check.status === "pass" ? "Looks good in this automated check." : check.detail}</p></div>)}</div></section> : null}
 

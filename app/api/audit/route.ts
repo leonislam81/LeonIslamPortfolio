@@ -61,18 +61,18 @@ async function wait(milliseconds: number) {
   await new Promise((resolve) => setTimeout(resolve, milliseconds))
 }
 
-async function runPageSpeed(target: URL, key: string) {
+async function runPageSpeed(target: URL, key: string, attempts = 3, timeout = 45_000) {
   const endpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(target.href)}&strategy=mobile&category=PERFORMANCE&category=SEO&key=${encodeURIComponent(key)}`
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
       // Keep a recent successful report for the same URL. This avoids losing useful
       // PageSpeed detail when Google's service briefly rate-limits or times out.
-      const response = await fetch(endpoint, { next: { revalidate: 21_600 }, signal: AbortSignal.timeout(45_000) })
+      const response = await fetch(endpoint, { next: { revalidate: 21_600 }, signal: AbortSignal.timeout(timeout) })
       if (response.ok) return await response.json() as PageSpeedResult
-      if (!retryableStatuses.has(response.status) || attempt === 2) return null
+      if (!retryableStatuses.has(response.status) || attempt === attempts - 1) return null
     } catch {
-      if (attempt === 2) return null
+      if (attempt === attempts - 1) return null
     }
 
     await wait(700 * (attempt + 1))
@@ -250,8 +250,9 @@ async function runFallbackAudit(target: URL) {
 }
 
 export async function POST(request: Request) {
-  const { url } = await request.json().catch(() => ({}))
+  const { url, competitorUrl } = await request.json().catch(() => ({}))
   let target: URL
+  let competitor: URL | null = null
 
   try {
     target = new URL(url)
@@ -260,9 +261,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Enter a valid public website URL." }, { status: 400 })
   }
 
+  if (typeof competitorUrl === "string" && competitorUrl.trim()) {
+    try {
+      competitor = new URL(competitorUrl)
+      if (!/^https?:$/.test(competitor.protocol) || !(await isPublicHost(competitor.hostname))) throw new Error()
+    } catch {
+      return NextResponse.json({ error: "Enter a valid public competitor URL, or leave it blank." }, { status: 400 })
+    }
+  }
+
   const directAudit = runFallbackAudit(target).catch(() => null)
 
   const key = process.env.PAGESPEED_API_KEY
+  const competitorPageSpeed = competitor && key ? runPageSpeed(competitor, key, 1, 25_000).catch(() => null) : null
   if (key) {
     const pageSpeed = await runPageSpeed(target, key)
     const lighthouse = pageSpeed?.lighthouseResult
@@ -271,6 +282,8 @@ export async function POST(request: Request) {
     if (categories?.performance?.score !== undefined && categories.seo?.score !== undefined) {
       const audits = lighthouse?.audits
       const direct = await directAudit
+      const competitorResult = await competitorPageSpeed
+      const competitorCategories = competitorResult?.lighthouseResult?.categories
       return NextResponse.json({
         url: target.href,
         performance: Math.round(categories.performance.score * 100),
@@ -280,6 +293,11 @@ export async function POST(request: Request) {
         metrics: buildPageSpeedMetrics(audits),
         checks: [...buildPageSpeedChecks(audits), ...(direct?.checks ?? [])],
         conversion: direct?.conversion ?? [],
+        competitor: competitorCategories?.performance?.score !== undefined && competitorCategories.seo?.score !== undefined ? {
+          url: competitor?.href,
+          performance: Math.round(competitorCategories.performance.score * 100),
+          seo: Math.round(competitorCategories.seo.score * 100),
+        } : undefined,
       })
     }
   }

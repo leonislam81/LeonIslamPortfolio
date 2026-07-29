@@ -104,6 +104,7 @@ type AuditReport = {
   findings: AuditFinding[]
   checks: AuditCheck[]
   conversion: AuditCheck[]
+  competitor?: { url: string; performance: number; seo: number }
 }
 
 const auditGoals = ["More leads", "More sales", "More bookings", "More search traffic"] as const
@@ -185,7 +186,8 @@ function parseAudit(value: unknown): AuditReport | null {
     return label && detail ? [{ label, detail, status: item.status }] : []
   }) : []
 
-  return { url, source, seo, performance: score(value.performance), status: score(value.status), loadTime: score(value.loadTime), findings, checks, conversion }
+  const competitor = isRecord(value.competitor) && isText(value.competitor.url) && score(value.competitor.performance) !== undefined && score(value.competitor.seo) !== undefined ? { url: auditText(value.competitor.url, 2_000), performance: score(value.competitor.performance)!, seo: score(value.competitor.seo)! } : undefined
+  return { url, source, seo, performance: score(value.performance), status: score(value.status), loadTime: score(value.loadTime), findings, checks, conversion, competitor }
 }
 
 async function verifyTurnstile(token: string, request: Request) {
@@ -300,6 +302,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
   const quickWins = buildQuickWins(audit).map((step, index) => `<li style="margin-bottom:12px;"><strong>${index + 1}. ${escapeHtml(step.title)}</strong><br />${escapeHtml(step.action)}</li>`).join("")
   const reminder = buildReauditReminder(audit)
   const priority = getAuditPriority(audit)
+  const competitorComparison = audit.competitor ? `<h2 style="margin:30px 0 12px;font-size:20px;">Competitor comparison</h2><div style="padding:18px;border:1px solid #ddd6fe;border-radius:12px;background:#faf5ff;"><p style="margin:0 0 8px;"><strong>Compared website:</strong> ${escapeHtml(audit.competitor.url)}</p><p style="margin:0 0 6px;">Mobile performance: <strong>Your site ${audit.performance ?? "—"}/100</strong> vs competitor <strong>${audit.competitor.performance}/100</strong></p><p style="margin:0;">SEO essentials: <strong>Your site ${audit.seo}/100</strong> vs competitor <strong>${audit.competitor.seo}/100</strong></p></div>` : ""
 
   return `
     <div style="margin:0 auto;max-width:640px;padding:32px 20px;font-family:Arial,sans-serif;color:#10233f;line-height:1.6;">
@@ -309,6 +312,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
       <p>Here is the snapshot for <a style="color:#0f6b8f;word-break:break-all;" href="${escapeHtml(audit.url)}">${escapeHtml(audit.url)}</a>. It is based on a public mobile performance and SEO check.</p>
       ${scoreCards}
       <div style="margin:24px 0;padding:20px;border:1px solid ${priority.border};border-radius:14px;background:${priority.background};"><p style="margin:0 0 6px;color:${priority.color};font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Audit priority · ${priority.score}/10</p><p style="margin:0 0 8px;font-weight:700;font-size:20px;">${priority.label}</p><p style="margin:0;color:#40536a;">${priority.detail}</p></div>
+      ${competitorComparison}
       <h2 style="margin:30px 0 12px;font-size:20px;">Where the audit found opportunities</h2>
       ${findings}
       <div style="margin:28px 0;padding:20px 24px;border:1px solid #b8d9ed;border-radius:14px;background:#f2faff;"><h2 style="margin:0 0 12px;font-size:20px;">Three quick wins to start with</h2><ol style="margin:0;padding-left:20px;color:#40536a;">${quickWins}</ol></div>
