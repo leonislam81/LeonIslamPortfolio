@@ -286,6 +286,8 @@ type LeadRecord = {
   budget: string
   message: string
   businessGoal: string
+  source: string
+  status: string
 }
 
 async function appendLeadToGoogleSheet(lead: LeadRecord) {
@@ -309,8 +311,6 @@ async function appendLeadToGoogleSheet(lead: LeadRecord) {
         lead: {
           receivedAt: new Date().toISOString(),
           ...lead,
-          source: "Website quote form",
-          status: "New",
         },
       }),
       cache: "no-store",
@@ -353,6 +353,7 @@ export async function POST(request: Request) {
   const sendChecklist = payload.sendChecklist === true
   const audit = parseAudit(payload.audit)
   const businessGoal = auditGoals.includes(payload.businessGoal as AuditGoal) ? payload.businessGoal as AuditGoal : null
+  const followUpDate = audit ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1_000).toISOString().slice(0, 10) : null
 
   // Bots fill the hidden field. Return success to avoid helping them tune attacks.
   if (isText(payload.honeypot) && payload.honeypot.trim()) {
@@ -387,6 +388,7 @@ export async function POST(request: Request) {
       <p><strong>Project checklist requested:</strong> ${sendChecklist ? "Yes" : "No"}</p>
       ${audit ? `<p><strong>Audit source:</strong> ${escapeHtml(audit.source)}</p><p><strong>Performance:</strong> ${audit.performance ?? "Not available"}/100</p><p><strong>SEO:</strong> ${audit.seo}/100</p><p><strong>Priority findings:</strong> ${audit.findings.length}</p>` : ""}
       ${businessGoal ? `<p><strong>Business goal:</strong> ${escapeHtml(businessGoal)}</p>` : ""}
+      ${followUpDate ? `<p><strong>Follow-up due:</strong> ${escapeHtml(followUpDate)}</p>` : ""}
       <hr />
       <p><strong>Message:</strong></p>
       <p>${safeMessage}</p>
@@ -401,13 +403,15 @@ export async function POST(request: Request) {
   const leadTracked = await appendLeadToGoogleSheet({
     name,
     email,
-    service,
-    timeline,
-    platform,
-    websiteUrl,
-    budget,
-    message,
+    service: audit ? "Free website audit" : service,
+    timeline: followUpDate ? `Follow up by ${followUpDate}` : timeline,
+    platform: audit ? audit.source : platform,
+    websiteUrl: audit?.url ?? websiteUrl,
+    budget: businessGoal ?? budget,
+    message: audit ? `${message}\n\nAudit report sent. Goal: ${businessGoal ?? "Not specified"}. Performance: ${audit.performance ?? "Not available"}/100. SEO: ${audit.seo}/100. Priority findings: ${audit.findings.length}. Follow up by: ${followUpDate}.` : message,
     businessGoal: businessGoal ?? "Not specified",
+    source: audit ? "Free website audit" : "Website quote form",
+    status: followUpDate ? `Report sent — follow up by ${followUpDate}` : "New",
   })
 
   let confirmationSent = false

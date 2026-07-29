@@ -69,3 +69,15 @@ GOOGLE_SHEETS_WEBHOOK_SECRET=<the same LEAD_WEBHOOK_SECRET value>
 ```
 
 Redeploy after saving the variables. A lead is recorded only after the enquiry email succeeds; a temporary Sheets failure never prevents the visitor from submitting the form.
+
+## Audit lead follow-up
+
+Free audit requests use the same sheet without any Apps Script changes. They are recorded with:
+
+- **Service:** `Free website audit`
+- **Source:** `Free website audit`
+- **Status:** `Report sent — follow up by YYYY-MM-DD`
+- **Timeline:** the same follow-up date
+- **Message:** the audit scores, selected business goal, finding count, and follow-up date
+
+Filter the Status column for `follow up by` each day to keep audit leads from being missed.
