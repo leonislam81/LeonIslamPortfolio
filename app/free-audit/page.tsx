@@ -370,14 +370,43 @@ export default function FreeAuditPage() {
     const scoreCards = [{ label: result.source === "pagespeed" ? "MOBILE PERFORMANCE" : "WEBSITE RESPONSE", value: result.source === "pagespeed" ? `${performanceValue}/100` : `HTTP ${performanceValue}`, detail: result.source === "pagespeed" ? "Mobile visitor experience" : `Reached in ${result.loadTime ?? "-"} ms`, score: result.source === "pagespeed" ? performanceValue : 100 }, { label: "SEO ESSENTIALS", value: `${result.seo}/100`, detail: "Search visibility basics", score: result.seo }]
     scoreCards.forEach((card, index) => { const x = 48 + index * 260; commands.push(box(x, y - 112, 238, 112, "#f8fafc"), border(x, y - 112, 238, 112, "#dbe6ef"), text(card.label, x + 16, y - 24, 8, "#64748b", true), text(card.value, x + 16, y - 62, 25, "#10233f", true), text(card.detail, x + 16, y - 84, 9, "#64748b"), box(x + 16, y - 101, 202, 5, "#e2e8f0"), box(x + 16, y - 101, Math.max(8, 202 * card.score / 100), 5, scoreColour(card.score))) })
     y -= 142
+    if (result.metrics?.length) {
+      commands.push(text("MOBILE EXPERIENCE METRICS", 48, y, 9, "#0369a1", true))
+      y -= 15
+      result.metrics.slice(0, 3).forEach((metric, index) => { const x = 48 + index * 174; commands.push(box(x, y - 48, 160, 48, "#eff6ff"), border(x, y - 48, 160, 48, "#bfdbfe"), text(metric.label.toUpperCase(), x + 12, y - 17, 7, "#475569", true), text(metric.value, x + 12, y - 36, 13, "#10233f", true)) })
+      y -= 70
+    }
     const priority = getAuditPriority(result)
     commands.push(box(48, y - 72, 516, 72, priority.score >= 7 ? "#fff1f2" : priority.score >= 4 ? "#fffbeb" : "#f0fdf4"), border(48, y - 72, 516, 72, priority.score >= 7 ? "#fecdd3" : priority.score >= 4 ? "#fde68a" : "#bbf7d0"), text("AUDIT PRIORITY", 64, y - 22, 8, "#64748b", true), text(`${priority.label} - ${priority.score}/10`, 64, y - 47, 16, "#10233f", true))
     y -= 102
     section("Priority improvements")
     const findings = result.findings?.length ? result.findings : [{ title: "No major automated issues were flagged", detail: "The automated checks did not find a major blocker.", action: "Keep the main offer clear, fast, and easy to act on.", category: "Technical" as const, priority: "low" as const }]
-    findings.forEach((finding) => { const detailLines = wrap(`${finding.title}: ${finding.action}`, 70); ensure(detailLines.length * 14 + 26); commands.push(box(48, y - detailLines.length * 14 - 16, 5, detailLines.length * 14 + 16, finding.priority === "high" ? "#dc2626" : "#d97706")); detailLines.forEach((line, index) => commands.push(text(line, 66, y - index * 14, 10, "#334155", index === 0))); y -= detailLines.length * 14 + 14 })
+    findings.forEach((finding) => {
+      const titleLines = wrap(finding.title, 62)
+      const actionLines = wrap(finding.action, 66)
+      const height = 46 + titleLines.length * 14 + actionLines.length * 13
+      ensure(height + 14)
+      const bottom = y - height
+      const accent = finding.priority === "high" ? "#dc2626" : finding.priority === "medium" ? "#d97706" : "#0284c7"
+      const tint = finding.priority === "high" ? "#fff7f7" : finding.priority === "medium" ? "#fffbeb" : "#f0f9ff"
+      commands.push(box(48, bottom, 516, height, tint), border(48, bottom, 516, height, finding.priority === "high" ? "#fecaca" : finding.priority === "medium" ? "#fde68a" : "#bae6fd"), box(48, bottom, 7, height, accent), box(66, y - 24, 68, 15, accent), text(finding.priority.toUpperCase(), 73, y - 19, 7, "#ffffff", true))
+      titleLines.forEach((line, index) => commands.push(text(line, 66, y - 43 - index * 14, 11, "#10233f", true)))
+      const actionY = y - 50 - titleLines.length * 14
+      commands.push(text("RECOMMENDED FIX", 66, actionY, 8, "#0369a1", true))
+      actionLines.forEach((line, index) => commands.push(text(line, 66, actionY - 15 - index * 13, 9, "#475569")))
+      y -= height + 14
+    })
     section("Website health checks")
-    ;(result.checks ?? []).forEach((check) => { const detailLines = wrap(`${check.label}: ${check.status === "pass" ? "Looks good in this automated check." : check.detail}`, 72); ensure(detailLines.length * 13 + 18); commands.push(box(48, y - 5, 7, 7, check.status === "pass" ? "#10b981" : "#f59e0b")); detailLines.forEach((line, index) => commands.push(text(line, 66, y - index * 13, 9, "#475569", index === 0))); y -= detailLines.length * 13 + 10 })
+    ;(result.checks ?? []).forEach((check) => {
+      const detailLines = wrap(check.status === "pass" ? "Looks good in this automated check." : check.detail, 65)
+      const height = 34 + detailLines.length * 13
+      ensure(height + 10)
+      const bottom = y - height
+      const accent = check.status === "pass" ? "#059669" : "#d97706"
+      commands.push(box(48, bottom, 516, height, "#f8fafc"), border(48, bottom, 516, height, "#dbe6ef"), box(48, bottom, 6, height, accent), text(check.status === "pass" ? "PASS" : "ATTENTION", 66, y - 18, 8, accent, true), text(check.label, 142, y - 18, 10, "#10233f", true))
+      detailLines.forEach((line, index) => commands.push(text(line, 66, y - 36 - index * 13, 9, "#475569")))
+      y -= height + 10
+    })
     if (result.competitor) { section("Competitor comparison"); paragraph(`Compared website: ${result.competitor.url}`, 10, "#334155", true); paragraph(`Mobile performance: you ${result.performance ?? "not available"}/100 vs competitor ${result.competitor.performance}/100. SEO essentials: you ${result.seo}/100 vs competitor ${result.competitor.seo}/100.`) }
     section("Recommended next step")
     paragraph("Use the priority action plan to make the most important fixes first, test the visitor journey on a phone, then run a fresh audit to compare the result.", 10, "#334155")
