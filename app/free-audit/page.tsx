@@ -47,6 +47,26 @@ function isAuditResult(value: unknown): value is AuditResult {
   return typeof value === "object" && value !== null && "url" in value && "seo" in value && "source" in value && typeof value.url === "string" && typeof value.seo === "number" && (value.source === "pagespeed" || value.source === "fallback")
 }
 
+function auditKey(url: string) {
+  try {
+    const parsed = new URL(url)
+    return `${parsed.hostname.toLowerCase()}${parsed.pathname.replace(/\/$/, "")}`
+  } catch {
+    return url
+  }
+}
+
+function attentionCount(audit: AuditResult) {
+  return audit.checks?.filter((check) => check.status === "attention").length ?? 0
+}
+
+function changeLabel(current: number, previous: number, reverse = false) {
+  const difference = current - previous
+  if (difference === 0) return { text: "No change", tone: "text-slate-600" }
+  const improved = reverse ? difference < 0 : difference > 0
+  return { text: `${difference > 0 ? "+" : ""}${difference} ${improved ? "improved" : "worse"}`, tone: improved ? "text-emerald-700" : "text-amber-700" }
+}
+
 type AuditState = "idle" | "loading" | "error"
 type LeadState = "idle" | "sending" | "success" | "error"
 
@@ -93,7 +113,7 @@ export default function FreeAuditPage() {
     const savedAudit = { ...audit, savedAt: new Date().toISOString() }
     setResult(savedAudit)
     setRecentAudits((current) => {
-      const next = [savedAudit, ...current.filter((item) => item.url !== savedAudit.url)].slice(0, 5)
+      const next = [savedAudit, ...current].slice(0, 8)
       window.localStorage.setItem(auditHistoryKey, JSON.stringify(next))
       return next
     })
@@ -231,6 +251,9 @@ export default function FreeAuditPage() {
     }
   }
 
+  const resultSavedAt = result?.savedAt
+  const previousAudit = result && resultSavedAt ? recentAudits.find((audit) => auditKey(audit.url) === auditKey(result.url) && audit.savedAt && new Date(audit.savedAt).getTime() < new Date(resultSavedAt).getTime()) : undefined
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <div className="border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -310,6 +333,8 @@ export default function FreeAuditPage() {
                 <p className="mt-5 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">{result.notice}</p>
               </>
             )}
+
+            {previousAudit ? <section className="mt-8 rounded-2xl border border-sky-200 bg-sky-50 p-5"><div className="flex items-center gap-2"><Gauge className="size-5 text-sky-700" /><h3 className="font-bold text-slate-950">Improvement since your previous check</h3></div><p className="mt-1 text-sm text-slate-600">Compared with the saved audit from {previousAudit.savedAt ? new Date(previousAudit.savedAt).toLocaleDateString() : "an earlier visit"}.</p><div className="mt-4 grid gap-3 sm:grid-cols-3">{result.source === "pagespeed" && previousAudit.performance !== undefined ? <div className="rounded-xl bg-white p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Performance</p><p className="mt-2 text-xl font-bold text-slate-950">{result.performance}/100</p><p className={`mt-1 text-sm font-semibold ${changeLabel(result.performance ?? 0, previousAudit.performance).tone}`}>{changeLabel(result.performance ?? 0, previousAudit.performance).text}</p></div> : null}<div className="rounded-xl bg-white p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">SEO</p><p className="mt-2 text-xl font-bold text-slate-950">{result.seo}/100</p><p className={`mt-1 text-sm font-semibold ${changeLabel(result.seo, previousAudit.seo).tone}`}>{changeLabel(result.seo, previousAudit.seo).text}</p></div><div className="rounded-xl bg-white p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Health issues</p><p className="mt-2 text-xl font-bold text-slate-950">{attentionCount(result)}</p><p className={`mt-1 text-sm font-semibold ${changeLabel(attentionCount(result), attentionCount(previousAudit), true).tone}`}>{changeLabel(attentionCount(result), attentionCount(previousAudit), true).text}</p></div></div></section> : null}
 
             {result.checks?.length ? <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center gap-2"><ShieldCheck className="size-5 text-sky-700" /><h3 className="font-bold text-slate-950">Website health checks</h3></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{result.checks.map((check) => <div key={check.label} className="rounded-xl bg-slate-50 p-3"><div className="flex items-center gap-2 text-sm font-semibold text-slate-900">{check.status === "pass" ? <Check className="size-4 text-emerald-600" /> : <X className="size-4 text-amber-600" />}{check.label}</div><p className="mt-1 text-xs leading-5 text-slate-500">{check.status === "pass" ? "Looks good in this check." : check.detail}</p></div>)}</div></div> : null}
 
