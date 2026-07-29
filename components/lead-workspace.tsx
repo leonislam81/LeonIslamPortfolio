@@ -1,0 +1,13 @@
+"use client"
+
+import { FormEvent, useState } from "react"
+import { Save } from "lucide-react"
+import { createSupabaseBrowserClient } from "@/lib/supabase/client"
+
+export function LeadWorkspace({ leadId, initialNotes, initialFollowUpAt }: { leadId: string; initialNotes: string | null; initialFollowUpAt: string | null }) {
+  const [notes, setNotes] = useState(initialNotes ?? "")
+  const [followUpAt, setFollowUpAt] = useState(initialFollowUpAt ?? "")
+  const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle")
+  const save = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setState("saving"); const supabase = createSupabaseBrowserClient(); if (!supabase) return setState("error"); const { error } = await supabase.from("audit_leads").update({ notes: notes.trim() || null, follow_up_at: followUpAt || null }).eq("id", leadId); setState(error ? "error" : "saved") }
+  return <form onSubmit={save} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><div><p className="text-sm font-bold uppercase tracking-[.14em] text-sky-700">Your workspace</p><h2 className="mt-2 text-xl font-bold">Notes and follow-up</h2><p className="mt-2 text-sm leading-6 text-slate-600">Keep the next conversation and your private assessment in one place.</p></div><label className="block text-sm font-semibold">Follow-up date<input type="date" value={followUpAt} onChange={(event) => { setFollowUpAt(event.target.value); setState("idle") }} className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 px-3 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100" /></label><label className="block text-sm font-semibold">Private notes<textarea value={notes} onChange={(event) => { setNotes(event.target.value); setState("idle") }} rows={8} placeholder="What should you mention in the follow-up? What did you notice about this website?" className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm font-normal leading-6 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100" /></label><div className="flex flex-wrap items-center gap-3"><button disabled={state === "saving"} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-sky-700 px-4 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:opacity-60"><Save className="size-4" />{state === "saving" ? "Saving..." : "Save workspace"}</button>{state === "saved" && <p className="text-sm font-medium text-emerald-700">Saved.</p>}{state === "error" && <p className="text-sm font-medium text-rose-700">Could not save. Please try again.</p>}</div></form>
+}
