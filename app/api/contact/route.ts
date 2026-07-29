@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
+import { createSupabaseAdminClient } from "@/lib/supabase/admin"
 
 export const runtime = "nodejs"
 
@@ -517,6 +518,27 @@ export async function POST(request: Request) {
   }
 
   confirmationSent = true
+
+  if (audit) {
+    const supabase = createSupabaseAdminClient()
+    const ownerId = process.env.DASHBOARD_OWNER_ID
+    if (supabase && ownerId) {
+      const { error: databaseError } = await supabase.from("audit_leads").insert({
+        owner_id: ownerId,
+        website_url: audit.url,
+        email,
+        status: reAuditFollowUpDate ? `Report sent - re-audit requested ${reAuditFollowUpDate}` : "Report sent",
+        business_goal: businessGoal,
+        performance: audit.performance ?? null,
+        seo: audit.seo,
+        audit_source: audit.source,
+        report: audit,
+        follow_up_at: followUpDate,
+        re_audit_at: reAuditFollowUpDate,
+      })
+      if (databaseError) console.error("Supabase audit lead error", databaseError.message)
+    }
+  }
 
   let checklistSent = false
 

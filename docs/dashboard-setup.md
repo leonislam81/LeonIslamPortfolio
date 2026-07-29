@@ -9,4 +9,4 @@
    - `DASHBOARD_OWNER_ID` (the UUID of the administrator user)
 4. Visit `/dashboard/login` and sign in with the administrator account.
 
-The next implementation step connects the audit submission route to `audit_leads`, using the service role key only on the server.
+Every new free-audit report request is now saved to `audit_leads` after its confirmation email is delivered. The service role key is used only by the server and must never be added to a public variable or pasted into client-side code.
