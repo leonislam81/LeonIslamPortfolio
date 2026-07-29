@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { CalendarClock, Search, SlidersHorizontal } from "lucide-react"
 import { LeadStatusSelect } from "@/components/lead-status-select"
 
-export type DashboardLead = { id: string; website_url: string; email: string; status: string; performance: number | null; seo: number | null; created_at: string; follow_up_at: string | null; re_audit_at: string | null }
+export type DashboardLead = { id: string; website_url: string; email: string; status: string; performance: number | null; seo: number | null; business_goal: string | null; created_at: string; follow_up_at: string | null; re_audit_at: string | null }
 
 const localDate = (value: string) => new Date(`${value}T00:00:00`)
 const today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
