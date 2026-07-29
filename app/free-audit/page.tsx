@@ -167,6 +167,7 @@ export default function FreeAuditPage() {
   const [competitorUrl, setCompetitorUrl] = useState("")
   const [email, setEmail] = useState("")
   const [businessGoal, setBusinessGoal] = useState("")
+  const [requestReauditFollowUp, setRequestReauditFollowUp] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState("")
   const [result, setResult] = useState<AuditResult | null>(null)
   const [auditState, setAuditState] = useState<AuditState>("idle")
@@ -267,6 +268,7 @@ export default function FreeAuditPage() {
             competitor: result.competitor,
           },
           businessGoal,
+          reAuditFollowUp: requestReauditFollowUp,
           turnstileToken,
         }),
       })
@@ -466,6 +468,7 @@ export default function FreeAuditPage() {
                   <CircleCheck className="size-9 text-emerald-400" />
                   <h3 className="mt-4 text-2xl font-bold">Your detailed report has been accepted for delivery.</h3>
                   <p className="mt-2 leading-7 text-slate-300">Check your inbox, Promotions, and Spam folders for the scores, issues found, and practical improvement ideas for your website.</p>
+                  {requestReauditFollowUp && <p className="mt-2 text-sm leading-6 text-emerald-300">Your 30-day re-audit follow-up request has also been recorded.</p>}
                   <BookingLink placement="free_audit" bookingDetails={`Website audit: ${result.url}`} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-50"><CalendarDays className="size-4" />Book a free audit review</BookingLink>
                 </div>
               ) : (
@@ -489,6 +492,7 @@ export default function FreeAuditPage() {
                         {businessGoals.map((goal) => <button key={goal} type="button" onClick={() => setBusinessGoal(goal === businessGoal ? "" : goal)} className={`rounded-lg border px-3 py-2 text-left text-xs font-medium transition ${businessGoal === goal ? "border-sky-700 bg-sky-50 text-sky-900" : "border-slate-200 text-slate-600 hover:border-sky-300 hover:bg-sky-50"}`} aria-pressed={businessGoal === goal}>{goal}</button>)}
                       </div>
                     </fieldset>
+                    <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm leading-5 text-slate-700"><input type="checkbox" checked={requestReauditFollowUp} onChange={(event) => setRequestReauditFollowUp(event.target.checked)} className="mt-0.5 size-4 rounded border-slate-300 text-sky-700 focus:ring-sky-500" /><span><strong className="text-slate-950">Request a 30-day re-audit follow-up</strong><br />Leon will have this request recorded with your audit lead so you can review progress after updates.</span></label>
                     <div className="mt-4"><Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} onVerify={handleTurnstileVerify} onExpire={handleTurnstileExpire} /></div>
                     {leadError && <p role="alert" className="mt-3 text-sm text-rose-700">{leadError}</p>}
                     <button type="submit" disabled={isSending} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-sky-700 px-5 font-semibold text-white transition hover:bg-sky-800 disabled:cursor-wait disabled:opacity-70">

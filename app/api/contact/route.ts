@@ -78,6 +78,7 @@ type ContactPayload = {
   honeypot?: unknown
   audit?: unknown
   businessGoal?: unknown
+  reAuditFollowUp?: unknown
 }
 
 type AuditFinding = {
@@ -302,7 +303,7 @@ function buildReauditReminder(audit: AuditReport) {
   return { label: reminderDate.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" }), calendarUrl }
 }
 
-function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: AuditGoal | null) {
+function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: AuditGoal | null, reAuditFollowUp: boolean) {
   const goalAdvice: Record<AuditGoal, string> = {
     "More leads": "Prioritise a clear service promise, a visible contact action, and trust signals near the first call to action.",
     "More sales": "Prioritise fast product pages, clear benefits, useful proof, and a low-friction route from product discovery to checkout.",
@@ -352,6 +353,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
       <h2 style="margin:30px 0 12px;font-size:20px;">Design and conversion ideas to review</h2>
       <ul style="margin:0;padding-left:20px;color:#40536a;"><li style="margin-bottom:8px;">Make the main offer and the next action obvious in the first screen, especially on mobile.</li><li style="margin-bottom:8px;">Use proof near key calls to action: reviews, results, client logos, guarantees, or concise case studies.</li><li style="margin-bottom:8px;">Give each important service page one clear search intent, a focused heading, useful supporting copy, and a relevant call to action.</li></ul>
       ${businessGoal ? `<div style="margin:24px 0;padding:18px;border:1px solid #b8d9ed;border-radius:12px;background:#f2faff;"><p style="margin:0 0 7px;font-weight:700;">Your goal: ${escapeHtml(businessGoal)}</p><p style="margin:0;color:#40536a;">${escapeHtml(goalAdvice[businessGoal])}</p></div>` : ""}
+      ${reAuditFollowUp ? `<div style="margin:24px 0;padding:18px;border:1px solid #bbf7d0;border-radius:12px;background:#f0fdf4;"><p style="margin:0 0 7px;font-weight:700;">30-day re-audit follow-up requested</p><p style="margin:0;color:#40536a;">Your request has been recorded with this audit. Re-run the audit after updates so the next review can compare your progress.</p></div>` : ""}
       <div style="margin:28px 0;padding:20px 24px;border-radius:14px;background:#10233f;color:#ffffff;"><p style="margin:0 0 8px;font-weight:700;font-size:18px;">Want a focused action plan?</p><p style="margin:0;color:#dbeafe;">Reply with your main business goal — more leads, sales, bookings, or search traffic — and I&apos;ll suggest the highest-value first improvements.</p></div>
       <p style="font-size:13px;color:#60738a;">This is an automated public-page snapshot. It highlights likely issues, but it does not test every page, login area, form flow, or browser/device combination.</p>
       <p style="margin-top:24px;">Best regards,<br /><strong>Leon Islam</strong><br /><a style="color:#0f6b8f;" href="https://leonislam.com">leonislam.com</a></p>
@@ -437,6 +439,8 @@ export async function POST(request: Request) {
   const audit = parseAudit(payload.audit)
   const businessGoal = auditGoals.includes(payload.businessGoal as AuditGoal) ? payload.businessGoal as AuditGoal : null
   const followUpDate = audit ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1_000).toISOString().slice(0, 10) : null
+  const reAuditFollowUp = payload.reAuditFollowUp === true && Boolean(audit)
+  const reAuditFollowUpDate = reAuditFollowUp ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1_000).toISOString().slice(0, 10) : null
 
   // Bots fill the hidden field. Return success to avoid helping them tune attacks.
   if (isText(payload.honeypot) && payload.honeypot.trim()) {
@@ -472,6 +476,7 @@ export async function POST(request: Request) {
       ${audit ? `<p><strong>Audit source:</strong> ${escapeHtml(audit.source)}</p><p><strong>Performance:</strong> ${audit.performance ?? "Not available"}/100</p><p><strong>SEO:</strong> ${audit.seo}/100</p><p><strong>Priority findings:</strong> ${audit.findings.length}</p>` : ""}
       ${businessGoal ? `<p><strong>Business goal:</strong> ${escapeHtml(businessGoal)}</p>` : ""}
       ${followUpDate ? `<p><strong>Follow-up due:</strong> ${escapeHtml(followUpDate)}</p>` : ""}
+      ${reAuditFollowUpDate ? `<p><strong>30-day re-audit requested:</strong> ${escapeHtml(reAuditFollowUpDate)}</p>` : ""}
       <hr />
       <p><strong>Message:</strong></p>
       <p>${safeMessage}</p>
@@ -487,11 +492,11 @@ export async function POST(request: Request) {
     name,
     email,
     service: audit ? "Free website audit" : service,
-    timeline: followUpDate ? `Follow up by ${followUpDate}` : timeline,
+    timeline: followUpDate ? `Follow up by ${followUpDate}${reAuditFollowUpDate ? `; re-audit requested ${reAuditFollowUpDate}` : ""}` : timeline,
     platform: audit ? audit.source : platform,
     websiteUrl: audit?.url ?? websiteUrl,
     budget: businessGoal ?? budget,
-    message: audit ? `${message}\n\nAudit report sent. Goal: ${businessGoal ?? "Not specified"}. Performance: ${audit.performance ?? "Not available"}/100. SEO: ${audit.seo}/100. Priority findings: ${audit.findings.length}. Follow up by: ${followUpDate}.` : message,
+    message: audit ? `${message}\n\nAudit report sent. Goal: ${businessGoal ?? "Not specified"}. Performance: ${audit.performance ?? "Not available"}/100. SEO: ${audit.seo}/100. Priority findings: ${audit.findings.length}. Follow up by: ${followUpDate}.${reAuditFollowUpDate ? ` 30-day re-audit requested: ${reAuditFollowUpDate}.` : ""}` : message,
     businessGoal: businessGoal ?? "Not specified",
     source: audit ? "Free website audit" : "Website quote form",
     status: followUpDate ? `Report sent — follow up by ${followUpDate}` : "New",
@@ -503,7 +508,7 @@ export async function POST(request: Request) {
     to: [email],
     replyTo: recipient,
     subject: audit ? `Your website audit: ${audit.findings.length ? `${audit.findings.length} priority improvements` : "your results"}` : "Your enquiry has been received",
-    html: audit ? createAuditReportEmail(name, audit, businessGoal) : createConfirmationEmail(name, service, timeline),
+    html: audit ? createAuditReportEmail(name, audit, businessGoal, reAuditFollowUp) : createConfirmationEmail(name, service, timeline),
   })
 
   if (confirmationError) {
