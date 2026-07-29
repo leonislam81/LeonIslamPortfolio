@@ -237,6 +237,21 @@ function createConfirmationEmail(name: string, service: string, timeline: string
   `
 }
 
+function buildQuickWins(audit: AuditReport) {
+  const steps = [
+    ...audit.findings.map((finding) => ({ title: finding.title, action: finding.action })),
+    ...audit.conversion.filter((check) => check.status === "attention").map((check) => ({ title: check.label, action: check.detail })),
+    ...audit.checks.filter((check) => check.status === "attention").map((check) => ({ title: check.label, action: check.detail })),
+  ]
+
+  const unique = steps.filter((step, index, all) => all.findIndex((item) => item.title === step.title) === index).slice(0, 3)
+  return unique.length ? unique : [
+    { title: "Clarify the main offer", action: "Make the first heading explain who you help, the outcome you provide, and the next action." },
+    { title: "Add visible proof", action: "Place a testimonial, review, result, or client example near the main call to action." },
+    { title: "Recheck after changes", action: "Run the audit again after your updates to measure the improvement." },
+  ]
+}
+
 function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: AuditGoal | null) {
   const goalAdvice: Record<AuditGoal, string> = {
     "More leads": "Prioritise a clear service promise, a visible contact action, and trust signals near the first call to action.",
@@ -254,6 +269,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
 
   const healthChecks = audit.checks.length ? `<h2 style="margin:30px 0 12px;font-size:20px;">Website health checks</h2><ul style="margin:0;padding-left:20px;color:#40536a;">${audit.checks.map((check) => `<li style="margin-bottom:8px;"><strong>${escapeHtml(check.label)}:</strong> ${check.status === "pass" ? "Looks good in this check." : escapeHtml(check.detail)}</li>`).join("")}</ul>` : ""
   const conversionChecks = audit.conversion.length ? `<h2 style="margin:30px 0 12px;font-size:20px;">Conversion snapshot</h2><ul style="margin:0;padding-left:20px;color:#40536a;">${audit.conversion.map((check) => `<li style="margin-bottom:8px;"><strong>${escapeHtml(check.label)}:</strong> ${check.status === "pass" ? "Signal detected on the page." : escapeHtml(check.detail)}</li>`).join("")}</ul>` : ""
+  const quickWins = buildQuickWins(audit).map((step, index) => `<li style="margin-bottom:12px;"><strong>${index + 1}. ${escapeHtml(step.title)}</strong><br />${escapeHtml(step.action)}</li>`).join("")
 
   return `
     <div style="margin:0 auto;max-width:640px;padding:32px 20px;font-family:Arial,sans-serif;color:#10233f;line-height:1.6;">
@@ -264,6 +280,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
       ${scoreCards}
       <h2 style="margin:30px 0 12px;font-size:20px;">Where the audit found opportunities</h2>
       ${findings}
+      <div style="margin:28px 0;padding:20px 24px;border:1px solid #b8d9ed;border-radius:14px;background:#f2faff;"><h2 style="margin:0 0 12px;font-size:20px;">Three quick wins to start with</h2><ol style="margin:0;padding-left:20px;color:#40536a;">${quickWins}</ol></div>
       ${healthChecks}
       ${conversionChecks}
       <h2 style="margin:30px 0 12px;font-size:20px;">Design and conversion ideas to review</h2>
