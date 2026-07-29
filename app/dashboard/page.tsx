@@ -6,6 +6,7 @@ import { DashboardExportButton } from "@/components/dashboard-export-button"
 import { DashboardLeadList, type DashboardLead } from "@/components/dashboard-lead-list"
 import { DashboardMonthlyReport } from "@/components/dashboard-monthly-report"
 import { DashboardNotificationCenter } from "@/components/dashboard-notification-center"
+import { DashboardQuickActions } from "@/components/dashboard-quick-actions"
 import { DashboardSignOutButton } from "@/components/dashboard-sign-out-button"
 import { DashboardWorkspaceHub } from "@/components/dashboard-workspace-hub"
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server"
@@ -65,6 +66,7 @@ export default async function DashboardPage() {
               })}
             </div>
             <DashboardNotificationCenter leads={leads} projects={projects} />
+            <DashboardQuickActions />
             <DashboardWorkspaceHub />
             <DashboardMonthlyReport leads={leads} />
             <DashboardAnalytics leads={leads} />
