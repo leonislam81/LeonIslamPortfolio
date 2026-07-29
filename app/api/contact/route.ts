@@ -135,6 +135,17 @@ function score(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 100 ? Math.round(value) : undefined
 }
 
+function getAuditPriority(audit: AuditReport) {
+  const highFindings = audit.findings.filter((finding) => finding.priority === "high").length
+  const mediumFindings = audit.findings.filter((finding) => finding.priority === "medium").length
+  const attention = [...audit.checks, ...audit.conversion].filter((check) => check.status === "attention").length
+  const score = Math.min(10, highFindings * 3 + mediumFindings * 2 + attention + (audit.source === "pagespeed" && (audit.performance ?? 100) < 50 ? 3 : 0) + (audit.seo < 50 ? 2 : 0))
+
+  if (score >= 7) return { score, label: "Urgent attention", detail: "Several automated issues could be affecting visitor trust, mobile experience, or search visibility. Start with the action plan this week.", color: "#a51919", background: "#fff1f1", border: "#fecaca" }
+  if (score >= 4) return { score, label: "Needs attention", detail: "The site has clear improvement opportunities. Work through the priority items to strengthen its results.", color: "#92400e", background: "#fffbeb", border: "#fde68a" }
+  return { score, label: "Good foundation", detail: "No major automated issues were found. Keep monitoring and use the recommendations to improve conversion over time.", color: "#166534", background: "#f0fdf4", border: "#bbf7d0" }
+}
+
 function auditText(value: unknown, maximum = 280) {
   return isText(value) ? value.trim().slice(0, maximum) : ""
 }
@@ -288,6 +299,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
   const conversionChecks = audit.conversion.length ? `<h2 style="margin:30px 0 12px;font-size:20px;">Conversion snapshot</h2><ul style="margin:0;padding-left:20px;color:#40536a;">${audit.conversion.map((check) => `<li style="margin-bottom:8px;"><strong>${escapeHtml(check.label)}:</strong> ${check.status === "pass" ? "Signal detected on the page." : escapeHtml(check.detail)}</li>`).join("")}</ul>` : ""
   const quickWins = buildQuickWins(audit).map((step, index) => `<li style="margin-bottom:12px;"><strong>${index + 1}. ${escapeHtml(step.title)}</strong><br />${escapeHtml(step.action)}</li>`).join("")
   const reminder = buildReauditReminder(audit)
+  const priority = getAuditPriority(audit)
 
   return `
     <div style="margin:0 auto;max-width:640px;padding:32px 20px;font-family:Arial,sans-serif;color:#10233f;line-height:1.6;">
@@ -296,6 +308,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
       <p>Hi ${escapeHtml(name)},</p>
       <p>Here is the snapshot for <a style="color:#0f6b8f;word-break:break-all;" href="${escapeHtml(audit.url)}">${escapeHtml(audit.url)}</a>. It is based on a public mobile performance and SEO check.</p>
       ${scoreCards}
+      <div style="margin:24px 0;padding:20px;border:1px solid ${priority.border};border-radius:14px;background:${priority.background};"><p style="margin:0 0 6px;color:${priority.color};font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Audit priority · ${priority.score}/10</p><p style="margin:0 0 8px;font-weight:700;font-size:20px;">${priority.label}</p><p style="margin:0;color:#40536a;">${priority.detail}</p></div>
       <h2 style="margin:30px 0 12px;font-size:20px;">Where the audit found opportunities</h2>
       ${findings}
       <div style="margin:28px 0;padding:20px 24px;border:1px solid #b8d9ed;border-radius:14px;background:#f2faff;"><h2 style="margin:0 0 12px;font-size:20px;">Three quick wins to start with</h2><ol style="margin:0;padding-left:20px;color:#40536a;">${quickWins}</ol></div>

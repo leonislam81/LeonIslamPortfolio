@@ -69,6 +69,17 @@ function changeLabel(current: number, previous: number, reverse = false) {
   return { text: `${difference > 0 ? "+" : ""}${difference} ${improved ? "improved" : "worse"}`, tone: improved ? "text-emerald-700" : "text-amber-700" }
 }
 
+function getAuditPriority(audit: AuditResult) {
+  const highFindings = audit.findings?.filter((finding) => finding.priority === "high").length ?? 0
+  const mediumFindings = audit.findings?.filter((finding) => finding.priority === "medium").length ?? 0
+  const attention = [...(audit.checks ?? []), ...(audit.conversion ?? [])].filter((check) => check.status === "attention").length
+  const score = Math.min(10, highFindings * 3 + mediumFindings * 2 + attention + (audit.source === "pagespeed" && (audit.performance ?? 100) < 50 ? 3 : 0) + (audit.seo < 50 ? 2 : 0))
+
+  if (score >= 7) return { score, label: "Urgent attention", detail: "Several automated issues could be affecting visitor trust, mobile experience, or search visibility. Start with the action plan this week.", tone: "border-rose-200 bg-rose-50 text-rose-800" }
+  if (score >= 4) return { score, label: "Needs attention", detail: "The site has clear improvement opportunities. Work through the priority items to strengthen its results.", tone: "border-amber-200 bg-amber-50 text-amber-800" }
+  return { score, label: "Good foundation", detail: "No major automated issues were found. Keep monitoring and use the recommendations to improve conversion over time.", tone: "border-emerald-200 bg-emerald-50 text-emerald-800" }
+}
+
 type ActionPlanItem = { title: string; detail: string }
 
 function buildActionPlan(audit: AuditResult) {
@@ -281,6 +292,7 @@ export default function FreeAuditPage() {
   const previousAudit = result && resultSavedAt ? recentAudits.find((audit) => auditKey(audit.url) === auditKey(result.url) && audit.savedAt && new Date(audit.savedAt).getTime() < new Date(resultSavedAt).getTime()) : undefined
   const actionPlan = result ? buildActionPlan(result) : null
   const mobileChecks = result?.checks?.filter((check) => mobileCheckLabels.includes(check.label)) ?? []
+  const auditPriority = result ? getAuditPriority(result) : null
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -361,6 +373,8 @@ export default function FreeAuditPage() {
                 <p className="mt-5 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">{result.notice}</p>
               </>
             )}
+
+            {auditPriority ? <section className={`mt-7 rounded-2xl border p-5 ${auditPriority.tone}`}><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-bold uppercase tracking-[.16em]">Audit priority</p><h3 className="mt-2 text-2xl font-bold text-slate-950">{auditPriority.label}</h3><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-700">{auditPriority.detail}</p></div><div className="rounded-2xl bg-white px-5 py-4 text-center shadow-sm"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Priority score</p><p className="mt-1 text-3xl font-bold text-slate-950">{auditPriority.score}<span className="text-base text-slate-500">/10</span></p></div></div></section> : null}
 
             {mobileChecks.length ? <section className="mt-8 rounded-2xl border border-sky-200 bg-sky-50 p-5"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-sky-700">Mobile usability</p><h3 className="mt-2 text-xl font-bold text-slate-950">How the site behaves on a phone</h3><p className="mt-1 text-sm leading-6 text-slate-600">These checks focus on whether visitors can read, tap, and view the page comfortably on a small screen.</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{mobileChecks.map((check) => <div key={check.label} className="rounded-xl bg-white p-4"><div className="flex items-center gap-2 text-sm font-semibold text-slate-950">{check.status === "pass" ? <Check className="size-4 text-emerald-600" /> : <X className="size-4 text-amber-600" />}{check.label}</div><p className="mt-2 text-sm leading-6 text-slate-600">{check.status === "pass" ? "Looks good in this automated check." : check.detail}</p></div>)}</div></section> : null}
 
