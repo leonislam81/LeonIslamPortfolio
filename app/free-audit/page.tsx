@@ -189,7 +189,7 @@ export default function FreeAuditPage() {
   useEffect(() => {
     try {
       const stored = JSON.parse(window.localStorage.getItem(auditHistoryKey) ?? "[]")
-      if (Array.isArray(stored)) setRecentAudits(stored.filter(isAuditResult).slice(0, 5))
+      if (Array.isArray(stored)) setRecentAudits(stored.filter(isAuditResult).slice(0, 8))
 
       const encodedReport = new URLSearchParams(window.location.search).get("report")
       if (encodedReport) {
@@ -328,6 +328,11 @@ export default function FreeAuditPage() {
   const auditPriority = result ? getAuditPriority(result) : null
   const opportunitySignals = result ? buildOpportunitySignals(result) : []
   const serviceRecommendation = result ? buildServiceRecommendation(result, businessGoal) : null
+  const savedAudits = recentAudits.slice(0, 8)
+  const sameSiteHistory = result ? savedAudits.filter((audit) => auditKey(audit.url) === auditKey(result.url)) : []
+  const earlierSiteAudit = sameSiteHistory.find((audit) => audit.savedAt && audit.savedAt !== result?.savedAt)
+  const performanceTrend = result?.source === "pagespeed" && earlierSiteAudit?.performance !== undefined ? changeLabel(result.performance ?? 0, earlierSiteAudit.performance) : null
+  const seoTrend = result && earlierSiteAudit ? changeLabel(result.seo, earlierSiteAudit.seo) : null
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -495,7 +500,7 @@ export default function FreeAuditPage() {
                 </div>
               )}
             </div>
-            {recentAudits.length > 1 ? <section className="mt-10"><div className="flex items-end justify-between gap-4"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-sky-700">Saved on this device</p><h3 className="mt-2 text-xl font-bold text-slate-950">Recent audits</h3></div><p className="text-xs text-slate-500">Private to this browser</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2">{recentAudits.filter((audit) => audit.url !== result.url).map((audit) => <button key={`${audit.url}-${audit.savedAt}`} type="button" onClick={() => { setResult(audit); setUrl(audit.url); window.scrollTo({ top: 0, behavior: "smooth" }) }} className="rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-sky-300 hover:bg-sky-50"><p className="truncate text-sm font-semibold text-slate-950">{audit.url}</p><p className="mt-2 text-sm text-slate-600">{audit.source === "pagespeed" ? `Performance ${audit.performance}/100` : `HTTP ${audit.status}`} · SEO {audit.seo}/100</p><p className="mt-2 text-xs text-sky-700">Open saved report</p></button>)}</div></section> : null}
+            {recentAudits.length > 1 ? <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7"><div className="flex items-end justify-between gap-4"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-sky-700">Saved on this device</p><h3 className="mt-2 text-2xl font-bold text-slate-950">Audit history dashboard</h3><p className="mt-2 text-sm text-slate-600">Review up to eight saved reports in this browser and track progress for the current website.</p></div><p className="text-xs text-slate-500">Private to this browser</p></div><div className="mt-5 grid gap-3 sm:grid-cols-3"><div className="rounded-xl bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Saved reports</p><p className="mt-2 text-2xl font-bold text-slate-950">{savedAudits.length}</p></div><div className="rounded-xl bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Checks for this site</p><p className="mt-2 text-2xl font-bold text-slate-950">{sameSiteHistory.length}</p></div><div className="rounded-xl bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Latest trend</p><p className="mt-2 text-sm font-semibold text-slate-950">{performanceTrend ? `Performance: ${performanceTrend.text}` : seoTrend ? `SEO: ${seoTrend.text}` : "Run another audit to compare"}</p></div></div><div className="mt-6"><h4 className="font-bold text-slate-950">Saved reports</h4><div className="mt-3 grid gap-3 sm:grid-cols-2">{savedAudits.map((audit) => { const isCurrent = audit.savedAt === result.savedAt && auditKey(audit.url) === auditKey(result.url); const issues = attentionCount(audit); return <button key={`${audit.url}-${audit.savedAt}`} type="button" onClick={() => { setResult(audit); setUrl(audit.url); window.scrollTo({ top: 0, behavior: "smooth" }) }} className={`rounded-xl border p-4 text-left transition ${isCurrent ? "border-sky-300 bg-sky-50" : "border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50"}`}><div className="flex items-start justify-between gap-3"><p className="truncate text-sm font-semibold text-slate-950">{audit.url}</p>{isCurrent && <span className="shrink-0 rounded-full bg-sky-100 px-2 py-1 text-xs font-semibold text-sky-800">Open</span>}</div><p className="mt-2 text-sm text-slate-600">{audit.source === "pagespeed" ? `Performance ${audit.performance}/100` : `HTTP ${audit.status}`} · SEO {audit.seo}/100</p><p className="mt-1 text-xs text-slate-500">{issues} health issue{issues === 1 ? "" : "s"} · {audit.savedAt ? new Date(audit.savedAt).toLocaleDateString() : "Saved report"}</p><p className="mt-3 text-xs font-semibold text-sky-700">{isCurrent ? "Viewing this report" : "Open saved report"}</p></button> })}</div></div></section> : null}
           </div>
         </section>
       )}
