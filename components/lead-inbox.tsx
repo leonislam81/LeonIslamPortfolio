@@ -1,0 +1,15 @@
+"use client"
+
+import { useMemo, useState } from "react"
+import { Inbox, Search } from "lucide-react"
+
+type InboxLead = { id: string; lead_name: string | null; email: string; website_url: string; message: string | null; status: string; priority: "high" | "normal" | "low"; created_at: string }
+const priorityColor = { high: "bg-rose-100 text-rose-800", normal: "bg-sky-100 text-sky-800", low: "bg-slate-100 text-slate-700" }
+
+export function LeadInbox({ leads }: { leads: InboxLead[] }) {
+  const [search, setSearch] = useState("")
+  const [status, setStatus] = useState("all")
+  const visible = useMemo(() => leads.filter((lead) => { const text = `${lead.lead_name ?? ""} ${lead.email} ${lead.website_url} ${lead.message ?? ""}`.toLowerCase(); return (!search || text.includes(search.toLowerCase())) && (status === "all" || lead.status === status) }), [leads, search, status])
+  const statuses = Array.from(new Set(leads.map((lead) => lead.status))).sort()
+  return <section className="rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="flex flex-wrap items-center gap-3 border-b border-slate-200 p-5"><Inbox className="size-5 text-sky-700" /><h2 className="font-bold">All submitted leads</h2><p className="ml-auto text-xs text-slate-500">{visible.length} of {leads.length} shown</p></div><div className="grid gap-3 border-b border-slate-100 p-5 sm:grid-cols-[1fr_auto]"><label className="relative"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name, email, website, or message" className="min-h-11 w-full rounded-xl border border-slate-200 py-2 pl-10 pr-3 text-sm" /></label><select value={status} onChange={(event) => setStatus(event.target.value)} className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium"><option value="all">All statuses</option>{statuses.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>{visible.length ? <div className="divide-y divide-slate-100">{visible.map((lead) => <a key={lead.id} href={`/dashboard/leads/${lead.id}`} className="block p-5 transition hover:bg-sky-50"><div className="flex flex-wrap items-start gap-2"><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="font-bold text-slate-950">{lead.lead_name || "Website audit visitor"}</p><span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${priorityColor[lead.priority]}`}>{lead.priority}</span></div><p className="mt-1 text-sm text-slate-600">{lead.email} · {lead.website_url}</p></div><span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-800">{lead.status}</span></div><p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{lead.message || "Requested the detailed website audit report and follow-up advice."}</p><p className="mt-3 text-xs text-slate-400">Received {new Date(lead.created_at).toLocaleString()}</p></a>)}</div> : <p className="p-8 text-sm text-slate-600">No submitted leads match your search.</p>}</section>
+}
