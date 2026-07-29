@@ -1,7 +1,7 @@
 "use client"
 
 import { FormEvent, useCallback, useState } from "react"
-import { ArrowRight, Check, ChevronLeft, CircleAlert, CircleCheck, Gauge, LockKeyhole, Search, Wrench, Zap } from "lucide-react"
+import { ArrowRight, Check, ChevronLeft, CircleAlert, CircleCheck, Gauge, LockKeyhole, Search, Target, Wrench, Zap } from "lucide-react"
 import { Turnstile } from "@/components/turnstile"
 
 type AuditResult = {
@@ -14,6 +14,7 @@ type AuditResult = {
   title?: string | null
   notice?: string
   findings?: AuditFinding[]
+  metrics?: AuditMetric[]
 }
 
 type AuditFinding = {
@@ -23,6 +24,14 @@ type AuditFinding = {
   detail: string
   action: string
 }
+
+type AuditMetric = {
+  label: string
+  value: string
+  score?: number | null
+}
+
+const businessGoals = ["More leads", "More sales", "More bookings", "More search traffic"]
 
 type AuditState = "idle" | "loading" | "error"
 type LeadState = "idle" | "sending" | "success" | "error"
@@ -56,6 +65,7 @@ function ScoreCard({ label, score, detail, icon }: { label: string; score: numbe
 export default function FreeAuditPage() {
   const [url, setUrl] = useState("")
   const [email, setEmail] = useState("")
+  const [businessGoal, setBusinessGoal] = useState("")
   const [turnstileToken, setTurnstileToken] = useState("")
   const [result, setResult] = useState<AuditResult | null>(null)
   const [auditState, setAuditState] = useState<AuditState>("idle")
@@ -122,6 +132,7 @@ export default function FreeAuditPage() {
             loadTime: result.loadTime,
             findings: result.findings ?? [],
           },
+          businessGoal,
           turnstileToken,
         }),
       })
@@ -204,6 +215,7 @@ export default function FreeAuditPage() {
                   <ScoreCard label="Performance" score={result.performance ?? 0} detail="How quickly your page loads and responds on a mobile connection." icon={<Gauge className="size-4" />} />
                   <ScoreCard label="SEO" score={result.seo} detail="Fundamental checks that help search engines understand your page." icon={<Search className="size-4" />} />
                 </div>
+                {result.metrics?.length ? <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">{result.metrics.map((metric) => <div key={metric.label} className="rounded-xl border border-slate-200 bg-white p-4 text-center shadow-sm"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{metric.label}</p><p className="mt-2 text-lg font-bold text-slate-950">{metric.value}</p></div>)}</div> : null}
                 <p className="mt-5 text-sm text-slate-500">Scores are from Google PageSpeed Insights. A score of 90 or above is generally considered strong.</p>
               </>
             ) : (
@@ -266,6 +278,12 @@ export default function FreeAuditPage() {
                   <form onSubmit={handleLead} className="rounded-2xl bg-white p-5 text-slate-900 sm:p-6">
                     <label htmlFor="audit-email" className="text-sm font-semibold">Your email address</label>
                     <input id="audit-email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@company.com" className="mt-2 min-h-12 w-full rounded-xl border border-slate-200 px-4 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100" />
+                    <fieldset className="mt-5">
+                      <legend className="flex items-center gap-2 text-sm font-semibold"><Target className="size-4 text-sky-700" />What would you most like to improve? <span className="font-normal text-slate-500">(optional)</span></legend>
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        {businessGoals.map((goal) => <button key={goal} type="button" onClick={() => setBusinessGoal(goal === businessGoal ? "" : goal)} className={`rounded-lg border px-3 py-2 text-left text-xs font-medium transition ${businessGoal === goal ? "border-sky-700 bg-sky-50 text-sky-900" : "border-slate-200 text-slate-600 hover:border-sky-300 hover:bg-sky-50"}`} aria-pressed={businessGoal === goal}>{goal}</button>)}
+                      </div>
+                    </fieldset>
                     <div className="mt-4"><Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} onVerify={handleTurnstileVerify} onExpire={handleTurnstileExpire} /></div>
                     {leadError && <p role="alert" className="mt-3 text-sm text-rose-700">{leadError}</p>}
                     <button type="submit" disabled={isSending} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-sky-700 px-5 font-semibold text-white transition hover:bg-sky-800 disabled:cursor-wait disabled:opacity-70">

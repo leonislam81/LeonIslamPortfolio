@@ -27,6 +27,12 @@ type AuditFinding = {
   action: string
 }
 
+type AuditMetric = {
+  label: string
+  value: string
+  score?: number | null
+}
+
 const retryableStatuses = new Set([429, 500, 502, 503, 504])
 
 function isPrivateAddress(address: string) {
@@ -116,6 +122,21 @@ function buildPageSpeedFindings(audits: LighthouseAudits | undefined) {
   return findings.slice(0, 6)
 }
 
+function buildPageSpeedMetrics(audits: LighthouseAudits | undefined): AuditMetric[] {
+  const metrics: Array<[string, string]> = [
+    ["first-contentful-paint", "First content"],
+    ["largest-contentful-paint", "Largest content"],
+    ["total-blocking-time", "Response delay"],
+    ["cumulative-layout-shift", "Layout shift"],
+    ["speed-index", "Visual speed"],
+  ]
+
+  return metrics.flatMap(([id, label]) => {
+    const audit = audits?.[id]
+    return audit?.displayValue ? [{ label, value: audit.displayValue, score: audit.score }] : []
+  })
+}
+
 function buildFallbackFindings(checks: ReturnType<typeof auditHtml>["checks"]): AuditFinding[] {
   const missing: Array<[keyof typeof checks, string, string, string]> = [
     ["hasTitle", "The page title is missing", "Search engines and browser tabs need a clear page title.", "Add a unique, benefit-led title that describes the page topic."],
@@ -198,6 +219,7 @@ export async function POST(request: Request) {
         seo: Math.round(categories.seo.score * 100),
         source: "pagespeed",
         findings: buildPageSpeedFindings(audits),
+        metrics: buildPageSpeedMetrics(audits),
       })
     }
   }

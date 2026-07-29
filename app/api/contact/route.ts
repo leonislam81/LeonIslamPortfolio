@@ -77,6 +77,7 @@ type ContactPayload = {
   sendChecklist?: unknown
   honeypot?: unknown
   audit?: unknown
+  businessGoal?: unknown
 }
 
 type AuditFinding = {
@@ -96,6 +97,9 @@ type AuditReport = {
   loadTime?: number
   findings: AuditFinding[]
 }
+
+const auditGoals = ["More leads", "More sales", "More bookings", "More search traffic"] as const
+type AuditGoal = typeof auditGoals[number]
 
 function isText(value: unknown): value is string {
   return typeof value === "string"
@@ -211,7 +215,13 @@ function createConfirmationEmail(name: string, service: string, timeline: string
   `
 }
 
-function createAuditReportEmail(name: string, audit: AuditReport) {
+function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: AuditGoal | null) {
+  const goalAdvice: Record<AuditGoal, string> = {
+    "More leads": "Prioritise a clear service promise, a visible contact action, and trust signals near the first call to action.",
+    "More sales": "Prioritise fast product pages, clear benefits, useful proof, and a low-friction route from product discovery to checkout.",
+    "More bookings": "Prioritise a clear booking value, availability expectations, and a single prominent booking action on mobile.",
+    "More search traffic": "Prioritise one search intent per important page, helpful original content, descriptive headings, and strong internal links.",
+  }
   const scoreCards = audit.source === "pagespeed"
     ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:24px 0;border-collapse:separate;border-spacing:12px 0;"><tr><td style="width:50%;padding:20px;border:1px solid #cfe0ed;border-radius:14px;background:#f7fbff;"><p style="margin:0;color:#52657c;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">Mobile performance</p><p style="margin:8px 0 0;font-size:32px;font-weight:700;color:#10233f;">${audit.performance ?? "—"}<span style="font-size:14px;">/100</span></p></td><td style="width:50%;padding:20px;border:1px solid #cfe0ed;border-radius:14px;background:#f7fbff;"><p style="margin:0;color:#52657c;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">SEO essentials</p><p style="margin:8px 0 0;font-size:32px;font-weight:700;color:#10233f;">${audit.seo}<span style="font-size:14px;">/100</span></p></td></tr></table>`
     : `<div style="margin:24px 0;padding:20px;border:1px solid #cfe0ed;border-radius:14px;background:#f7fbff;"><p style="margin:0 0 8px;font-weight:700;">Website availability and SEO snapshot</p><p style="margin:0;">The public website responded with HTTP ${audit.status ?? "—"}. SEO essentials score: <strong>${audit.seo}/100</strong>.</p></div>`
@@ -231,6 +241,7 @@ function createAuditReportEmail(name: string, audit: AuditReport) {
       ${findings}
       <h2 style="margin:30px 0 12px;font-size:20px;">Design and conversion ideas to review</h2>
       <ul style="margin:0;padding-left:20px;color:#40536a;"><li style="margin-bottom:8px;">Make the main offer and the next action obvious in the first screen, especially on mobile.</li><li style="margin-bottom:8px;">Use proof near key calls to action: reviews, results, client logos, guarantees, or concise case studies.</li><li style="margin-bottom:8px;">Give each important service page one clear search intent, a focused heading, useful supporting copy, and a relevant call to action.</li></ul>
+      ${businessGoal ? `<div style="margin:24px 0;padding:18px;border:1px solid #b8d9ed;border-radius:12px;background:#f2faff;"><p style="margin:0 0 7px;font-weight:700;">Your goal: ${escapeHtml(businessGoal)}</p><p style="margin:0;color:#40536a;">${escapeHtml(goalAdvice[businessGoal])}</p></div>` : ""}
       <div style="margin:28px 0;padding:20px 24px;border-radius:14px;background:#10233f;color:#ffffff;"><p style="margin:0 0 8px;font-weight:700;font-size:18px;">Want a focused action plan?</p><p style="margin:0;color:#dbeafe;">Reply with your main business goal — more leads, sales, bookings, or search traffic — and I&apos;ll suggest the highest-value first improvements.</p></div>
       <p style="font-size:13px;color:#60738a;">This is an automated public-page snapshot. It highlights likely issues, but it does not test every page, login area, form flow, or browser/device combination.</p>
       <p style="margin-top:24px;">Best regards,<br /><strong>Leon Islam</strong><br /><a style="color:#0f6b8f;" href="https://leonislam.com">leonislam.com</a></p>
@@ -247,6 +258,7 @@ type LeadRecord = {
   websiteUrl: string
   budget: string
   message: string
+  businessGoal: string
 }
 
 async function appendLeadToGoogleSheet(lead: LeadRecord) {
@@ -313,6 +325,7 @@ export async function POST(request: Request) {
   const turnstileToken = isText(payload.turnstileToken) ? payload.turnstileToken.trim() : ""
   const sendChecklist = payload.sendChecklist === true
   const audit = parseAudit(payload.audit)
+  const businessGoal = auditGoals.includes(payload.businessGoal as AuditGoal) ? payload.businessGoal as AuditGoal : null
 
   // Bots fill the hidden field. Return success to avoid helping them tune attacks.
   if (isText(payload.honeypot) && payload.honeypot.trim()) {
@@ -346,6 +359,7 @@ export async function POST(request: Request) {
       <p><strong>Estimated budget:</strong> ${escapeHtml(budget)}</p>
       <p><strong>Project checklist requested:</strong> ${sendChecklist ? "Yes" : "No"}</p>
       ${audit ? `<p><strong>Audit source:</strong> ${escapeHtml(audit.source)}</p><p><strong>Performance:</strong> ${audit.performance ?? "Not available"}/100</p><p><strong>SEO:</strong> ${audit.seo}/100</p><p><strong>Priority findings:</strong> ${audit.findings.length}</p>` : ""}
+      ${businessGoal ? `<p><strong>Business goal:</strong> ${escapeHtml(businessGoal)}</p>` : ""}
       <hr />
       <p><strong>Message:</strong></p>
       <p>${safeMessage}</p>
@@ -366,6 +380,7 @@ export async function POST(request: Request) {
     websiteUrl,
     budget,
     message,
+    businessGoal: businessGoal ?? "Not specified",
   })
 
   let confirmationSent = false
@@ -374,7 +389,7 @@ export async function POST(request: Request) {
     to: [email],
     replyTo: recipient,
     subject: audit ? `Your website audit: ${audit.findings.length ? `${audit.findings.length} priority improvements` : "your results"}` : "Your enquiry has been received",
-    html: audit ? createAuditReportEmail(name, audit) : createConfirmationEmail(name, service, timeline),
+    html: audit ? createAuditReportEmail(name, audit, businessGoal) : createConfirmationEmail(name, service, timeline),
   })
 
   if (confirmationError) {
