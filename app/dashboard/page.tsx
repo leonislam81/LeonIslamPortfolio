@@ -7,6 +7,7 @@ import { DashboardGlobalSearch } from "@/components/dashboard-global-search"
 import { DashboardLeadList, type DashboardLead } from "@/components/dashboard-lead-list"
 import { DashboardMonthlyReport } from "@/components/dashboard-monthly-report"
 import { DashboardNotificationCenter } from "@/components/dashboard-notification-center"
+import { DashboardOverviewPreferences, defaultDashboardSections } from "@/components/dashboard-overview-preferences"
 import { DashboardQuickActions } from "@/components/dashboard-quick-actions"
 import { DashboardRecentActivity } from "@/components/dashboard-recent-activity"
 import { DashboardSavedViews } from "@/components/dashboard-saved-views"
@@ -34,6 +35,10 @@ export default async function DashboardPage() {
   const projects = projectData ?? []
   const { data: activityData } = await supabase.from("audit_lead_activities").select("id, lead_id, activity_type, detail, created_at").order("created_at", { ascending: false }).limit(20)
   const activities = (activityData ?? []) as Array<{ id: string; lead_id: string; activity_type: "status_changed" | "notes_saved" | "email_sent"; detail: string; created_at: string }>
+  const { data: preferences } = await supabase.from("dashboard_settings").select("overview_sections").eq("owner_id", user.id).maybeSingle()
+  const storedSections = preferences?.overview_sections
+  const overviewSections = Array.isArray(storedSections) ? storedSections.filter((section): section is string => typeof section === "string") : defaultDashboardSections
+  const show = (section: string) => overviewSections.includes(section)
   const average = (key: "performance" | "seo") => {
     const values = leads.map((lead) => lead[key]).filter((value): value is number => typeof value === "number")
     return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null
@@ -50,6 +55,7 @@ export default async function DashboardPage() {
           </div>
           <div className="flex flex-wrap gap-3">
             <DashboardGlobalSearch />
+            <DashboardOverviewPreferences initial={overviewSections} />
             <a href="/dashboard/settings" className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Settings</a>
             <DashboardSignOutButton />
             <DashboardExportButton leads={leads} />
@@ -71,15 +77,15 @@ export default async function DashboardPage() {
                 return <article key={label as string} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><MetricIcon className="size-5 text-sky-700" /><p className="mt-4 text-sm font-semibold text-slate-600">{label as string}</p><p className="mt-2 text-3xl font-bold">{value as string | number}</p></article>
               })}
             </div>
-            <DashboardNotificationCenter leads={leads} projects={projects} />
-            <DashboardQuickActions />
-            <DashboardWorkspaceHub />
-            <DashboardSavedViews />
-            <DashboardMonthlyReport leads={leads} />
-            <DashboardRecentActivity activities={activities} projects={projects} />
-            <DashboardAnalytics leads={leads} />
-            <DashboardCalendar leads={leads} />
-            <DashboardLeadList leads={leads} />
+            {show("attention") && <DashboardNotificationCenter leads={leads} projects={projects} />}
+            {show("quick-actions") && <DashboardQuickActions />}
+            {show("workspace") && <DashboardWorkspaceHub />}
+            {show("saved-views") && <DashboardSavedViews />}
+            {show("reporting") && <DashboardMonthlyReport leads={leads} />}
+            {show("recent-activity") && <DashboardRecentActivity activities={activities} projects={projects} />}
+            {show("analytics") && <DashboardAnalytics leads={leads} />}
+            {show("calendar") && <DashboardCalendar leads={leads} />}
+            {show("pipeline") && <DashboardLeadList leads={leads} />}
           </>
         )}
       </div>
