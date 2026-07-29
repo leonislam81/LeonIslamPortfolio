@@ -1,7 +1,7 @@
 "use client"
 
 import { FormEvent, useCallback, useState } from "react"
-import { ArrowRight, Check, ChevronLeft, CircleAlert, CircleCheck, Gauge, LockKeyhole, Search, Target, Wrench, Zap } from "lucide-react"
+import { ArrowRight, Check, ChevronLeft, CircleAlert, CircleCheck, Gauge, LockKeyhole, Search, ShieldCheck, Target, Wrench, X, Zap } from "lucide-react"
 import { Turnstile } from "@/components/turnstile"
 
 type AuditResult = {
@@ -15,6 +15,7 @@ type AuditResult = {
   notice?: string
   findings?: AuditFinding[]
   metrics?: AuditMetric[]
+  checks?: AuditCheck[]
 }
 
 type AuditFinding = {
@@ -29,6 +30,12 @@ type AuditMetric = {
   label: string
   value: string
   score?: number | null
+}
+
+type AuditCheck = {
+  label: string
+  status: "pass" | "attention"
+  detail: string
 }
 
 const businessGoals = ["More leads", "More sales", "More bookings", "More search traffic"]
@@ -131,6 +138,7 @@ export default function FreeAuditPage() {
             status: result.status,
             loadTime: result.loadTime,
             findings: result.findings ?? [],
+            checks: result.checks ?? [],
           },
           businessGoal,
           turnstileToken,
@@ -230,6 +238,8 @@ export default function FreeAuditPage() {
                 <p className="mt-5 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">{result.notice}</p>
               </>
             )}
+
+            {result.checks?.length ? <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center gap-2"><ShieldCheck className="size-5 text-sky-700" /><h3 className="font-bold text-slate-950">Website health checks</h3></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{result.checks.map((check) => <div key={check.label} className="rounded-xl bg-slate-50 p-3"><div className="flex items-center gap-2 text-sm font-semibold text-slate-900">{check.status === "pass" ? <Check className="size-4 text-emerald-600" /> : <X className="size-4 text-amber-600" />}{check.label}</div><p className="mt-1 text-xs leading-5 text-slate-500">{check.status === "pass" ? "Looks good in this check." : check.detail}</p></div>)}</div></div> : null}
 
             <div className="mt-7">
               <div className="flex items-start gap-3">

@@ -33,6 +33,12 @@ type AuditMetric = {
   score?: number | null
 }
 
+type AuditCheck = {
+  label: string
+  status: "pass" | "attention"
+  detail: string
+}
+
 const retryableStatuses = new Set([429, 500, 502, 503, 504])
 
 function isPrivateAddress(address: string) {
@@ -137,6 +143,22 @@ function buildPageSpeedMetrics(audits: LighthouseAudits | undefined): AuditMetri
   })
 }
 
+function buildPageSpeedChecks(audits: LighthouseAudits | undefined): AuditCheck[] {
+  const checks: Array<[string, string, string]> = [
+    ["is-on-https", "Secure connection", "The page should be served over HTTPS."],
+    ["is-crawlable", "Search crawl access", "Search engines should be allowed to crawl this page."],
+    ["robots-txt", "Robots instructions", "Robots.txt should not block important page resources."],
+    ["canonical", "Preferred page URL", "A canonical URL helps search engines identify the preferred version."],
+    ["font-size", "Mobile text size", "Text should be comfortable to read on a small screen."],
+    ["tap-targets", "Mobile tap targets", "Buttons and links should be easy to tap on a phone."],
+  ]
+
+  return checks.flatMap(([id, label, detail]) => {
+    const score = audits?.[id]?.score
+    return score === undefined || score === null ? [] : [{ label, detail, status: score >= 0.9 ? "pass" as const : "attention" as const }]
+  })
+}
+
 function buildFallbackFindings(checks: ReturnType<typeof auditHtml>["checks"]): AuditFinding[] {
   const missing: Array<[keyof typeof checks, string, string, string]> = [
     ["hasTitle", "The page title is missing", "Search engines and browser tabs need a clear page title.", "Add a unique, benefit-led title that describes the page topic."],
@@ -220,6 +242,7 @@ export async function POST(request: Request) {
         source: "pagespeed",
         findings: buildPageSpeedFindings(audits),
         metrics: buildPageSpeedMetrics(audits),
+        checks: buildPageSpeedChecks(audits),
       })
     }
   }
