@@ -8,6 +8,7 @@ import { DashboardLeadList, type DashboardLead } from "@/components/dashboard-le
 import { DashboardMonthlyReport } from "@/components/dashboard-monthly-report"
 import { DashboardNotificationCenter } from "@/components/dashboard-notification-center"
 import { DashboardQuickActions } from "@/components/dashboard-quick-actions"
+import { DashboardRecentActivity } from "@/components/dashboard-recent-activity"
 import { DashboardSavedViews } from "@/components/dashboard-saved-views"
 import { DashboardSignOutButton } from "@/components/dashboard-sign-out-button"
 import { DashboardWorkspaceHub } from "@/components/dashboard-workspace-hub"
@@ -29,8 +30,10 @@ export default async function DashboardPage() {
     .limit(250)
 
   const leads = (data ?? []) as DashboardLead[]
-  const { data: projectData } = await supabase.from("projects").select("id, title, due_date, status").order("created_at", { ascending: false }).limit(100)
+  const { data: projectData } = await supabase.from("projects").select("id, title, client_name, due_date, status, created_at").order("created_at", { ascending: false }).limit(100)
   const projects = projectData ?? []
+  const { data: activityData } = await supabase.from("audit_lead_activities").select("id, lead_id, activity_type, detail, created_at").order("created_at", { ascending: false }).limit(20)
+  const activities = (activityData ?? []) as Array<{ id: string; lead_id: string; activity_type: "status_changed" | "notes_saved" | "email_sent"; detail: string; created_at: string }>
   const average = (key: "performance" | "seo") => {
     const values = leads.map((lead) => lead[key]).filter((value): value is number => typeof value === "number")
     return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null
@@ -73,6 +76,7 @@ export default async function DashboardPage() {
             <DashboardWorkspaceHub />
             <DashboardSavedViews />
             <DashboardMonthlyReport leads={leads} />
+            <DashboardRecentActivity activities={activities} projects={projects} />
             <DashboardAnalytics leads={leads} />
             <DashboardCalendar leads={leads} />
             <DashboardLeadList leads={leads} />
