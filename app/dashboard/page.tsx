@@ -11,6 +11,7 @@ import { DashboardOverviewPreferences, defaultDashboardSections } from "@/compon
 import { DashboardQuickActions } from "@/components/dashboard-quick-actions"
 import { DashboardRecentActivity } from "@/components/dashboard-recent-activity"
 import { DashboardSavedViews } from "@/components/dashboard-saved-views"
+import { DashboardSystemHealth } from "@/components/dashboard-system-health"
 import { DashboardSignOutButton } from "@/components/dashboard-sign-out-button"
 import { DashboardWorkspaceHub } from "@/components/dashboard-workspace-hub"
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server"
@@ -83,6 +84,7 @@ export default async function DashboardPage() {
             {show("saved-views") && <DashboardSavedViews />}
             {show("reporting") && <DashboardMonthlyReport leads={leads} />}
             {show("recent-activity") && <DashboardRecentActivity activities={activities} projects={projects} />}
+            <DashboardSystemHealth databaseReady={!error} auditReady={Boolean(process.env.PAGESPEED_API_KEY)} emailReady={Boolean(process.env.RESEND_API_KEY)} scheduleReady={Boolean(process.env.CRON_SECRET)} />
             {show("analytics") && <DashboardAnalytics leads={leads} />}
             {show("calendar") && <DashboardCalendar leads={leads} />}
             {show("pipeline") && <DashboardLeadList leads={leads} />}
