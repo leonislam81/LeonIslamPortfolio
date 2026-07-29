@@ -88,13 +88,20 @@ function auditHtml(html: string) {
   const hasCanonical = /<link\b[^>]*rel=["'][^"']*canonical[^"']*["']/i.test(html)
   const hasLanguage = /<html\b[^>]*\blang=["'][^"']+/i.test(html)
   const hasHeading = /<h1\b[^>]*>[^<]+/i.test(html)
+  const hasOpenGraphTitle = /<meta\b[^>]*(?:property|name)=["']og:title["']/i.test(html)
+  const hasOpenGraphDescription = /<meta\b[^>]*(?:property|name)=["']og:description["']/i.test(html)
+  const hasOpenGraphImage = /<meta\b[^>]*(?:property|name)=["']og:image["']/i.test(html)
+  const hasFavicon = /<link\b[^>]*rel=["'][^"']*(?:icon|shortcut icon)[^"']*["']/i.test(html)
+  const hasStructuredData = /<script\b[^>]*type=["']application\/ld\+json["']/i.test(html)
   const title = html.match(/<title\b[^>]*>([^<]*)<\/title>/i)?.[1]?.trim()
+  const pageText = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ")
+  const wordCount = pageText.match(/[\p{L}\p{N}][\p{L}\p{N}'-]*/gu)?.length ?? 0
 
   const signals = [hasTitle, hasDescription, hasViewport, hasCanonical, hasLanguage, hasHeading]
   return {
     seo: Math.round((signals.filter(Boolean).length / signals.length) * 100),
     title: title?.slice(0, 160) || null,
-    checks: { hasTitle, hasDescription, hasViewport, hasCanonical, hasLanguage, hasHeading },
+    checks: { hasTitle, hasDescription, hasViewport, hasCanonical, hasLanguage, hasHeading, hasOpenGraphTitle, hasOpenGraphDescription, hasOpenGraphImage, hasFavicon, hasStructuredData, wordCount },
   }
 }
 
@@ -159,6 +166,16 @@ function buildPageSpeedChecks(audits: LighthouseAudits | undefined): AuditCheck[
   })
 }
 
+function buildContentChecks(checks: ReturnType<typeof auditHtml>["checks"]): AuditCheck[] {
+  const socialReady = checks.hasOpenGraphTitle && checks.hasOpenGraphDescription && checks.hasOpenGraphImage
+  return [
+    { label: "Social sharing preview", status: socialReady ? "pass" : "attention", detail: "Add Open Graph title, description, and image so links look professional when shared." },
+    { label: "Favicon", status: checks.hasFavicon ? "pass" : "attention", detail: "Add a favicon so the site is recognisable in browser tabs and saved bookmarks." },
+    { label: "Structured data", status: checks.hasStructuredData ? "pass" : "attention", detail: "Add relevant schema markup to help search engines understand the business and page content." },
+    { label: "Page content depth", status: checks.wordCount >= 250 ? "pass" : "attention", detail: `Only about ${checks.wordCount} visible words were found. Add useful, original page copy that answers visitor questions.` },
+  ]
+}
+
 function buildFallbackFindings(checks: ReturnType<typeof auditHtml>["checks"]): AuditFinding[] {
   const missing: Array<[keyof typeof checks, string, string, string]> = [
     ["hasTitle", "The page title is missing", "Search engines and browser tabs need a clear page title.", "Add a unique, benefit-led title that describes the page topic."],
@@ -210,7 +227,7 @@ async function runFallbackAudit(target: URL) {
     const html = contentType.includes("text/html") ? await response.text() : ""
     const { seo, title, checks } = auditHtml(html.slice(0, 750_000))
 
-    return { url: current.href, status: response.status, loadTime, seo, title, findings: buildFallbackFindings(checks) }
+    return { url: current.href, status: response.status, loadTime, seo, title, findings: buildFallbackFindings(checks), checks: buildContentChecks(checks) }
   }
 
   throw new Error("The website redirected too many times or returned an unsupported response.")
@@ -227,6 +244,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Enter a valid public website URL." }, { status: 400 })
   }
 
+  const directAudit = runFallbackAudit(target).catch(() => null)
+
   const key = process.env.PAGESPEED_API_KEY
   if (key) {
     const pageSpeed = await runPageSpeed(target, key)
@@ -235,6 +254,7 @@ export async function POST(request: Request) {
 
     if (categories?.performance?.score !== undefined && categories.seo?.score !== undefined) {
       const audits = lighthouse?.audits
+      const direct = await directAudit
       return NextResponse.json({
         url: target.href,
         performance: Math.round(categories.performance.score * 100),
@@ -242,13 +262,14 @@ export async function POST(request: Request) {
         source: "pagespeed",
         findings: buildPageSpeedFindings(audits),
         metrics: buildPageSpeedMetrics(audits),
-        checks: buildPageSpeedChecks(audits),
+        checks: [...buildPageSpeedChecks(audits), ...(direct?.checks ?? [])],
       })
     }
   }
 
   try {
-    const fallback = await runFallbackAudit(target)
+    const fallback = await directAudit
+    if (!fallback) throw new Error("Direct audit unavailable")
     return NextResponse.json({
       ...fallback,
       source: "fallback",

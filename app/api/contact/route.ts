@@ -159,7 +159,7 @@ function parseAudit(value: unknown): AuditReport | null {
     return title && detail && action ? [{ category: item.category, priority: item.priority, title, detail, action }] : []
   }) : []
 
-  const checks = Array.isArray(value.checks) ? value.checks.slice(0, 6).flatMap((item): AuditCheck[] => {
+  const checks = Array.isArray(value.checks) ? value.checks.slice(0, 12).flatMap((item): AuditCheck[] => {
     if (!isRecord(item) || !(item.status === "pass" || item.status === "attention")) return []
     const label = auditText(item.label, 80)
     const detail = auditText(item.detail, 180)
