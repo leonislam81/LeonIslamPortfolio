@@ -1,7 +1,7 @@
 "use client"
 
-import { FormEvent, useCallback, useState } from "react"
-import { ArrowRight, CalendarDays, Check, ChevronLeft, CircleAlert, CircleCheck, Download, Gauge, LockKeyhole, Search, ShieldCheck, Target, Wrench, X, Zap } from "lucide-react"
+import { FormEvent, useCallback, useEffect, useState } from "react"
+import { ArrowRight, CalendarDays, Check, ChevronLeft, CircleAlert, CircleCheck, Copy, Download, Gauge, LockKeyhole, Search, ShieldCheck, Target, Wrench, X, Zap } from "lucide-react"
 import { Turnstile } from "@/components/turnstile"
 import { BookingLink } from "@/components/booking-link"
 
@@ -17,6 +17,7 @@ type AuditResult = {
   findings?: AuditFinding[]
   metrics?: AuditMetric[]
   checks?: AuditCheck[]
+  savedAt?: string
 }
 
 type AuditFinding = {
@@ -40,6 +41,11 @@ type AuditCheck = {
 }
 
 const businessGoals = ["More leads", "More sales", "More bookings", "More search traffic"]
+const auditHistoryKey = "leon-islam-audit-history"
+
+function isAuditResult(value: unknown): value is AuditResult {
+  return typeof value === "object" && value !== null && "url" in value && "seo" in value && "source" in value && typeof value.url === "string" && typeof value.seo === "number" && (value.source === "pagespeed" || value.source === "fallback")
+}
 
 type AuditState = "idle" | "loading" | "error"
 type LeadState = "idle" | "sending" | "success" | "error"
@@ -80,6 +86,36 @@ export default function FreeAuditPage() {
   const [auditError, setAuditError] = useState("")
   const [leadState, setLeadState] = useState<LeadState>("idle")
   const [leadError, setLeadError] = useState("")
+  const [recentAudits, setRecentAudits] = useState<AuditResult[]>([])
+  const [shareMessage, setShareMessage] = useState("")
+
+  const saveAudit = useCallback((audit: AuditResult) => {
+    const savedAudit = { ...audit, savedAt: new Date().toISOString() }
+    setResult(savedAudit)
+    setRecentAudits((current) => {
+      const next = [savedAudit, ...current.filter((item) => item.url !== savedAudit.url)].slice(0, 5)
+      window.localStorage.setItem(auditHistoryKey, JSON.stringify(next))
+      return next
+    })
+  }, [])
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem(auditHistoryKey) ?? "[]")
+      if (Array.isArray(stored)) setRecentAudits(stored.filter(isAuditResult).slice(0, 5))
+
+      const encodedReport = new URLSearchParams(window.location.search).get("report")
+      if (encodedReport) {
+        const sharedReport = JSON.parse(decodeURIComponent(atob(encodedReport)))
+        if (isAuditResult(sharedReport)) {
+          setResult(sharedReport)
+          setUrl(sharedReport.url)
+        }
+      }
+    } catch {
+      // A malformed shared link or expired browser storage should not affect the audit page.
+    }
+  }, [])
 
   const handleAudit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -98,7 +134,7 @@ export default function FreeAuditPage() {
 
       if (!response.ok) throw new Error(data.error || "We could not complete the audit. Please try again.")
 
-      setResult(data)
+      saveAudit(data)
       setEmail("")
       setTurnstileToken("")
       setAuditState("idle")
@@ -184,6 +220,17 @@ export default function FreeAuditPage() {
     URL.revokeObjectURL(fileUrl)
   }
 
+  const shareReport = async () => {
+    if (!result) return
+    try {
+      const report = encodeURIComponent(btoa(encodeURIComponent(JSON.stringify(result))))
+      await navigator.clipboard.writeText(`${window.location.origin}/free-audit?report=${report}`)
+      setShareMessage("Share link copied")
+    } catch {
+      setShareMessage("Unable to copy the share link")
+    }
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <div className="border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -238,8 +285,9 @@ export default function FreeAuditPage() {
                 <p className="text-sm font-bold uppercase tracking-[0.16em] text-sky-700">Your snapshot</p>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Your website audit is ready.</h2>
               </div>
-              <div className="flex flex-wrap items-center gap-3 sm:justify-end"><p className="max-w-64 truncate text-sm text-slate-500" title={result.url}>{result.url}</p><button type="button" onClick={downloadReport} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"><Download className="size-4" />Download</button></div>
+              <div className="flex flex-wrap items-center gap-3 sm:justify-end"><p className="max-w-64 truncate text-sm text-slate-500" title={result.url}>{result.url}</p><button type="button" onClick={downloadReport} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"><Download className="size-4" />Download</button><button type="button" onClick={shareReport} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-300 hover:bg-sky-50"><Copy className="size-4" />Share</button></div>
             </div>
+            {shareMessage && <p role="status" className="mt-3 text-sm font-medium text-emerald-700">{shareMessage}</p>}
 
             {result.source === "pagespeed" ? (
               <>
@@ -332,6 +380,7 @@ export default function FreeAuditPage() {
                 </div>
               )}
             </div>
+            {recentAudits.length > 1 ? <section className="mt-10"><div className="flex items-end justify-between gap-4"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-sky-700">Saved on this device</p><h3 className="mt-2 text-xl font-bold text-slate-950">Recent audits</h3></div><p className="text-xs text-slate-500">Private to this browser</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2">{recentAudits.filter((audit) => audit.url !== result.url).map((audit) => <button key={`${audit.url}-${audit.savedAt}`} type="button" onClick={() => { setResult(audit); setUrl(audit.url); window.scrollTo({ top: 0, behavior: "smooth" }) }} className="rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:border-sky-300 hover:bg-sky-50"><p className="truncate text-sm font-semibold text-slate-950">{audit.url}</p><p className="mt-2 text-sm text-slate-600">{audit.source === "pagespeed" ? `Performance ${audit.performance}/100` : `HTTP ${audit.status}`} · SEO {audit.seo}/100</p><p className="mt-2 text-xs text-sky-700">Open saved report</p></button>)}</div></section> : null}
           </div>
         </section>
       )}
