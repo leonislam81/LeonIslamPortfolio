@@ -4,20 +4,7 @@ import { Check, Eye, SlidersHorizontal } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
-
-export const dashboardSections = [
-  ["attention", "Attention center"],
-  ["quick-actions", "Quick actions"],
-  ["workspace", "Workspace modules"],
-  ["saved-views", "Saved views"],
-  ["reporting", "Business reporting"],
-  ["recent-activity", "Recent activity"],
-  ["analytics", "Lead analytics"],
-  ["calendar", "Follow-up calendar"],
-  ["pipeline", "Lead pipeline"],
-] as const
-
-export const defaultDashboardSections = dashboardSections.map(([key]) => key)
+import { dashboardSections } from "@/lib/dashboard-overview"
 
 export function DashboardOverviewPreferences({ initial }: { initial: string[] }) {
   const [open, setOpen] = useState(false)
