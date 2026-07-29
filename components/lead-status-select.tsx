@@ -24,6 +24,9 @@ export function LeadStatusSelect({ leadId, initialStatus }: { leadId: string; in
     if (updateError) {
       setStatus(initialStatus)
       setError("Could not update this lead. Please try again.")
+    } else {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) await supabase.from("audit_lead_activities").insert({ lead_id: leadId, owner_id: user.id, activity_type: "status_changed", detail: `Status changed from ${initialStatus} to ${nextStatus}.` })
     }
     setSaving(false)
   }

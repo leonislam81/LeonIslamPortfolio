@@ -25,5 +25,6 @@ export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY)
   const { error: sendError } = await resend.emails.send({ from: sender, to: [lead.email], replyTo: "info@leonislam.com", subject, html })
   if (sendError) return NextResponse.json({ error: "Could not send the email. Please try again." }, { status: 502 })
+  await supabase.from("audit_lead_activities").insert({ lead_id: payload.leadId, owner_id: user.id, activity_type: "email_sent", detail: `${isReaudit ? "Re-audit reminder" : "Audit follow-up"} email sent to ${lead.email}.` })
   return NextResponse.json({ ok: true })
 }
