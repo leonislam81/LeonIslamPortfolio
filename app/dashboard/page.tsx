@@ -1,99 +1,36 @@
-import { ArrowRight, CheckCircle2, ClipboardList, Gauge, Users } from "lucide-react"
+import { ArrowRight, CheckCircle2 } from "lucide-react"
 import { redirect } from "next/navigation"
-import { DashboardAnalytics } from "@/components/dashboard-analytics"
-import { DashboardCalendar } from "@/components/dashboard-calendar"
 import { DashboardExportButton } from "@/components/dashboard-export-button"
 import { DashboardGlobalSearch } from "@/components/dashboard-global-search"
-import { DashboardLeadList, type DashboardLead } from "@/components/dashboard-lead-list"
-import { DashboardMonthlyReport } from "@/components/dashboard-monthly-report"
-import { DashboardNotificationCenter } from "@/components/dashboard-notification-center"
+import { type DashboardLead } from "@/components/dashboard-lead-list"
+import { DashboardOverviewContent } from "@/components/dashboard-overview-content"
 import { DashboardOverviewPreferences } from "@/components/dashboard-overview-preferences"
-import { DashboardQuickActions } from "@/components/dashboard-quick-actions"
-import { DashboardRecentActivity } from "@/components/dashboard-recent-activity"
-import { DashboardSavedViews } from "@/components/dashboard-saved-views"
-import { DashboardSystemHealth } from "@/components/dashboard-system-health"
 import { DashboardSignOutButton } from "@/components/dashboard-sign-out-button"
-import { DashboardWorkspaceHub } from "@/components/dashboard-workspace-hub"
-import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server"
 import { defaultDashboardSections } from "@/lib/dashboard-overview"
+import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server"
 
 export default async function DashboardPage() {
   if (!isSupabaseConfigured()) return <DashboardSetup />
-
   const supabase = await createSupabaseServerClient()
   if (!supabase) return <DashboardSetup />
-
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/dashboard/login")
 
-  const { data, error } = await supabase
-    .from("audit_leads")
-    .select("id, website_url, email, status, priority, tags, deal_value, performance, seo, business_goal, created_at, follow_up_at, re_audit_at")
-    .order("created_at", { ascending: false })
-    .limit(250)
-
+  const { data, error } = await supabase.from("audit_leads").select("id, website_url, email, status, priority, tags, deal_value, performance, seo, business_goal, created_at, follow_up_at, re_audit_at").order("created_at", { ascending: false }).limit(250)
   const leads = (data ?? []) as DashboardLead[]
-  const { data: projectData } = await supabase.from("projects").select("id, title, client_name, due_date, status, created_at").order("created_at", { ascending: false }).limit(100)
-  const projects = projectData ?? []
-  const { data: activityData } = await supabase.from("audit_lead_activities").select("id, lead_id, activity_type, detail, created_at").order("created_at", { ascending: false }).limit(20)
-  const activities = (activityData ?? []) as Array<{ id: string; lead_id: string; activity_type: "status_changed" | "notes_saved" | "email_sent"; detail: string; created_at: string }>
-  const { data: preferences } = await supabase.from("dashboard_settings").select("overview_sections").eq("owner_id", user.id).maybeSingle()
-  const storedSections = preferences?.overview_sections
+
+  const [projectsResult, activityResult, preferenceResult] = await Promise.allSettled([
+    supabase.from("projects").select("id, title, client_name, due_date, status, created_at").order("created_at", { ascending: false }).limit(100),
+    supabase.from("audit_lead_activities").select("id, lead_id, activity_type, detail, created_at").order("created_at", { ascending: false }).limit(20),
+    supabase.from("dashboard_settings").select("overview_sections").eq("owner_id", user.id).maybeSingle(),
+  ])
+
+  const projects = projectsResult.status === "fulfilled" ? projectsResult.value.data ?? [] : []
+  const activities = activityResult.status === "fulfilled" ? activityResult.value.data ?? [] : []
+  const storedSections = preferenceResult.status === "fulfilled" ? preferenceResult.value.data?.overview_sections : null
   const overviewSections = Array.isArray(storedSections) ? storedSections.filter((section): section is string => typeof section === "string") : defaultDashboardSections
-  const show = (section: string) => overviewSections.includes(section)
-  const average = (key: "performance" | "seo") => {
-    const values = leads.map((lead) => lead[key]).filter((value): value is number => typeof value === "number")
-    return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null
-  }
 
-  return (
-    <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950 sm:px-8">
-      <div className="mx-auto max-w-6xl">
-        <header className="flex flex-col gap-5 border-b border-slate-200 pb-7 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[.16em] text-sky-700">Leon Islam admin</p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight">Admin overview</h1>
-            <p className="mt-2 text-sm text-slate-600">Your live business workspace. Signed in as {user.email}</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <DashboardGlobalSearch />
-            <DashboardOverviewPreferences initial={overviewSections} />
-            <a href="/dashboard/settings" className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Settings</a>
-            <DashboardSignOutButton />
-            <DashboardExportButton leads={leads} />
-            <a href="/free-audit" className="inline-flex items-center gap-2 rounded-xl bg-sky-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-800">Open free audit <ArrowRight className="size-4" /></a>
-          </div>
-        </header>
-
-        {error ? (
-          <p className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900">The database connection is active, but the dashboard tables are not ready yet. Run the supplied Supabase schema, then refresh this page.</p>
-        ) : (
-          <>
-            <div className="mt-7 grid gap-4 sm:grid-cols-3">
-              {[
-                [Users, "Audit leads", leads.length],
-                [Gauge, "Average mobile score", average("performance") === null ? "—" : `${average("performance")}/100`],
-                [ClipboardList, "Average SEO score", average("seo") === null ? "—" : `${average("seo")}/100`],
-              ].map(([Icon, label, value]) => {
-                const MetricIcon = Icon as typeof Users
-                return <article key={label as string} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><MetricIcon className="size-5 text-sky-700" /><p className="mt-4 text-sm font-semibold text-slate-600">{label as string}</p><p className="mt-2 text-3xl font-bold">{value as string | number}</p></article>
-              })}
-            </div>
-            {show("attention") && <DashboardNotificationCenter leads={leads} projects={projects} />}
-            {show("quick-actions") && <DashboardQuickActions />}
-            {show("workspace") && <DashboardWorkspaceHub />}
-            {show("saved-views") && <DashboardSavedViews />}
-            {show("reporting") && <DashboardMonthlyReport leads={leads} />}
-            {show("recent-activity") && <DashboardRecentActivity activities={activities} projects={projects} />}
-            <DashboardSystemHealth databaseReady={!error} auditReady={Boolean(process.env.PAGESPEED_API_KEY)} emailReady={Boolean(process.env.RESEND_API_KEY)} scheduleReady={Boolean(process.env.CRON_SECRET)} />
-            {show("analytics") && <DashboardAnalytics leads={leads} />}
-            {show("calendar") && <DashboardCalendar leads={leads} />}
-            {show("pipeline") && <DashboardLeadList leads={leads} />}
-          </>
-        )}
-      </div>
-    </main>
-  )
+  return <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950 sm:px-8"><div className="mx-auto max-w-6xl"><header className="flex flex-col gap-5 border-b border-slate-200 pb-7 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-sky-700">Leon Islam admin</p><h1 className="mt-2 text-3xl font-bold tracking-tight">Admin overview</h1><p className="mt-2 text-sm text-slate-600">Your live business workspace. Signed in as {user.email}</p></div><div className="flex flex-wrap gap-3"><DashboardGlobalSearch /><DashboardOverviewPreferences initial={overviewSections} /><a href="/dashboard/settings" className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Settings</a><DashboardSignOutButton /><DashboardExportButton leads={leads} /><a href="/free-audit" className="inline-flex items-center gap-2 rounded-xl bg-sky-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-800">Open free audit <ArrowRight className="size-4" /></a></div></header>{error ? <p className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900">The database connection is active, but the dashboard tables are not ready yet. Run the supplied Supabase schema, then refresh this page.</p> : <DashboardOverviewContent leads={leads} projects={projects} activities={activities as Array<{ id: string; lead_id: string; activity_type: "status_changed" | "notes_saved" | "email_sent"; detail: string; created_at: string }>} sections={overviewSections} systemHealth={{ databaseReady: true, auditReady: Boolean(process.env.PAGESPEED_API_KEY), emailReady: Boolean(process.env.RESEND_API_KEY), scheduleReady: Boolean(process.env.CRON_SECRET) }} />}</div></main>
 }
 
 function DashboardSetup() {
