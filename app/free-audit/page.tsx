@@ -50,6 +50,7 @@ type AuditCheck = {
 
 const businessGoals = ["More leads", "More sales", "More bookings", "More search traffic"]
 const auditHistoryKey = "leon-islam-audit-history"
+const auditChecklistPrefix = "leon-islam-audit-checklist-"
 const mobileCheckLabels = ["Mobile viewport", "Mobile text size", "Mobile tap targets", "Mobile content width"]
 
 function isAuditResult(value: unknown): value is AuditResult {
@@ -177,6 +178,7 @@ export default function FreeAuditPage() {
   const [recentAudits, setRecentAudits] = useState<AuditResult[]>([])
   const [shareMessage, setShareMessage] = useState("")
   const [isSharedReport, setIsSharedReport] = useState(false)
+  const [completedChecklistItems, setCompletedChecklistItems] = useState<Record<string, boolean>>({})
 
   const saveAudit = useCallback((audit: AuditResult) => {
     const savedAudit = { ...audit, savedAt: new Date().toISOString() }
@@ -206,6 +208,16 @@ export default function FreeAuditPage() {
       // A malformed shared link or expired browser storage should not affect the audit page.
     }
   }, [])
+
+  useEffect(() => {
+    if (!result) return
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(`${auditChecklistPrefix}${auditKey(result.url)}`) ?? "{}")
+      setCompletedChecklistItems(typeof saved === "object" && saved !== null ? saved as Record<string, boolean> : {})
+    } catch {
+      setCompletedChecklistItems({})
+    }
+  }, [result?.url])
 
   const handleAudit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -402,6 +414,16 @@ export default function FreeAuditPage() {
   const auditPriority = result ? getAuditPriority(result) : null
   const opportunitySignals = result ? buildOpportunitySignals(result) : []
   const serviceRecommendation = result ? buildServiceRecommendation(result, businessGoal) : null
+  const checklistItems = actionPlan ? [...actionPlan.urgent, ...actionPlan.next].filter((item, index, items) => items.findIndex((candidate) => candidate.title === item.title) === index).slice(0, 4) : []
+  const completedChecklistCount = checklistItems.filter((item) => completedChecklistItems[item.title]).length
+  const toggleChecklistItem = (title: string) => {
+    if (!result) return
+    setCompletedChecklistItems((current) => {
+      const next = { ...current, [title]: !current[title] }
+      window.localStorage.setItem(`${auditChecklistPrefix}${auditKey(result.url)}`, JSON.stringify(next))
+      return next
+    })
+  }
   const savedAudits = recentAudits.slice(0, 8)
   const sameSiteHistory = result ? savedAudits.filter((audit) => auditKey(audit.url) === auditKey(result.url)) : []
   const earlierSiteAudit = sameSiteHistory.find((audit) => audit.savedAt && audit.savedAt !== result?.savedAt)
@@ -505,6 +527,8 @@ export default function FreeAuditPage() {
             {result.conversion?.length ? <section className="mt-8 rounded-2xl border border-violet-200 bg-violet-50 p-5"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-violet-700">Conversion snapshot</p><h3 className="mt-2 text-xl font-bold text-slate-950">How easy is it for a visitor to take the next step?</h3><p className="mt-1 text-sm leading-6 text-slate-600">This is an automated check of public page signals, not a full user test.</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{result.conversion.map((check) => <div key={check.label} className="rounded-xl bg-white p-4"><div className="flex items-center gap-2 text-sm font-semibold text-slate-950">{check.status === "pass" ? <Check className="size-4 text-emerald-600" /> : <X className="size-4 text-violet-700" />}{check.label}</div><p className="mt-2 text-sm leading-6 text-slate-600">{check.status === "pass" ? "This signal is present in the page markup." : check.detail}</p></div>)}</div></section> : null}
 
             {actionPlan ? <section className="mt-8"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-sky-700">Your next steps</p><h3 className="mt-2 text-2xl font-bold tracking-tight text-slate-950">A practical action plan</h3><p className="mt-2 text-sm leading-6 text-slate-600">Start with the items that remove the biggest visitor or search barrier, then work through the next layer.</p></div><div className="mt-5 grid gap-4 lg:grid-cols-3">{[{ title: "Fix this week", items: actionPlan.urgent, tone: "border-rose-200 bg-rose-50", empty: "No urgent automated issues were found. Keep the main page clear and fast." }, { title: "Improve next", items: actionPlan.next, tone: "border-amber-200 bg-amber-50", empty: "Use this time to strengthen your service message, proof, and calls to action." }, { title: "Keep monitoring", items: actionPlan.monitor, tone: "border-sky-200 bg-sky-50", empty: "Recheck the site after meaningful changes." }].map((column) => <div key={column.title} className={`rounded-2xl border p-5 ${column.tone}`}><h4 className="font-bold text-slate-950">{column.title}</h4><div className="mt-4 space-y-4">{column.items.length ? column.items.map((item) => <div key={`${column.title}-${item.title}`}><p className="text-sm font-semibold text-slate-950">{item.title}</p><p className="mt-1 text-sm leading-6 text-slate-600">{item.detail}</p></div>) : <p className="text-sm leading-6 text-slate-600">{column.empty}</p>}</div></div>)}</div></section> : null}
+
+            {checklistItems.length ? <section className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-emerald-700">Improvement checklist</p><h3 className="mt-2 text-xl font-bold text-slate-950">Track the fixes you complete</h3><p className="mt-1 text-sm leading-6 text-slate-600">{completedChecklistCount} of {checklistItems.length} priority actions marked complete. This progress is saved privately in this browser.</p></div><span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-emerald-800">{Math.round((completedChecklistCount / checklistItems.length) * 100)}% complete</span></div><div className="mt-4 space-y-3">{checklistItems.map((item) => <label key={item.title} className="flex cursor-pointer items-start gap-3 rounded-xl bg-white p-4 transition hover:bg-emerald-50"><input type="checkbox" checked={Boolean(completedChecklistItems[item.title])} onChange={() => toggleChecklistItem(item.title)} className="mt-1 size-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" /><span><span className={`font-semibold ${completedChecklistItems[item.title] ? "text-slate-400 line-through" : "text-slate-950"}`}>{item.title}</span><span className="mt-1 block text-sm leading-6 text-slate-600">{item.detail}</span></span></label>)}</div></section> : null}
 
             {result.checks?.length ? <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center gap-2"><ShieldCheck className="size-5 text-sky-700" /><h3 className="font-bold text-slate-950">Website health checks</h3></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{result.checks.map((check) => <div key={check.label} className="rounded-xl bg-slate-50 p-3"><div className="flex items-center gap-2 text-sm font-semibold text-slate-900">{check.status === "pass" ? <Check className="size-4 text-emerald-600" /> : <X className="size-4 text-amber-600" />}{check.label}</div><p className="mt-1 text-xs leading-5 text-slate-500">{check.status === "pass" ? "Looks good in this check." : check.detail}</p></div>)}</div></div> : null}
 
