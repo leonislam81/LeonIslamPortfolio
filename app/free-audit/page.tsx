@@ -43,6 +43,7 @@ type AuditCheck = {
 
 const businessGoals = ["More leads", "More sales", "More bookings", "More search traffic"]
 const auditHistoryKey = "leon-islam-audit-history"
+const mobileCheckLabels = ["Mobile viewport", "Mobile text size", "Mobile tap targets", "Mobile content width"]
 
 function isAuditResult(value: unknown): value is AuditResult {
   return typeof value === "object" && value !== null && "url" in value && "seo" in value && "source" in value && typeof value.url === "string" && typeof value.seo === "number" && (value.source === "pagespeed" || value.source === "fallback")
@@ -279,6 +280,7 @@ export default function FreeAuditPage() {
   const resultSavedAt = result?.savedAt
   const previousAudit = result && resultSavedAt ? recentAudits.find((audit) => auditKey(audit.url) === auditKey(result.url) && audit.savedAt && new Date(audit.savedAt).getTime() < new Date(resultSavedAt).getTime()) : undefined
   const actionPlan = result ? buildActionPlan(result) : null
+  const mobileChecks = result?.checks?.filter((check) => mobileCheckLabels.includes(check.label)) ?? []
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -359,6 +361,8 @@ export default function FreeAuditPage() {
                 <p className="mt-5 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">{result.notice}</p>
               </>
             )}
+
+            {mobileChecks.length ? <section className="mt-8 rounded-2xl border border-sky-200 bg-sky-50 p-5"><div><p className="text-sm font-bold uppercase tracking-[.16em] text-sky-700">Mobile usability</p><h3 className="mt-2 text-xl font-bold text-slate-950">How the site behaves on a phone</h3><p className="mt-1 text-sm leading-6 text-slate-600">These checks focus on whether visitors can read, tap, and view the page comfortably on a small screen.</p></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{mobileChecks.map((check) => <div key={check.label} className="rounded-xl bg-white p-4"><div className="flex items-center gap-2 text-sm font-semibold text-slate-950">{check.status === "pass" ? <Check className="size-4 text-emerald-600" /> : <X className="size-4 text-amber-600" />}{check.label}</div><p className="mt-2 text-sm leading-6 text-slate-600">{check.status === "pass" ? "Looks good in this automated check." : check.detail}</p></div>)}</div></section> : null}
 
             {previousAudit ? <section className="mt-8 rounded-2xl border border-sky-200 bg-sky-50 p-5"><div className="flex items-center gap-2"><Gauge className="size-5 text-sky-700" /><h3 className="font-bold text-slate-950">Improvement since your previous check</h3></div><p className="mt-1 text-sm text-slate-600">Compared with the saved audit from {previousAudit.savedAt ? new Date(previousAudit.savedAt).toLocaleDateString() : "an earlier visit"}.</p><div className="mt-4 grid gap-3 sm:grid-cols-3">{result.source === "pagespeed" && previousAudit.performance !== undefined ? <div className="rounded-xl bg-white p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Performance</p><p className="mt-2 text-xl font-bold text-slate-950">{result.performance}/100</p><p className={`mt-1 text-sm font-semibold ${changeLabel(result.performance ?? 0, previousAudit.performance).tone}`}>{changeLabel(result.performance ?? 0, previousAudit.performance).text}</p></div> : null}<div className="rounded-xl bg-white p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">SEO</p><p className="mt-2 text-xl font-bold text-slate-950">{result.seo}/100</p><p className={`mt-1 text-sm font-semibold ${changeLabel(result.seo, previousAudit.seo).tone}`}>{changeLabel(result.seo, previousAudit.seo).text}</p></div><div className="rounded-xl bg-white p-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Health issues</p><p className="mt-2 text-xl font-bold text-slate-950">{attentionCount(result)}</p><p className={`mt-1 text-sm font-semibold ${changeLabel(attentionCount(result), attentionCount(previousAudit), true).tone}`}>{changeLabel(attentionCount(result), attentionCount(previousAudit), true).text}</p></div></div></section> : null}
 

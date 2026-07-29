@@ -162,6 +162,7 @@ function buildPageSpeedChecks(audits: LighthouseAudits | undefined): AuditCheck[
     ["canonical", "Preferred page URL", "A canonical URL helps search engines identify the preferred version."],
     ["font-size", "Mobile text size", "Text should be comfortable to read on a small screen."],
     ["tap-targets", "Mobile tap targets", "Buttons and links should be easy to tap on a phone."],
+    ["content-width", "Mobile content width", "Page content should fit a small screen without horizontal scrolling."],
   ]
 
   return checks.flatMap(([id, label, detail]) => {
@@ -173,6 +174,7 @@ function buildPageSpeedChecks(audits: LighthouseAudits | undefined): AuditCheck[
 function buildContentChecks(checks: ReturnType<typeof auditHtml>["checks"]): AuditCheck[] {
   const socialReady = checks.hasOpenGraphTitle && checks.hasOpenGraphDescription && checks.hasOpenGraphImage
   return [
+    { label: "Mobile viewport", status: checks.hasViewport ? "pass" : "attention", detail: "Add a responsive viewport meta tag so the page can size correctly on phones." },
     { label: "Social sharing preview", status: socialReady ? "pass" : "attention", detail: "Add Open Graph title, description, and image so links look professional when shared." },
     { label: "Favicon", status: checks.hasFavicon ? "pass" : "attention", detail: "Add a favicon so the site is recognisable in browser tabs and saved bookmarks." },
     { label: "Structured data", status: checks.hasStructuredData ? "pass" : "attention", detail: "Add relevant schema markup to help search engines understand the business and page content." },
