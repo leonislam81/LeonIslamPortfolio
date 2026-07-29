@@ -5,6 +5,7 @@ import { DashboardCalendar } from "@/components/dashboard-calendar"
 import { DashboardExportButton } from "@/components/dashboard-export-button"
 import { DashboardLeadList, type DashboardLead } from "@/components/dashboard-lead-list"
 import { DashboardMonthlyReport } from "@/components/dashboard-monthly-report"
+import { DashboardNotificationCenter } from "@/components/dashboard-notification-center"
 import { DashboardSignOutButton } from "@/components/dashboard-sign-out-button"
 import { DashboardWorkspaceHub } from "@/components/dashboard-workspace-hub"
 import { createSupabaseServerClient, isSupabaseConfigured } from "@/lib/supabase/server"
@@ -25,6 +26,8 @@ export default async function DashboardPage() {
     .limit(250)
 
   const leads = (data ?? []) as DashboardLead[]
+  const { data: projectData } = await supabase.from("projects").select("id, title, due_date, status").order("created_at", { ascending: false }).limit(100)
+  const projects = projectData ?? []
   const average = (key: "performance" | "seo") => {
     const values = leads.map((lead) => lead[key]).filter((value): value is number => typeof value === "number")
     return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : null
@@ -61,6 +64,7 @@ export default async function DashboardPage() {
                 return <article key={label as string} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><MetricIcon className="size-5 text-sky-700" /><p className="mt-4 text-sm font-semibold text-slate-600">{label as string}</p><p className="mt-2 text-3xl font-bold">{value as string | number}</p></article>
               })}
             </div>
+            <DashboardNotificationCenter leads={leads} projects={projects} />
             <DashboardWorkspaceHub />
             <DashboardMonthlyReport leads={leads} />
             <DashboardAnalytics leads={leads} />
