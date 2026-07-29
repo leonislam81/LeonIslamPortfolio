@@ -252,6 +252,19 @@ function buildQuickWins(audit: AuditReport) {
   ]
 }
 
+function formatCalendarDate(date: Date) {
+  return date.toISOString().slice(0, 10).replaceAll("-", "")
+}
+
+function buildReauditReminder(audit: AuditReport) {
+  const reminderDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1_000)
+  const start = formatCalendarDate(reminderDate)
+  const end = formatCalendarDate(new Date(reminderDate.getTime() + 24 * 60 * 60 * 1_000))
+  const details = `Re-run your free website audit for ${audit.url} and compare the latest performance, SEO, health, and conversion checks.`
+  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("Re-audit your website")}&dates=${start}/${end}&details=${encodeURIComponent(details)}&location=${encodeURIComponent("https://leonislam.com/free-audit")}`
+  return { label: reminderDate.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" }), calendarUrl }
+}
+
 function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: AuditGoal | null) {
   const goalAdvice: Record<AuditGoal, string> = {
     "More leads": "Prioritise a clear service promise, a visible contact action, and trust signals near the first call to action.",
@@ -270,6 +283,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
   const healthChecks = audit.checks.length ? `<h2 style="margin:30px 0 12px;font-size:20px;">Website health checks</h2><ul style="margin:0;padding-left:20px;color:#40536a;">${audit.checks.map((check) => `<li style="margin-bottom:8px;"><strong>${escapeHtml(check.label)}:</strong> ${check.status === "pass" ? "Looks good in this check." : escapeHtml(check.detail)}</li>`).join("")}</ul>` : ""
   const conversionChecks = audit.conversion.length ? `<h2 style="margin:30px 0 12px;font-size:20px;">Conversion snapshot</h2><ul style="margin:0;padding-left:20px;color:#40536a;">${audit.conversion.map((check) => `<li style="margin-bottom:8px;"><strong>${escapeHtml(check.label)}:</strong> ${check.status === "pass" ? "Signal detected on the page." : escapeHtml(check.detail)}</li>`).join("")}</ul>` : ""
   const quickWins = buildQuickWins(audit).map((step, index) => `<li style="margin-bottom:12px;"><strong>${index + 1}. ${escapeHtml(step.title)}</strong><br />${escapeHtml(step.action)}</li>`).join("")
+  const reminder = buildReauditReminder(audit)
 
   return `
     <div style="margin:0 auto;max-width:640px;padding:32px 20px;font-family:Arial,sans-serif;color:#10233f;line-height:1.6;">
@@ -283,6 +297,7 @@ function createAuditReportEmail(name: string, audit: AuditReport, businessGoal: 
       <div style="margin:28px 0;padding:20px 24px;border:1px solid #b8d9ed;border-radius:14px;background:#f2faff;"><h2 style="margin:0 0 12px;font-size:20px;">Three quick wins to start with</h2><ol style="margin:0;padding-left:20px;color:#40536a;">${quickWins}</ol></div>
       ${healthChecks}
       ${conversionChecks}
+      <div style="margin:28px 0;padding:20px 24px;border-radius:14px;background:#f7fbff;border:1px solid #cfe0ed;"><p style="margin:0 0 8px;font-weight:700;font-size:18px;">Measure your progress in 30 days</p><p style="margin:0 0 16px;color:#40536a;">Set a reminder for ${escapeHtml(reminder.label)}, then re-run this same audit to see what improved.</p><a style="display:inline-block;padding:11px 16px;border-radius:8px;background:#0f6b8f;color:#ffffff;text-decoration:none;font-weight:700;" href="${escapeHtml(reminder.calendarUrl)}">Add re-audit reminder</a></div>
       <h2 style="margin:30px 0 12px;font-size:20px;">Design and conversion ideas to review</h2>
       <ul style="margin:0;padding-left:20px;color:#40536a;"><li style="margin-bottom:8px;">Make the main offer and the next action obvious in the first screen, especially on mobile.</li><li style="margin-bottom:8px;">Use proof near key calls to action: reviews, results, client logos, guarantees, or concise case studies.</li><li style="margin-bottom:8px;">Give each important service page one clear search intent, a focused heading, useful supporting copy, and a relevant call to action.</li></ul>
       ${businessGoal ? `<div style="margin:24px 0;padding:18px;border:1px solid #b8d9ed;border-radius:12px;background:#f2faff;"><p style="margin:0 0 7px;font-weight:700;">Your goal: ${escapeHtml(businessGoal)}</p><p style="margin:0;color:#40536a;">${escapeHtml(goalAdvice[businessGoal])}</p></div>` : ""}
