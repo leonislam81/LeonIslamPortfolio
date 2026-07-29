@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { DashboardAnalytics } from "@/components/dashboard-analytics"
 import { DashboardCalendar } from "@/components/dashboard-calendar"
 import { DashboardExportButton } from "@/components/dashboard-export-button"
+import { DashboardGlobalSearch } from "@/components/dashboard-global-search"
 import { DashboardLeadList, type DashboardLead } from "@/components/dashboard-lead-list"
 import { DashboardMonthlyReport } from "@/components/dashboard-monthly-report"
 import { DashboardNotificationCenter } from "@/components/dashboard-notification-center"
@@ -44,6 +45,7 @@ export default async function DashboardPage() {
             <p className="mt-2 text-sm text-slate-600">Your live business workspace. Signed in as {user.email}</p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <DashboardGlobalSearch />
             <a href="/dashboard/settings" className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">Settings</a>
             <DashboardSignOutButton />
             <DashboardExportButton leads={leads} />
