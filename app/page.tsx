@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { Header } from "@/components/header"
 import { Hero } from "@/components/hero"
 import { WhyWorkWithMe } from "@/components/why-work-with-me"
@@ -15,15 +16,28 @@ import { Footer } from "@/components/footer"
 import { ScrollProgress } from "@/components/scroll-progress"
 import { BottomDock } from "@/components/bottom-dock"
 import { AuditPopup } from "@/components/audit-popup"
+import { PublishedContentSections } from "@/components/published-content-sections"
+import { getPublishedPage } from "@/lib/published-content"
 
-export default function HomePage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const publishedPage = await getPublishedPage("home")
+  return {
+    title: publishedPage?.seo_title || publishedPage?.title || "Leon Islam | Website, e-commerce & admin support",
+    description: publishedPage?.seo_description || publishedPage?.excerpt || "Practical website, e-commerce, and online admin support for growing businesses.",
+  }
+}
+
+export default async function HomePage() {
+  const publishedPage = await getPublishedPage("home")
+  const sections = publishedPage?.body?.sections ?? []
+  const heroSection = sections.find((section) => section.type === "hero")
   return (
     <>
       <ScrollProgress />
       <Header />
       <main id="main-content" className="relative overflow-hidden">
         <div id="hero">
-          <Hero />
+          <Hero content={heroSection} />
         </div>
         <WhyWorkWithMe />
         <Services />
@@ -35,6 +49,7 @@ export default function HomePage() {
         <CommonQuestions />
         <Experience />
         <Testimonials />
+        <PublishedContentSections sections={sections} />
         <Contact />
       </main>
       <Footer />

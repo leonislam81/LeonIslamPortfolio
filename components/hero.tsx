@@ -4,11 +4,12 @@ import { ArrowRight, CalendarCheck2, CalendarDays, CheckCircle2, Code2, Gauge, G
 import { BookingLink } from "@/components/booking-link"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import type { PublishedSection } from "@/lib/published-content"
 
 const proofPoints = ["Accurate data handling", "Clear communication", "Reliable delivery"]
 const platforms = ["WordPress", "Shopify", "Wix", "Amazon", "Google Sheets", "Excel"]
 
-export function Hero() {
+export function Hero({ content }: { content?: PublishedSection }) {
   const scrollTo = (section: string) => document.querySelector(section)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })
 
   return <section className="relative isolate overflow-hidden bg-background pb-20 pt-12 sm:pb-28 sm:pt-20 lg:min-h-[720px] lg:py-20">
@@ -19,8 +20,8 @@ export function Hero() {
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-portfolio-primary/20 bg-card/80 px-3 py-1.5 text-sm font-medium text-portfolio-primary shadow-sm backdrop-blur"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-portfolio-primary text-portfolio-primary-foreground"><Sparkles className="h-3 w-3" /></span>Website, e-commerce & admin support</div>
           <p className="mt-7 text-sm font-semibold uppercase tracking-[.2em] text-muted-foreground">Hi, I’m Leon Islam</p>
-          <h1 className="mt-4 text-5xl font-bold tracking-[-.055em] text-foreground sm:text-6xl lg:text-7xl">Practical online support that keeps your <span className="bg-gradient-to-r from-portfolio-primary to-portfolio-accent bg-clip-text text-transparent">business moving.</span></h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">From website updates and e-commerce product listings to Amazon catalog work and accurate admin support, I handle the details that keep your online operations organized.</p>
+          <h1 className="mt-4 text-5xl font-bold tracking-[-.055em] text-foreground sm:text-6xl lg:text-7xl">{content?.heading ?? <>Practical online support that keeps your <span className="bg-gradient-to-r from-portfolio-primary to-portfolio-accent bg-clip-text text-transparent">business moving.</span></>}</h1>
+          <p className="mt-6 max-w-2xl whitespace-pre-line text-lg leading-8 text-muted-foreground sm:text-xl">{content?.body ?? "From website updates and e-commerce product listings to Amazon catalog work and accurate admin support, I handle the details that keep your online operations organized."}</p>
           <div className="mt-8"><div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap"><Button size="lg" onClick={() => scrollTo("#contact")} className="h-12 w-full shrink-0 whitespace-nowrap rounded-xl bg-portfolio-primary px-6 text-base text-portfolio-primary-foreground shadow-lg shadow-portfolio-primary/25 hover:bg-portfolio-primary/90 sm:w-auto">Start a project <ArrowRight className="ml-2 h-4 w-4" /></Button><BookingLink placement="hero" className="inline-flex h-12 w-full shrink-0 items-center justify-center whitespace-nowrap rounded-xl border border-border bg-card/70 px-6 text-base font-medium text-foreground shadow-sm transition hover:bg-muted sm:w-auto">Book a free call <CalendarDays className="ml-2 h-4 w-4" /></BookingLink></div><Link href="/free-audit" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-portfolio-primary transition hover:text-portfolio-accent hover:underline">Not sure where to start? Run a free website audit <Gauge className="h-4 w-4" /></Link><p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground"><CalendarCheck2 className="h-4 w-4 shrink-0 text-portfolio-accent" />Free 20-minute calls • Monday–Saturday, 9 AM–8 PM (Bangladesh time).</p></div>
           <div className="mt-9 flex flex-wrap gap-x-5 gap-y-3">{proofPoints.map(point => <span key={point} className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><CheckCircle2 className="h-4 w-4 text-portfolio-accent" />{point}</span>)}</div>
           <div className="mt-8 border-t border-border/70 pt-5">
