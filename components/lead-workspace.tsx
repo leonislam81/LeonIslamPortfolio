@@ -3,7 +3,7 @@
 import type { FormEvent } from "react"
 import { CalendarClock, Check, Save } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
 function futureDate(days: number) {
@@ -13,10 +13,19 @@ function futureDate(days: number) {
 }
 
 export function LeadWorkspace({ leadId, initialNotes, initialFollowUpAt }: { leadId: string; initialNotes: string | null; initialFollowUpAt: string | null }) {
+  const [attribution, setAttribution] = useState<{ leadType: string | null; leadSource: string | null; marketingConsent: boolean } | null>(null)
   const [notes, setNotes] = useState(initialNotes ?? "")
   const [followUpAt, setFollowUpAt] = useState(initialFollowUpAt ?? "")
   const [state, setState] = useState<"idle" | "saving" | "saved" | "error">("idle")
   const router = useRouter()
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient()
+    if (!supabase) return
+    void supabase.from("audit_leads").select("lead_type, lead_source, marketing_consent").eq("id", leadId).single().then(({ data }) => {
+      if (data) setAttribution({ leadType: data.lead_type ?? null, leadSource: data.lead_source ?? null, marketingConsent: data.marketing_consent === true })
+    })
+  }, [leadId])
 
   const setDate = (date: string) => {
     setFollowUpAt(date)
@@ -40,7 +49,7 @@ export function LeadWorkspace({ leadId, initialNotes, initialFollowUpAt }: { lea
 
   return (
     <form onSubmit={save} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div>
+      <div>{attribution && <div className="mb-4 flex flex-wrap gap-2"><span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">{attribution.leadType || "General enquiry"}</span><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{attribution.leadSource || "Contact form"}</span><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${attribution.marketingConsent ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{attribution.marketingConsent ? "Marketing opt-in" : "No marketing opt-in"}</span></div>}
         <p className="text-sm font-bold uppercase tracking-[.14em] text-sky-700">Next action</p>
         <h2 className="mt-2 text-xl font-bold">Notes and follow-up</h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">Keep the next conversation and your private assessment in one place.</p>
