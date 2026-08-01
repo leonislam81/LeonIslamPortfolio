@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const templates = [
   { label: "Website tips", subject: "A practical website improvement tip", message: "Hi,\n\nHere is one practical improvement you can make to your website this week:\n\n[Add your helpful tip here]\n\nBest,\nLeon" },
@@ -10,6 +10,14 @@ const templates = [
 export function CampaignComposer({ emails }: { emails: string[] }) {
   const [subject, setSubject] = useState("")
   const [message, setMessage] = useState("")
+  useEffect(() => {
+    const saved = window.localStorage.getItem("leon-campaign-draft")
+    if (!saved) return
+    try { const draft = JSON.parse(saved) as { subject?: string; message?: string }; setSubject(draft.subject ?? ""); setMessage(draft.message ?? "") } catch { window.localStorage.removeItem("leon-campaign-draft") }
+  }, [])
+  useEffect(() => {
+    if (subject || message) window.localStorage.setItem("leon-campaign-draft", JSON.stringify({ subject, message }))
+  }, [message, subject])
   const openDraft = () => {
     if (!subject.trim() || !message.trim() || !emails.length) return
     window.location.href = `mailto:?bcc=${encodeURIComponent(emails.join(","))}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`
