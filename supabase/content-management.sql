@@ -46,3 +46,19 @@ end $$;
 insert into public.content_pages (owner_id, slug, title, excerpt, status)
 select id, 'home', 'Home', 'Main positioning, services, proof, and primary enquiries.', 'Published' from auth.users
 where not exists (select 1 from public.content_pages where slug = 'home' and owner_id = auth.users.id);
+
+insert into public.content_pages (owner_id, slug, title, excerpt, seo_title, seo_description, status)
+select id, 'services', 'Services', 'Service overview and routes into focused service pages.', 'Services | Leon Islam', 'Explore website management, e-commerce, Amazon catalog, data entry, and virtual admin support services.', 'Draft' from auth.users
+where not exists (select 1 from public.content_pages where slug = 'services' and owner_id = auth.users.id);
+
+insert into public.content_pages (owner_id, slug, title, excerpt, seo_title, seo_description, status)
+select id, 'free-audit', 'Free audit', 'Website audit conversion page and report capture.', 'Free Website Audit | Leon Islam', 'Find practical improvements for your website with a free website audit.', 'Draft' from auth.users
+where not exists (select 1 from public.content_pages where slug = 'free-audit' and owner_id = auth.users.id);
+
+insert into public.content_pages (owner_id, slug, title, excerpt, seo_title, seo_description, status)
+select id, 'contact', 'Contact', 'Quote and support enquiry form.', 'Contact Leon Islam', 'Tell Leon what you need help with and get a practical next step for your website or online work.', 'Draft' from auth.users
+where not exists (select 1 from public.content_pages where slug = 'contact' and owner_id = auth.users.id);
+
+insert into public.content_pages (owner_id, slug, title, excerpt, seo_title, seo_description, status)
+select id, 'start-project', 'Start a project', 'Structured project request and qualification.', 'Start a Project | Leon Islam', 'Share your project goals, priorities, and timeline to start a practical conversation.', 'Draft' from auth.users
+where not exists (select 1 from public.content_pages where slug = 'start-project' and owner_id = auth.users.id);
