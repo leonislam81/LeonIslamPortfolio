@@ -19,7 +19,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/dashboard/login")
   const { id } = await params
-  const { data: lead, error } = await supabase.from("audit_leads").select("id, website_url, email, status, business_goal, performance, seo, report, notes, follow_up_at, re_audit_at, created_at").eq("id", id).single()
+  const { data: lead, error } = await supabase.from("audit_leads").select("id, website_url, email, status, business_goal, performance, seo, report, notes, follow_up_at, re_audit_at, lead_type, lead_source, marketing_consent, marketing_consent_at, created_at").eq("id", id).single()
   if (error || !lead) notFound()
   const { data: activityData } = await supabase.from("audit_lead_activities").select("id, activity_type, detail, created_at").eq("lead_id", id).order("created_at", { ascending: false }).limit(20)
   const activities = (activityData ?? []) as Array<{ id: string; activity_type: "status_changed" | "notes_saved" | "email_sent"; detail: string; created_at: string }>
