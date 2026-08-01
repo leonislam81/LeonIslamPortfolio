@@ -36,6 +36,13 @@ drop policy if exists "Owners can manage their content revisions" on public.cont
 create policy "Owners can manage their content pages" on public.content_pages for all to authenticated using (owner_id = auth.uid()) with check (owner_id = auth.uid());
 create policy "Owners can manage their content revisions" on public.content_revisions for all to authenticated using (owner_id = auth.uid()) with check (owner_id = auth.uid());
 
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'content_pages' and policyname = 'Published pages are publicly readable') then
+    create policy "Published pages are publicly readable" on public.content_pages for select to anon, authenticated using (status = 'Published');
+  end if;
+end $$;
+
 insert into public.content_pages (owner_id, slug, title, excerpt, status)
 select id, 'home', 'Home', 'Main positioning, services, proof, and primary enquiries.', 'Published' from auth.users
 where not exists (select 1 from public.content_pages where slug = 'home' and owner_id = auth.users.id);

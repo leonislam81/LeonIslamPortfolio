@@ -15,15 +15,20 @@ import { Footer } from "@/components/footer"
 import { ScrollProgress } from "@/components/scroll-progress"
 import { BottomDock } from "@/components/bottom-dock"
 import { AuditPopup } from "@/components/audit-popup"
+import { PublishedContentSections } from "@/components/published-content-sections"
+import { getPublishedPage } from "@/lib/published-content"
 
-export default function HomePage() {
+export default async function HomePage() {
+  const publishedPage = await getPublishedPage("home")
+  const sections = publishedPage?.body?.sections ?? []
+  const heroSection = sections.find((section) => section.type === "hero")
   return (
     <>
       <ScrollProgress />
       <Header />
       <main id="main-content" className="relative overflow-hidden">
         <div id="hero">
-          <Hero />
+          <Hero content={heroSection} />
         </div>
         <WhyWorkWithMe />
         <Services />
@@ -35,6 +40,7 @@ export default function HomePage() {
         <CommonQuestions />
         <Experience />
         <Testimonials />
+        <PublishedContentSections sections={sections} />
         <Contact />
       </main>
       <Footer />
