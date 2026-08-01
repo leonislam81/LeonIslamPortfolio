@@ -81,6 +81,9 @@ type ContactPayload = {
   audit?: unknown
   businessGoal?: unknown
   reAuditFollowUp?: unknown
+  leadType?: unknown
+  leadSource?: unknown
+  marketingConsent?: unknown
 }
 
 type AuditFinding = {
@@ -443,6 +446,9 @@ export async function POST(request: Request) {
   const workflowSettings = audit ? await getAuditWorkflowSettings() : null
   const followUpDate = audit ? new Date(Date.now() + (workflowSettings?.firstFollowUpDays ?? 3) * 24 * 60 * 60 * 1_000).toISOString().slice(0, 10) : null
   const reAuditFollowUp = payload.reAuditFollowUp === true && Boolean(audit)
+  const leadType = isText(payload.leadType) && payload.leadType.trim() ? payload.leadType.trim().slice(0, 80) : (audit ? "Audit" : "General enquiry")
+  const leadSource = isText(payload.leadSource) && payload.leadSource.trim() ? payload.leadSource.trim().slice(0, 120) : (audit ? "Free audit" : "Contact form")
+  const marketingConsent = payload.marketingConsent === true
   const reAuditFollowUpDate = reAuditFollowUp ? new Date(Date.now() + (workflowSettings?.reAuditDays ?? 30) * 24 * 60 * 60 * 1_000).toISOString().slice(0, 10) : null
 
   // Bots fill the hidden field. Return success to avoid helping them tune attacks.
@@ -476,6 +482,7 @@ export async function POST(request: Request) {
       <p><strong>Website, store, or file link:</strong> ${escapeHtml(websiteUrl)}</p>
       <p><strong>Estimated budget:</strong> ${escapeHtml(budget)}</p>
       <p><strong>Project checklist requested:</strong> ${sendChecklist ? "Yes" : "No"}</p>
+      <p><strong>Lead type:</strong> ${escapeHtml(leadType)}</p><p><strong>Lead source:</strong> ${escapeHtml(leadSource)}</p><p><strong>Marketing opt-in:</strong> ${marketingConsent ? "Yes" : "No"}</p>
       ${audit ? `<p><strong>Audit source:</strong> ${escapeHtml(audit.source)}</p><p><strong>Performance:</strong> ${audit.performance ?? "Not available"}/100</p><p><strong>SEO:</strong> ${audit.seo}/100</p><p><strong>Priority findings:</strong> ${audit.findings.length}</p>` : ""}
       ${businessGoal ? `<p><strong>Business goal:</strong> ${escapeHtml(businessGoal)}</p>` : ""}
       ${followUpDate ? `<p><strong>Follow-up due:</strong> ${escapeHtml(followUpDate)}</p>` : ""}
@@ -521,24 +528,28 @@ export async function POST(request: Request) {
 
   confirmationSent = true
 
-  if (audit) {
+  {
     const supabase = createSupabaseAdminClient()
     const ownerId = process.env.DASHBOARD_OWNER_ID
     if (supabase && ownerId) {
       const { error: databaseError } = await supabase.from("audit_leads").insert({
         owner_id: ownerId,
-        website_url: audit.url,
+        website_url: audit?.url ?? websiteUrl,
         email,
         lead_name: name,
         message,
-        status: reAuditFollowUpDate ? `Report sent - re-audit requested ${reAuditFollowUpDate}` : "Report sent",
+        status: audit ? (reAuditFollowUpDate ? `Report sent - re-audit requested ${reAuditFollowUpDate}` : "Report sent") : "New",
         business_goal: businessGoal,
-        performance: audit.performance ?? null,
-        seo: audit.seo,
-        audit_source: audit.source,
-        report: audit,
+        performance: audit?.performance ?? null,
+        seo: audit?.seo ?? 0,
+        audit_source: audit?.source ?? leadSource,
+        report: audit ?? {},
         follow_up_at: followUpDate,
         re_audit_at: reAuditFollowUpDate,
+        lead_type: leadType,
+        lead_source: leadSource,
+        marketing_consent: marketingConsent,
+        marketing_consent_at: marketingConsent ? new Date().toISOString() : null,
       })
       if (databaseError) console.error("Supabase audit lead error", databaseError.message)
     }

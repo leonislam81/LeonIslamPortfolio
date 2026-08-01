@@ -26,6 +26,7 @@ interface FormData {
   budget: string
   turnstileToken: string
   sendChecklist: boolean
+  marketingConsent: boolean
   honeypot: string // Hidden field for spam protection
 }
 
@@ -71,6 +72,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
     budget: "",
     turnstileToken: "",
     sendChecklist: false,
+    marketingConsent: false,
     honeypot: "",
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -149,6 +151,9 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
           budget: formData.budget,
           turnstileToken: formData.turnstileToken,
           sendChecklist: formData.sendChecklist,
+          leadType: "General enquiry",
+          leadSource: "Contact form",
+          marketingConsent: formData.marketingConsent,
           honeypot: formData.honeypot,
         }),
       })
@@ -181,6 +186,7 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
           budget: "",
           turnstileToken: "",
           sendChecklist: false,
+          marketingConsent: false,
           honeypot: "",
         })
         setErrors({})
@@ -406,6 +412,11 @@ export function Contact({ headingLevel = "h2", showHomeLink = false }: { heading
                   <label htmlFor="checklist" className="text-sm text-muted-foreground">
                     Send me a project checklist to help prepare for our discussion
                   </label>
+                </div>
+
+                <div className="form-field flex items-start gap-3">
+                  <Checkbox id="marketing-consent" checked={formData.marketingConsent} onCheckedChange={(checked) => handleInputChange("marketingConsent", checked === true)} />
+                  <label htmlFor="marketing-consent" className="text-sm leading-5 text-muted-foreground">Keep me updated with occasional helpful website and marketing tips. You can unsubscribe anytime.</label>
                 </div>
 
                 <div className="space-y-2">

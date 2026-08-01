@@ -17,6 +17,7 @@ const services = [
 export function ProjectChecklist() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [marketingConsent, setMarketingConsent] = useState(false)
   const [service, setService] = useState(services[0])
   const [turnstileToken, setTurnstileToken] = useState("")
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle")
@@ -48,6 +49,9 @@ export function ProjectChecklist() {
           message: "Requested the free project preparation checklist.",
           sendChecklist: true,
           turnstileToken,
+          leadType: "Project enquiry",
+          leadSource: "Free project checklist",
+          marketingConsent,
         }),
       })
       const result = await response.json().catch(() => null) as { checklistSent?: boolean } | null

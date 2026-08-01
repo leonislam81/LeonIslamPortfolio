@@ -169,6 +169,7 @@ export default function FreeAuditPage() {
   const [email, setEmail] = useState("")
   const [businessGoal, setBusinessGoal] = useState("")
   const [requestReauditFollowUp, setRequestReauditFollowUp] = useState(false)
+  const [marketingConsent, setMarketingConsent] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState("")
   const [result, setResult] = useState<AuditResult | null>(null)
   const [auditState, setAuditState] = useState<AuditState>("idle")
@@ -289,6 +290,9 @@ export default function FreeAuditPage() {
           },
           businessGoal,
           reAuditFollowUp: requestReauditFollowUp,
+          leadType: "Audit",
+          leadSource: "Free audit",
+          marketingConsent,
           turnstileToken,
         }),
       })
@@ -639,6 +643,7 @@ export default function FreeAuditPage() {
                       </div>
                     </fieldset>
                     <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm leading-5 text-slate-700"><input type="checkbox" checked={requestReauditFollowUp} onChange={(event) => setRequestReauditFollowUp(event.target.checked)} className="mt-0.5 size-4 rounded border-slate-300 text-sky-700 focus:ring-sky-500" /><span><strong className="text-slate-950">Request a 30-day re-audit follow-up</strong><br />Leon will have this request recorded with your audit lead so you can review progress after updates.</span></label>
+                    <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm leading-5 text-slate-700"><input type="checkbox" checked={marketingConsent} onChange={(event) => setMarketingConsent(event.target.checked)} className="mt-0.5 size-4 rounded border-slate-300 text-sky-700 focus:ring-sky-500" /><span>Send me occasional helpful website and marketing tips. You can unsubscribe anytime.</span></label>
                     <div className="mt-4"><Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} onVerify={handleTurnstileVerify} onExpire={handleTurnstileExpire} /></div>
                     {leadError && <p role="alert" className="mt-3 text-sm text-rose-700">{leadError}</p>}
                     <button type="submit" disabled={isSending} className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-sky-700 px-5 font-semibold text-white transition hover:bg-sky-800 disabled:cursor-wait disabled:opacity-70">

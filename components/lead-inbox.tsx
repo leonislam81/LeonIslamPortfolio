@@ -12,6 +12,9 @@ type InboxLead = {
   status: string
   priority: "high" | "normal" | "low"
   created_at: string
+  lead_type: string | null
+  lead_source: string | null
+  marketing_consent: boolean
 }
 
 const priorityColor = {
@@ -33,21 +36,25 @@ export function LeadInbox({ leads }: { leads: InboxLead[] }) {
   const [status, setStatus] = useState("all")
   const [priority, setPriority] = useState("all")
   const [sort, setSort] = useState("newest")
+  const [type, setType] = useState("all")
+  const [marketing, setMarketing] = useState("all")
   const statuses = Array.from(new Set(leads.map((lead) => lead.status))).sort()
+  const types = Array.from(new Set(leads.map((lead) => lead.lead_type || "General enquiry"))).sort()
   const visible = useMemo(() => {
     const query = search.trim().toLowerCase()
     return leads
       .filter((lead) => {
         const text = `${lead.lead_name ?? ""} ${lead.email} ${lead.website_url} ${lead.message ?? ""}`.toLowerCase()
-        return (!query || text.includes(query)) && (status === "all" || lead.status === status) && (priority === "all" || lead.priority === priority)
+        return (!query || text.includes(query)) && (status === "all" || lead.status === status) && (priority === "all" || lead.priority === priority) && (type === "all" || (lead.lead_type || "General enquiry") === type) && (marketing === "all" || (marketing === "opted-in" ? lead.marketing_consent : !lead.marketing_consent))
       })
       .sort((first, second) => {
         if (sort === "priority") return (first.priority === "high" ? 0 : first.priority === "normal" ? 1 : 2) - (second.priority === "high" ? 0 : second.priority === "normal" ? 1 : 2)
         return new Date(second.created_at).getTime() - new Date(first.created_at).getTime()
       })
-  }, [leads, priority, search, sort, status])
+  }, [leads, marketing, priority, search, sort, status, type])
   const newLeads = leads.filter((lead) => lead.status === "New").length
   const highPriority = leads.filter((lead) => lead.priority === "high" && lead.status !== "Won").length
+  const marketingOptIns = leads.filter((lead) => lead.marketing_consent).length
 
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -61,12 +68,15 @@ export function LeadInbox({ leads }: { leads: InboxLead[] }) {
         <Summary label="New enquiries" value={newLeads} tone="text-amber-700" />
         <Summary label="High priority" value={highPriority} tone="text-rose-700" />
         <Summary label="Total leads" value={leads.length} tone="text-sky-700" />
+        <Summary label="Marketing opt-ins" value={marketingOptIns} tone="text-emerald-700" />
       </div>
 
       <div className="grid gap-3 border-b border-slate-100 p-5 lg:grid-cols-[1fr_auto_auto_auto]">
         <label className="relative"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name, email, website, or message" className="min-h-11 w-full rounded-xl border border-slate-200 bg-white py-2 pl-10 pr-3 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100" /></label>
         <select value={status} onChange={(event) => setStatus(event.target.value)} className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium"><option value="all">All statuses</option>{statuses.map((item) => <option key={item} value={item}>{item}</option>)}</select>
         <select value={priority} onChange={(event) => setPriority(event.target.value)} className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium"><option value="all">All priorities</option><option value="high">High priority</option><option value="normal">Normal priority</option><option value="low">Low priority</option></select>
+        <select value={type} onChange={(event) => setType(event.target.value)} className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium"><option value="all">All lead types</option>{types.map((item) => <option key={item} value={item}>{item}</option>)}</select>
+        <select value={marketing} onChange={(event) => setMarketing(event.target.value)} className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium"><option value="all">Marketing: all</option><option value="opted-in">Opted in</option><option value="not-opted-in">No opt-in</option></select>
         <label className="relative"><SlidersHorizontal className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" /><select value={sort} onChange={(event) => setSort(event.target.value)} className="min-h-11 rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm font-medium"><option value="newest">Newest first</option><option value="priority">Priority first</option></select></label>
       </div>
 
