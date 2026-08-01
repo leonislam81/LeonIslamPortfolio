@@ -69,7 +69,7 @@ function formatDate(value: string) { return new Intl.DateTimeFormat("en", { mont
 export function DashboardContentEditor({ initialPages, userId }: { initialPages: Page[]; userId: string }) {
   const [pages, setPages] = useState<Page[]>(initialPages.map(normalizePage))
   const [selectedSlug, setSelectedSlug] = useState(initialPages[0]?.slug ?? "home")
-  const [draft, setDraft] = useState<Page | null>(initialPages[0] ?? null)
+  const [draft, setDraft] = useState<Page | null>(initialPages[0] ? normalizePage(initialPages[0]) : null)
   const [revisions, setRevisions] = useState<Revision[]>([])
   const [saving, setSaving] = useState(false)
   const [loadingRevisions, setLoadingRevisions] = useState(false)
