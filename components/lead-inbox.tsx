@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowUpRight, CircleAlert, Inbox, Mail, Search, SlidersHorizontal } from "lucide-react"
+import { ArrowDownToLine, ArrowUpRight, CircleAlert, Inbox, Mail, Search, SlidersHorizontal } from "lucide-react"
 import { useMemo, useState } from "react"
 
 type InboxLead = {
@@ -55,13 +55,24 @@ export function LeadInbox({ leads }: { leads: InboxLead[] }) {
   const newLeads = leads.filter((lead) => lead.status === "New").length
   const highPriority = leads.filter((lead) => lead.priority === "high" && lead.status !== "Won").length
   const marketingOptIns = leads.filter((lead) => lead.marketing_consent).length
+  const exportLeads = () => {
+    const escape = (value: string) => `"${value.replaceAll('"', '""')}"`
+    const rows = visible.map((lead) => [lead.lead_name || "", lead.email, lead.website_url, lead.lead_type || "General enquiry", lead.lead_source || "Contact form", lead.marketing_consent ? "Yes" : "No", lead.status, lead.priority, lead.created_at].map(escape).join(","))
+    const csv = ["Name,Email,Website,Lead type,Lead source,Marketing opt-in,Status,Priority,Received", ...rows].join("\n")
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }))
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 p-5">
         <span className="flex size-10 items-center justify-center rounded-xl bg-sky-100 text-sky-700"><Inbox className="size-5" /></span>
         <div><h2 className="font-bold">All submitted leads</h2><p className="mt-0.5 text-sm text-slate-500">Search, prioritise, and open the full lead workspace.</p></div>
-        <p className="ml-auto text-xs font-medium text-slate-500">{visible.length} of {leads.length} shown</p>
+        <div className="ml-auto flex items-center gap-3"><p className="text-xs font-medium text-slate-500">{visible.length} of {leads.length} shown</p><button type="button" onClick={exportLeads} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 transition hover:border-sky-300 hover:text-sky-800"><ArrowDownToLine className="size-3.5" />Export shown</button></div>
       </div>
 
       <div className="grid gap-3 border-b border-slate-100 bg-slate-50/70 p-5 sm:grid-cols-3">
