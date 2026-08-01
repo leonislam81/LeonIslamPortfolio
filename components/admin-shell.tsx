@@ -12,6 +12,7 @@ import {
   PanelLeftOpen,
   Settings2,
   Sparkles,
+  Rocket,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
@@ -23,6 +24,7 @@ const navigation = [
   { label: "Projects", href: "/dashboard/projects", icon: FolderKanban },
   { label: "Leads inbox", href: "/dashboard/leads", icon: ClipboardList },
   { label: "Workflow settings", href: "/dashboard/settings", icon: Settings2 },
+  { label: "Upcoming features", href: "/dashboard/upcoming", icon: Rocket },
 ]
 
 export function AdminShell({ children }: { children: ReactNode }) {
@@ -51,8 +53,6 @@ export function AdminShell({ children }: { children: ReactNode }) {
             return <a key={item.label} href={item.href} title={collapsed ? item.label : undefined} className={`flex items-center rounded-xl py-3 text-sm font-semibold transition ${collapsed ? "justify-center px-3" : "gap-3 px-3"} ${active ? "bg-sky-500 text-slate-950" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}><Icon className="size-4 shrink-0" />{!collapsed && item.label}</a>
           })}
         </nav>
-
-        {!collapsed && <div className="mt-8 w-full border-t border-slate-800 pt-6"><p className="px-3 text-xs font-bold uppercase tracking-[.14em] text-slate-500">Upcoming modules</p><div className="mt-3 space-y-1 px-3 text-sm text-slate-500"><p>Content manager</p><p>Site health</p><p>Reports</p></div></div>}
 
         <div className={`mt-auto w-full space-y-3 border-t border-slate-800 pt-5 ${collapsed ? "flex flex-col items-center" : ""}`}>
           <a href="/" title={collapsed ? "View public site" : undefined} className={`flex items-center text-sm font-semibold text-slate-300 transition hover:text-white ${collapsed ? "justify-center p-2" : "gap-2 px-3"}`}><ExternalLink className="size-4" />{!collapsed && "View public site"}</a>
