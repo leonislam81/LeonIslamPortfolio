@@ -22,13 +22,32 @@ type Section = { id: string; type: "hero" | "rich_text" | "feature_list" | "cta"
 type Page = { id: string; slug: string; title: string; excerpt: string; body: { sections?: Section[] }; seo_title: string; seo_description: string; status: "Draft" | "Published" | "Archived"; published_at: string | null; updated_at: string }
 type Revision = { id: string; body: { sections?: Section[] }; seo_title: string; seo_description: string; created_at: string }
 
+function normalizeSection(section: Partial<Section>, index: number): Section {
+  const type = section.type === "hero" || section.type === "feature_list" || section.type === "cta" ? section.type : "rich_text"
+  return {
+    id: section.id ?? `section-${index + 1}`,
+    type,
+    label: section.label ?? "Content block",
+    heading: section.heading ?? "",
+    body: section.body ?? "",
+    items: Array.isArray(section.items) ? section.items.filter(Boolean) : [],
+    buttonLabel: section.buttonLabel ?? "",
+    buttonHref: section.buttonHref ?? "",
+  }
+}
+
 function normalizePage(page: Page): Page {
+  const rawSections = Array.isArray(page.body?.sections) ? page.body.sections : []
   return {
     ...page,
+    title: page.title ?? "Untitled page",
     excerpt: page.excerpt ?? "",
     seo_title: page.seo_title ?? "",
     seo_description: page.seo_description ?? "",
-    body: { sections: Array.isArray(page.body?.sections) ? page.body.sections : [] },
+    status: page.status ?? "Draft",
+    published_at: page.published_at ?? null,
+    updated_at: page.updated_at ?? new Date().toISOString(),
+    body: { sections: rawSections.map((section, index) => normalizeSection(section, index)) },
   }
 }
 
@@ -66,7 +85,7 @@ export function DashboardContentEditor({ initialPages, userId }: { initialPages:
     if (!supabase) return
     setSaving(true)
     const { data, error } = await supabase.from("content_pages").insert({ owner_id: userId, slug: template.slug, title: template.title, excerpt: template.excerpt, body: { sections: defaultSections(template.slug) }, seo_title: `${template.title} | Leon Islam`, seo_description: template.excerpt, status: "Draft" }).select().single()
-    if (error) setNotice(error.message); else if (data) { setPages((current) => [...current, data as Page]); setSelectedSlug(template.slug); setNotice("Draft created") }
+    if (error) setNotice(error.message); else if (data) { setPages((current) => [...current, normalizePage(data as Page)]); setSelectedSlug(template.slug); setNotice("Draft created") }
     setSaving(false)
   }
   const updateDraft = (changes: Partial<Page>) => setDraft((current) => current ? { ...current, ...changes } : current)
@@ -82,12 +101,12 @@ export function DashboardContentEditor({ initialPages, userId }: { initialPages:
     const { data, error } = await supabase.from("content_pages").update(payload).eq("id", draft.id).eq("owner_id", userId).select().single()
     if (error) setNotice(error.message); else if (data) {
       await supabase.from("content_revisions").insert({ page_id: draft.id, owner_id: userId, body: draft.body, seo_title: draft.seo_title, seo_description: draft.seo_description })
-      setPages((current) => current.map((page) => page.id === draft.id ? data as Page : page)); setNotice(status === "Published" ? "Published to the live site" : "Draft saved")
+      setPages((current) => current.map((page) => page.id === draft.id ? normalizePage(data as Page) : page)); setNotice(status === "Published" ? "Published to the live site" : "Draft saved")
     }
     setSaving(false)
   }
   const loadHistory = async () => { if (!supabase || !draft) return; setShowHistory(true); setLoadingRevisions(true); const { data } = await supabase.from("content_revisions").select("id, body, seo_title, seo_description, created_at").eq("page_id", draft.id).order("created_at", { ascending: false }).limit(12); setRevisions((data ?? []) as Revision[]); setLoadingRevisions(false) }
-  const restore = (revision: Revision) => { if (!draft) return; updateDraft({ body: revision.body, seo_title: revision.seo_title, seo_description: revision.seo_description }); setShowHistory(false); setNotice("Revision loaded — save the draft to keep it") }
+  const restore = (revision: Revision) => { if (!draft) return; const restored = normalizePage({ ...draft, body: revision.body, seo_title: revision.seo_title, seo_description: revision.seo_description }); updateDraft({ body: restored.body, seo_title: restored.seo_title, seo_description: restored.seo_description }); setShowHistory(false); setNotice("Revision loaded — save the draft to keep it") }
 
   if (!draft) return <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950 sm:px-8"><div className="mx-auto max-w-6xl"><a href="/dashboard/upcoming" className="inline-flex items-center gap-2 text-sm font-semibold text-sky-700"><ArrowLeft className="size-4" />Upcoming features</a><div className="mt-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm"><p className="text-sm text-slate-500">No content pages have been created yet.</p><button onClick={() => ensurePage(pageTemplates[0])} className="mt-4 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white">Create Home draft</button></div></div></main>
 
