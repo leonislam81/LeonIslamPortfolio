@@ -16,8 +16,9 @@ import {
   Megaphone,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { DashboardSignOutButton } from "@/components/dashboard-sign-out-button"
+import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 
 const navigation = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -33,6 +34,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [newLeadCount, setNewLeadCount] = useState(0)
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient()
+    if (!supabase) return
+    void supabase.from("audit_leads").select("id", { count: "exact", head: true }).eq("status", "New").then(({ count }) => setNewLeadCount(count ?? 0))
+  }, [pathname])
 
   if (pathname === "/dashboard/login") return <>{children}</>
 
@@ -53,7 +60,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           {navigation.map((item) => {
             const Icon = item.icon
             const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href)
-            return <a key={item.label} href={item.href} title={collapsed ? item.label : undefined} className={`flex items-center rounded-xl py-3 text-sm font-semibold transition ${collapsed ? "justify-center px-3" : "gap-3 px-3"} ${active ? "bg-sky-500 text-slate-950" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}><Icon className="size-4 shrink-0" />{!collapsed && item.label}</a>
+            return <a key={item.label} href={item.href} title={collapsed ? item.label : undefined} className={`flex items-center rounded-xl py-3 text-sm font-semibold transition ${collapsed ? "justify-center px-3" : "gap-3 px-3"} ${active ? "bg-sky-500 text-slate-950" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}><Icon className="size-4 shrink-0" />{!collapsed && <><span>{item.label}</span>{item.label === "Leads inbox" && newLeadCount > 0 && <span className="ml-auto rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">{newLeadCount}</span>}</>}</a>
           })}
         </nav>
 
