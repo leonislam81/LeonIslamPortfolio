@@ -1,7 +1,7 @@
 import { ArrowLeft, BarChart3, FileText, HeartPulse, Mail, Rocket, Sparkles } from "lucide-react"
 
 const features = [
-  { title: "Content manager", description: "Edit service pages, landing-page copy, blog posts, and SEO metadata from one place.", icon: FileText, status: "Planned", tone: "bg-violet-50 text-violet-700", href: "/dashboard/site-management", action: "Open site management" },
+  { title: "Content manager", description: "Edit service pages, landing-page copy, blog posts, and SEO metadata from one place.", icon: FileText, status: "In progress", tone: "bg-violet-50 text-violet-700", href: "/dashboard/content", action: "Open content manager" },
   { title: "Site health monitor", description: "Schedule recurring checks for uptime, SEO signals, performance, and broken links.", icon: HeartPulse, status: "Planned", tone: "bg-emerald-50 text-emerald-700", href: "/free-audit", action: "Run a health check" },
   { title: "Client-ready reports", description: "Create branded PDF reports, compare audits over time, and share a secure report link.", icon: BarChart3, status: "In design", tone: "bg-sky-50 text-sky-700", href: "/dashboard/leads", action: "Review audit reports" },
   { title: "Email campaigns", description: "Send permission-based updates to marketing opt-ins with unsubscribe tracking.", icon: Mail, status: "Planned", tone: "bg-amber-50 text-amber-700", href: "/dashboard/marketing", action: "Open marketing audience" },
