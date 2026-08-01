@@ -22,6 +22,16 @@ type Section = { id: string; type: "hero" | "rich_text" | "feature_list" | "cta"
 type Page = { id: string; slug: string; title: string; excerpt: string; body: { sections?: Section[] }; seo_title: string; seo_description: string; status: "Draft" | "Published" | "Archived"; published_at: string | null; updated_at: string }
 type Revision = { id: string; body: { sections?: Section[] }; seo_title: string; seo_description: string; created_at: string }
 
+function normalizePage(page: Page): Page {
+  return {
+    ...page,
+    excerpt: page.excerpt ?? "",
+    seo_title: page.seo_title ?? "",
+    seo_description: page.seo_description ?? "",
+    body: { sections: Array.isArray(page.body?.sections) ? page.body.sections : [] },
+  }
+}
+
 const pageTemplates = [
   { slug: "home", title: "Home", excerpt: "Main positioning, services, proof, and primary enquiries.", seo: "Core landing page" },
   { slug: "services", title: "Services", excerpt: "Service overview and routes into focused service pages.", seo: "Service hub" },
@@ -38,7 +48,7 @@ const defaultSections = (slug: string): Section[] => [
 function formatDate(value: string) { return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value)) }
 
 export function DashboardContentEditor({ initialPages, userId }: { initialPages: Page[]; userId: string }) {
-  const [pages, setPages] = useState<Page[]>(initialPages)
+  const [pages, setPages] = useState<Page[]>(initialPages.map(normalizePage))
   const [selectedSlug, setSelectedSlug] = useState(initialPages[0]?.slug ?? "home")
   const [draft, setDraft] = useState<Page | null>(initialPages[0] ?? null)
   const [revisions, setRevisions] = useState<Revision[]>([])
