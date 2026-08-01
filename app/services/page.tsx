@@ -5,19 +5,25 @@ import { servicePages } from '@/lib/service-pages'
 import { PageFooter } from '@/components/page-footer'
 import { PricingGuide } from '@/components/pricing-guide'
 import { SiteHeader } from '@/components/site-header'
+import { PublishedContentSections } from '@/components/published-content-sections'
+import { getPublishedPage } from '@/lib/published-content'
 
-export const metadata: Metadata = {
-  title: 'Services',
-  description: 'Explore website management, e-commerce product listing, Amazon catalog, data entry, and virtual admin support services from Leon Islam.',
-  alternates: { canonical: '/services' },
-  openGraph: {
-    title: 'Services | Leon Islam',
-    description: 'Website, e-commerce, Amazon, data entry, and virtual admin support for organized online operations.',
-    url: 'https://leonislam.com/services',
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const publishedPage = await getPublishedPage('services')
+  const title = publishedPage?.seo_title || publishedPage?.title || 'Services'
+  const description = publishedPage?.seo_description || publishedPage?.excerpt || 'Explore website management, e-commerce product listing, Amazon catalog, data entry, and virtual admin support services from Leon Islam.'
+  return {
+    title,
+    description,
+    alternates: { canonical: '/services' },
+    openGraph: { title, description, url: 'https://leonislam.com/services' },
+  }
 }
 
-export default function ServicesOverviewPage() {
+export default async function ServicesOverviewPage() {
+  const publishedPage = await getPublishedPage('services')
+  const sections = publishedPage?.body?.sections ?? []
+  const heroSection = sections.find((section) => section.type === 'hero')
   const supportOptions = [
     {
       icon: ClipboardList,
@@ -70,11 +76,13 @@ export default function ServicesOverviewPage() {
             <span className="inline-flex items-center gap-2 rounded-full border border-portfolio-primary/20 bg-card px-3 py-1 text-xs font-semibold uppercase tracking-[.16em] text-portfolio-primary shadow-sm">
               <Sparkles className="h-3.5 w-3.5" /> Services overview
             </span>
-            <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-6xl">Reliable support for the work behind your online business.</h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground sm:text-xl">Choose a focused task or combine services for a practical workflow across your website, store, catalog, and daily admin work.</p>
+            <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-6xl">{heroSection?.heading || 'Reliable support for the work behind your online business.'}</h1>
+            <p className="mt-6 whitespace-pre-line text-lg leading-8 text-muted-foreground sm:text-xl">{heroSection?.body || 'Choose a focused task or combine services for a practical workflow across your website, store, catalog, and daily admin work.'}</p>
           </div>
         </div>
       </section>
+
+      <PublishedContentSections sections={sections} />
 
       <section className="container mx-auto px-4 py-16 sm:py-24">
         <div className="grid gap-6 lg:grid-cols-2">
