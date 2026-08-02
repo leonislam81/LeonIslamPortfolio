@@ -31,6 +31,9 @@ export async function POST(request: Request) {
   const status = event.triggerEvent?.toLowerCase().includes("cancel") ? "Cancelled" : event.triggerEvent?.toLowerCase().includes("resched") ? "Rescheduled" : "Confirmed"
   const { error } = await admin.from("bookings").upsert({ owner_id: ownerId, booking_uid: bookingUid, status, guest_name: String(guest.name ?? responseValue("name") ?? "") || null, guest_email: String(guest.email ?? responseValue("email") ?? "") || null, guest_timezone: String(guest.timeZone ?? guest.timezone ?? "") || null, event_title: String(booking.title ?? eventType.title ?? payload.eventTitle ?? "Project discovery call") || null, start_time: String(booking.startTime ?? "") || null, end_time: String(booking.endTime ?? "") || null, location: String(booking.location ?? "") || null, notes: responseValue("notes") || responseValue("message") || null, payload, updated_at: new Date().toISOString() }, { onConflict: "booking_uid" })
   if (error) return NextResponse.json({ error: "Could not save booking." }, { status: 500 })
-  if (status === "Confirmed") await recordDashboardNotification({ workspaceOwnerId: ownerId, title: "New booking received", message: `${String(guest.name ?? guest.email ?? "A visitor")} booked a project discovery call.`, kind: "success", href: "/dashboard/bookings" })
+  const guestLabel = String(guest.name ?? guest.email ?? "A visitor")
+  if (status === "Confirmed") await recordDashboardNotification({ workspaceOwnerId: ownerId, title: "New booking received", message: `${guestLabel} booked a project discovery call.`, kind: "success", href: "/dashboard/bookings" })
+  if (status === "Cancelled") await recordDashboardNotification({ workspaceOwnerId: ownerId, title: "Booking cancelled", message: `${guestLabel}'s project discovery call was cancelled.`, kind: "warning", href: "/dashboard/bookings" })
+  if (status === "Rescheduled") await recordDashboardNotification({ workspaceOwnerId: ownerId, title: "Booking rescheduled", message: `${guestLabel}'s project discovery call was rescheduled.`, kind: "info", href: "/dashboard/bookings" })
   return NextResponse.json({ ok: true })
 }

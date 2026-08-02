@@ -71,5 +71,7 @@ export async function PATCH(request: Request) {
   const { error } = await admin.from("dashboard_users").update(updates).eq("user_id", body.userId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   await recordDashboardActivity({ workspaceOwnerId: workspaceOwnerId ?? user?.id ?? body.userId, actorId: user?.id ?? body.userId, actorEmail: user?.email, action: body.role ? "Changed dashboard user role" : "Changed dashboard user status", entityType: "User", entityId: body.userId, details: { role: body.role ?? null, status: body.status ?? null } })
+  const changeLabel = body.role ? `role to ${body.role}` : `status to ${body.status}`
+  await recordDashboardNotification({ workspaceOwnerId: workspaceOwnerId ?? user?.id ?? body.userId, title: "Dashboard user updated", message: `${body.userId === user?.id ? "Your" : "A dashboard user's"} ${changeLabel}.`, kind: body.status === "Disabled" ? "warning" : "info", href: "/dashboard/users" })
   return NextResponse.json({ ok: true })
 }
