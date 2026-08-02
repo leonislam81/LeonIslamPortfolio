@@ -30,10 +30,21 @@ const pageTemplates = [
   { slug: "start-project", title: "Start a project", excerpt: "Structured project request and qualification.", seo: "Project intent" },
 ]
 
-const defaultSections = (slug: string): Section[] => [
-  { id: crypto.randomUUID(), type: "hero", label: "Hero", heading: slug === "home" ? "Websites that move your business forward." : pageTemplates.find((page) => page.slug === slug)?.title ?? "Your page", body: "Clear strategy, confident design, and a site that is ready to convert.", items: [], buttonLabel: "Start a project", buttonHref: "/start-project" },
-  { id: crypto.randomUUID(), type: "rich_text", label: "Content block", heading: "Make every visit count", body: "Use this section to explain the value of your offer, the problem you solve, and what makes your approach different.", items: [], buttonLabel: "", buttonHref: "" },
-]
+const starterCopy: Record<string, { heading: string; body: string; contentHeading: string; contentBody: string; buttonLabel: string; buttonHref: string; items?: string[] }> = {
+  home: { heading: "Websites that move your business forward.", body: "Practical website, e-commerce, and online admin support for growing businesses.", contentHeading: "Make every visit count", contentBody: "Clear strategy, confident design, and a site that is ready to convert.", buttonLabel: "Start a project", buttonHref: "/start-project" },
+  services: { heading: "Reliable support for the work behind your online business.", body: "Choose focused help for your website, store, catalog, and daily admin work.", contentHeading: "Support that fits the work", contentBody: "Start with one task, plan a focused project, or keep a dependable partner available for recurring online work.", buttonLabel: "Discuss your needs", buttonHref: "/contact", items: ["Website management", "E-commerce operations", "Data and admin support"] },
+  "free-audit": { heading: "Find the clearest improvements for your website.", body: "Run a practical audit to understand performance, SEO, mobile experience, and conversion opportunities.", contentHeading: "Turn the findings into action", contentBody: "Get a focused view of what to fix first, what to improve next, and what to keep monitoring.", buttonLabel: "Run your audit", buttonHref: "/free-audit" },
+  contact: { heading: "Tell me what you need help with.", body: "Share your website, store, catalog, data, or admin task and get a clear next step.", contentHeading: "A practical conversation starts here", contentBody: "You can begin with one focused task or describe a larger workflow. The right next step will be shaped around your priorities.", buttonLabel: "Send an enquiry", buttonHref: "/contact" },
+  "start-project": { heading: "A simple way to get the right support in place.", body: "Share the outcome, timeline, and useful details so your project can start with a clear plan.", contentHeading: "Bring the useful details", contentBody: "A short, focused brief is enough to begin. Include the task, desired outcome, timing, and any relevant website or source files.", buttonLabel: "Start your project", buttonHref: "/start-project" },
+}
+
+const defaultSections = (slug: string): Section[] => {
+  const copy = starterCopy[slug] ?? starterCopy.home
+  return [
+    { id: crypto.randomUUID(), type: "hero", label: "Hero", heading: copy.heading, body: copy.body, items: [], buttonLabel: copy.buttonLabel, buttonHref: copy.buttonHref },
+    { id: crypto.randomUUID(), type: copy.items ? "feature_list" : "rich_text", label: copy.items ? "Key points" : "Content block", heading: copy.contentHeading, body: copy.contentBody, items: copy.items ?? [], buttonLabel: "", buttonHref: "" },
+  ]
+}
 
 function formatDate(value: string) { return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value)) }
 
