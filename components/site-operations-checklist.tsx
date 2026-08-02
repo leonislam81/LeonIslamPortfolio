@@ -3,6 +3,7 @@
 import { Check, CircleAlert, ClipboardCheck } from "lucide-react"
 import { useMemo, useState } from "react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
+import { getWorkspaceOwnerId } from "@/lib/supabase/workspace"
 
 const tasks = [
   { key: "review-homepage", title: "Review the homepage message", description: "Confirm your main offer, proof, and primary call to action are still accurate." },
@@ -25,7 +26,8 @@ export function SiteOperationsChecklist({ initialCompleted }: { initialCompleted
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return setError(true)
     const isComplete = next.includes(taskKey)
-    const { error: saveError } = await supabase.from("site_operations").upsert({ owner_id: user.id, task_key: taskKey, completed: isComplete, completed_at: isComplete ? new Date().toISOString() : null, updated_at: new Date().toISOString() }, { onConflict: "owner_id,task_key" })
+    const workspaceOwnerId = await getWorkspaceOwnerId(supabase, user.id)
+    const { error: saveError } = await supabase.from("site_operations").upsert({ owner_id: workspaceOwnerId, task_key: taskKey, completed: isComplete, completed_at: isComplete ? new Date().toISOString() : null, updated_at: new Date().toISOString() }, { onConflict: "owner_id,task_key" })
     if (saveError) {
       setCompleted(completed)
       setError(true)

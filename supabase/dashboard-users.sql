@@ -52,6 +52,10 @@ drop policy if exists "Workspace members can manage projects" on public.projects
 create policy "Workspace members can manage projects" on public.projects for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
 drop policy if exists "Workspace members can manage project tasks" on public.project_tasks;
 create policy "Workspace members can manage project tasks" on public.project_tasks for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
+drop policy if exists "Workspace members can manage dashboard settings" on public.dashboard_settings;
+create policy "Workspace members can manage dashboard settings" on public.dashboard_settings for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
+drop policy if exists "Workspace members can manage site operations" on public.site_operations;
+create policy "Workspace members can manage site operations" on public.site_operations for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
 
 drop policy if exists "Users can view their own dashboard membership" on public.dashboard_users;
 create policy "Users can view their own dashboard membership"

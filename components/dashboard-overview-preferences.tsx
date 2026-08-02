@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 import { dashboardSections } from "@/lib/dashboard-overview"
+import { getWorkspaceOwnerId } from "@/lib/supabase/workspace"
 
 export function DashboardOverviewPreferences({ initial }: { initial: string[] }) {
   const [open, setOpen] = useState(false)
@@ -18,7 +19,7 @@ export function DashboardOverviewPreferences({ initial }: { initial: string[] })
     if (!supabase) return setState("error")
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return setState("error")
-    const { error } = await supabase.from("dashboard_settings").upsert({ owner_id: user.id, overview_sections: sections, updated_at: new Date().toISOString() })
+    const { error } = await supabase.from("dashboard_settings").upsert({ owner_id: await getWorkspaceOwnerId(supabase, user.id), overview_sections: sections, updated_at: new Date().toISOString() })
     if (error) return setState("error")
     setOpen(false)
     setState("idle")
