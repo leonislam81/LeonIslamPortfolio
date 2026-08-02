@@ -40,23 +40,6 @@ as $$
   select record_owner_id = public.dashboard_workspace_owner_id();
 $$;
 
-drop policy if exists "Workspace members can manage content pages" on public.content_pages;
-create policy "Workspace members can manage content pages" on public.content_pages for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
-drop policy if exists "Workspace members can manage content revisions" on public.content_revisions;
-create policy "Workspace members can manage content revisions" on public.content_revisions for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
-drop policy if exists "Workspace members can manage leads" on public.audit_leads;
-create policy "Workspace members can manage leads" on public.audit_leads for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
-drop policy if exists "Workspace members can manage lead activity" on public.audit_lead_activities;
-create policy "Workspace members can manage lead activity" on public.audit_lead_activities for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
-drop policy if exists "Workspace members can manage projects" on public.projects;
-create policy "Workspace members can manage projects" on public.projects for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
-drop policy if exists "Workspace members can manage project tasks" on public.project_tasks;
-create policy "Workspace members can manage project tasks" on public.project_tasks for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
-drop policy if exists "Workspace members can manage dashboard settings" on public.dashboard_settings;
-create policy "Workspace members can manage dashboard settings" on public.dashboard_settings for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
-drop policy if exists "Workspace members can manage site operations" on public.site_operations;
-create policy "Workspace members can manage site operations" on public.site_operations for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id));
-
 drop policy if exists "Users can view their own dashboard membership" on public.dashboard_users;
 create policy "Users can view their own dashboard membership"
 on public.dashboard_users for select
@@ -69,3 +52,5 @@ on public.dashboard_users for update
 to authenticated
 using (user_id = auth.uid())
 with check (user_id = auth.uid());
+
+notify pgrst, 'reload schema';
