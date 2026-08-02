@@ -15,6 +15,7 @@ import {
   Rocket,
   Megaphone,
   Mail,
+  Users,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -30,6 +31,7 @@ const navigation = [
   { label: "Upcoming features", href: "/dashboard/upcoming", icon: Rocket },
   { label: "Marketing audience", href: "/dashboard/marketing", icon: Megaphone },
   { label: "Email campaigns", href: "/dashboard/campaigns", icon: Mail },
+  { label: "Users", href: "/dashboard/users", icon: Users },
 ]
 
 export function AdminShell({ children }: { children: ReactNode }) {
