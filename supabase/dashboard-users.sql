@@ -16,6 +16,8 @@ create index if not exists dashboard_users_role_idx on public.dashboard_users(ro
 
 alter table public.dashboard_users enable row level security;
 
+alter table public.dashboard_users add column if not exists notification_preferences jsonb not null default '{"bookings":true,"leads":true,"campaigns":true,"users":true}'::jsonb;
+
 alter table public.dashboard_users add column if not exists workspace_owner_id uuid references auth.users(id) on delete cascade;
 update public.dashboard_users set workspace_owner_id = user_id where workspace_owner_id is null and role = 'Owner';
 update public.dashboard_users set workspace_owner_id = invited_by where workspace_owner_id is null and invited_by is not null;
