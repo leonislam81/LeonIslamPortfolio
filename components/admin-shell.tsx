@@ -51,7 +51,7 @@ export function AdminShell({ children, initialRole }: { children: ReactNode; ini
     const supabase = createSupabaseBrowserClient()
     if (!supabase) return
     void supabase.from("audit_leads").select("id", { count: "exact", head: true }).eq("status", "New").then(({ count }) => setNewLeadCount(count ?? 0))
-    void supabase.from("dashboard_notifications").select("id", { count: "exact", head: true }).eq("is_read", false).then(({ count }) => setNotificationCount(count ?? 0))
+    void supabase.auth.getUser().then(({ data: { user } }) => { if (!user) return; void supabase.from("dashboard_notifications").select("id", { count: "exact", head: true }).eq("is_read", false).or(`recipient_user_id.is.null,recipient_user_id.eq.${user.id}`).then(({ count }) => setNotificationCount(count ?? 0)) })
   }, [pathname])
 
   if (pathname === "/dashboard/login") return <>{children}</>

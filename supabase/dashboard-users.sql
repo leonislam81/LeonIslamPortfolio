@@ -6,6 +6,7 @@ create table if not exists public.dashboard_users (
   role text not null default 'Viewer' check (role in ('Owner', 'Administrator', 'Editor', 'Author', 'Contributor', 'Viewer')),
   status text not null default 'Active' check (status in ('Invited', 'Active', 'Disabled')),
   invited_by uuid references auth.users(id) on delete set null,
+  notification_preferences jsonb not null default '{"bookings":true,"leads":true,"campaigns":true,"users":true}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

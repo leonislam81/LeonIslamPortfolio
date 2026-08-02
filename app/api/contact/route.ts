@@ -553,7 +553,7 @@ export async function POST(request: Request) {
         marketing_consent_at: marketingConsent ? new Date().toISOString() : null,
       })
       if (databaseError) console.error("Supabase audit lead error", databaseError.message)
-      else await recordDashboardNotification({ workspaceOwnerId: ownerId, title: "New lead received", message: `${name || email} submitted a new ${leadType.toLowerCase()} enquiry.`, kind: "info", href: "/dashboard/leads" })
+      else await recordDashboardNotification({ workspaceOwnerId: ownerId, title: "New lead received", message: `${name || email} submitted a new ${leadType.toLowerCase()} enquiry.`, kind: "info", href: "/dashboard/leads", category: "leads" })
     }
   }
 

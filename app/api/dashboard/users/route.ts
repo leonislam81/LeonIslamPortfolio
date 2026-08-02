@@ -35,7 +35,7 @@ export async function GET() {
   const { admin, allowed } = await getAdminContext()
   if (!admin) return NextResponse.json({ error: "Supabase admin access is not configured." }, { status: 503 })
   if (!allowed) return NextResponse.json({ error: "You do not have permission to manage dashboard users." }, { status: 403 })
-  const { data, error } = await admin.from("dashboard_users").select("user_id,email,display_name,role,status,created_at,updated_at").order("created_at", { ascending: true })
+  const { data, error } = await admin.from("dashboard_users").select("user_id,email,display_name,role,status,notification_preferences,created_at,updated_at").order("created_at", { ascending: true })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ users: data ?? [] })
 }
@@ -65,13 +65,14 @@ export async function PATCH(request: Request) {
   const { user, admin, allowed, workspaceOwnerId } = await getAdminContext()
   if (!admin) return NextResponse.json({ error: "Supabase admin access is not configured." }, { status: 503 })
   if (!allowed) return NextResponse.json({ error: "You do not have permission to update dashboard users." }, { status: 403 })
-  const body = await request.json() as { userId?: string; role?: string; status?: string }
-  if (!body.userId || (body.role && !roles.includes(body.role as typeof roles[number])) || (body.status && !statuses.includes(body.status as typeof statuses[number]))) return NextResponse.json({ error: "Choose a valid role and status." }, { status: 400 })
-  const updates = { ...(body.role ? { role: body.role } : {}), ...(body.status ? { status: body.status } : {}), updated_at: new Date().toISOString() }
+  const body = await request.json() as { userId?: string; role?: string; status?: string; notificationPreferences?: Record<string, boolean> }
+  const validPreferences = body.notificationPreferences && ["bookings", "leads", "campaigns", "users"].every((key) => typeof body.notificationPreferences?.[key] === "boolean")
+  if (!body.userId || (body.role && !roles.includes(body.role as typeof roles[number])) || (body.status && !statuses.includes(body.status as typeof statuses[number])) || (body.notificationPreferences && !validPreferences)) return NextResponse.json({ error: "Choose valid user settings." }, { status: 400 })
+  const updates = { ...(body.role ? { role: body.role } : {}), ...(body.status ? { status: body.status } : {}), ...(body.notificationPreferences ? { notification_preferences: body.notificationPreferences } : {}), updated_at: new Date().toISOString() }
   const { error } = await admin.from("dashboard_users").update(updates).eq("user_id", body.userId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   await recordDashboardActivity({ workspaceOwnerId: workspaceOwnerId ?? user?.id ?? body.userId, actorId: user?.id ?? body.userId, actorEmail: user?.email, action: body.role ? "Changed dashboard user role" : "Changed dashboard user status", entityType: "User", entityId: body.userId, details: { role: body.role ?? null, status: body.status ?? null } })
   const changeLabel = body.role ? `role to ${body.role}` : `status to ${body.status}`
-  await recordDashboardNotification({ workspaceOwnerId: workspaceOwnerId ?? user?.id ?? body.userId, title: "Dashboard user updated", message: `${body.userId === user?.id ? "Your" : "A dashboard user's"} ${changeLabel}.`, kind: body.status === "Disabled" ? "warning" : "info", href: "/dashboard/users" })
+  if (!body.notificationPreferences) await recordDashboardNotification({ workspaceOwnerId: workspaceOwnerId ?? user?.id ?? body.userId, title: "Dashboard user updated", message: `${body.userId === user?.id ? "Your" : "A dashboard user's"} ${changeLabel}.`, kind: body.status === "Disabled" ? "warning" : "info", href: "/dashboard/users", category: "users" })
   return NextResponse.json({ ok: true })
 }
