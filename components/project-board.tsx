@@ -5,6 +5,7 @@ import { CalendarClock, Plus, Search, SlidersHorizontal, Workflow } from "lucide
 import { useMemo, useState } from "react"
 import { ProjectProgressLink } from "@/components/project-progress-link"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
+import { getWorkspaceOwnerId } from "@/lib/supabase/workspace"
 
 type Project = { id: string; client_name: string; title: string; status: string; due_date: string | null; value: number; notes: string | null }
 const statusStyle: Record<string, string> = { Planned: "bg-slate-100 text-slate-700", "In progress": "bg-sky-100 text-sky-800", Waiting: "bg-amber-100 text-amber-800", Completed: "bg-emerald-100 text-emerald-800" }
@@ -41,7 +42,8 @@ export function ProjectBoard({ initialProjects }: { initialProjects: Project[] }
     if (!supabase) return setState("error")
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return setState("error")
-    const { data, error } = await supabase.from("projects").insert({ owner_id: user.id, client_name: String(form.get("client_name")), title: String(form.get("title")), status: String(form.get("status")), due_date: String(form.get("due_date")) || null, value: Number(form.get("value") || 0), notes: String(form.get("notes")) || null }).select("id, client_name, title, status, due_date, value, notes").single()
+    const workspaceOwnerId = await getWorkspaceOwnerId(supabase, user.id)
+    const { data, error } = await supabase.from("projects").insert({ owner_id: workspaceOwnerId, client_name: String(form.get("client_name")), title: String(form.get("title")), status: String(form.get("status")), due_date: String(form.get("due_date")) || null, value: Number(form.get("value") || 0), notes: String(form.get("notes")) || null }).select("id, client_name, title, status, due_date, value, notes").single()
     if (error || !data) return setState("error")
     setProjects((current) => [data, ...current])
     setShowForm(false)

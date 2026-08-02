@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (user && request.nextUrl.pathname !== "/dashboard/login") {
     const { data: membership } = await supabase.from("dashboard_users").select("role,status").eq("user_id", user.id).maybeSingle()
-    if (membership?.status === "Disabled" || (membership && membership.status !== "Active")) {
+    if (membership?.status === "Disabled") {
       return NextResponse.redirect(new URL("/dashboard/login", request.url))
     }
     if (membership?.role && membership.role !== "Owner" && membership.role !== "Administrator") {

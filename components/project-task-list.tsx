@@ -4,6 +4,7 @@ import type { FormEvent } from "react"
 import { CalendarClock, CheckCircle2, Pencil, Plus, Save, Trash2, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
+import { getWorkspaceOwnerId } from "@/lib/supabase/workspace"
 
 type Task = { id: string; title: string; completed: boolean; due_date: string | null }
 
@@ -32,7 +33,8 @@ export function ProjectTaskList({ projectId, initialTasks }: { projectId: string
     if (!supabase || !title.trim()) return
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return setError("Your session has expired. Please sign in again.")
-    const { data, error: saveError } = await supabase.from("project_tasks").insert({ project_id: projectId, owner_id: user.id, title: title.trim(), due_date: dueDate || null }).select("id,title,completed,due_date").single()
+    const workspaceOwnerId = await getWorkspaceOwnerId(supabase, user.id)
+    const { data, error: saveError } = await supabase.from("project_tasks").insert({ project_id: projectId, owner_id: workspaceOwnerId, title: title.trim(), due_date: dueDate || null }).select("id,title,completed,due_date").single()
     if (saveError || !data) return setError("Could not add this task.")
     setTasks((current) => [...current, data])
     setTitle("")

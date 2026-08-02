@@ -5,6 +5,7 @@ import { ClipboardList, FilePenLine, FolderKanban, Plus, ScanSearch, X } from "l
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
+import { getWorkspaceOwnerId } from "@/lib/supabase/workspace"
 
 const actions = [
   { href: "/dashboard/leads", label: "Open leads", description: "Review incoming enquiries", icon: ClipboardList, tone: "bg-sky-50 text-sky-800" },
@@ -25,7 +26,8 @@ export function DashboardQuickActions() {
     if (!supabase) return setState("error")
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return setState("error")
-    const { data, error } = await supabase.from("projects").insert({ owner_id: user.id, client_name: String(form.get("client_name")).trim(), title: String(form.get("title")).trim(), status: "Planned", due_date: String(form.get("due_date")) || null, value: 0 }).select("id").single()
+    const workspaceOwnerId = await getWorkspaceOwnerId(supabase, user.id)
+    const { data, error } = await supabase.from("projects").insert({ owner_id: workspaceOwnerId, client_name: String(form.get("client_name")).trim(), title: String(form.get("title")).trim(), status: "Planned", due_date: String(form.get("due_date")) || null, value: 0 }).select("id").single()
     if (error || !data) return setState("error")
     router.push(`/dashboard/projects/${data.id}`)
   }

@@ -8,6 +8,6 @@ export default async function ContentManagerPage() {
   if (!supabase) redirect("/dashboard")
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/dashboard/login")
-  const { data } = await supabase.from("content_pages").select("*").eq("owner_id", user.id).order("created_at", { ascending: true })
+  const { data } = await supabase.from("content_pages").select("*").order("created_at", { ascending: true })
   return <DashboardContentEditor initialPages={(data ?? []) as any} userId={user.id} />
 }

@@ -5,6 +5,7 @@ import { CalendarClock, Check, Save } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
+import { getWorkspaceOwnerId } from "@/lib/supabase/workspace"
 
 function futureDate(days: number) {
   const date = new Date()
@@ -41,7 +42,7 @@ export function LeadWorkspace({ leadId, initialNotes, initialFollowUpAt }: { lea
     const { error } = await supabase.from("audit_leads").update({ notes: notes.trim() || null, follow_up_at: followUpAt || null }).eq("id", leadId)
     if (!error) {
       const { data: { user } } = await supabase.auth.getUser()
-      if (user) await supabase.from("audit_lead_activities").insert({ lead_id: leadId, owner_id: user.id, activity_type: "notes_saved", detail: `Workspace notes and follow-up date saved${followUpAt ? ` for ${followUpAt}` : ""}.` })
+      if (user) await supabase.from("audit_lead_activities").insert({ lead_id: leadId, owner_id: await getWorkspaceOwnerId(supabase, user.id), activity_type: "notes_saved", detail: `Workspace notes and follow-up date saved${followUpAt ? ` for ${followUpAt}` : ""}.` })
     }
     setState(error ? "error" : "saved")
     if (!error) router.refresh()

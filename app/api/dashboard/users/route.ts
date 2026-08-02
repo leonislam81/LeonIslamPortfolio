@@ -15,18 +15,18 @@ async function getRequestUser() {
 async function getAdminContext() {
   const user = await getRequestUser()
   const admin = createSupabaseAdminClient()
-  if (!user || !admin) return { user: null, admin: null, allowed: false }
+  if (!user || !admin) return { user: null, admin: null, allowed: false, workspaceOwnerId: null }
 
-  const { data: membership } = await admin.from("dashboard_users").select("role,status").eq("user_id", user.id).maybeSingle()
+  const { data: membership } = await admin.from("dashboard_users").select("role,status,workspace_owner_id,invited_by").eq("user_id", user.id).maybeSingle()
   if (!membership) {
     const { count } = await admin.from("dashboard_users").select("user_id", { count: "exact", head: true })
     if ((count ?? 0) === 0) {
-      await admin.from("dashboard_users").upsert({ user_id: user.id, email: user.email ?? "", display_name: user.user_metadata?.full_name ?? null, role: "Owner", status: "Active" })
-      return { user, admin, allowed: true }
+      await admin.from("dashboard_users").upsert({ user_id: user.id, workspace_owner_id: user.id, email: user.email ?? "", display_name: user.user_metadata?.full_name ?? null, role: "Owner", status: "Active" })
+      return { user, admin, allowed: true, workspaceOwnerId: user.id }
     }
   }
 
-  return { user, admin, allowed: membership?.status === "Active" && (membership.role === "Owner" || membership.role === "Administrator") }
+  return { user, admin, allowed: membership?.status === "Active" && (membership.role === "Owner" || membership.role === "Administrator"), workspaceOwnerId: membership?.workspace_owner_id ?? membership?.invited_by ?? user.id }
 }
 
 export async function GET() {
@@ -39,7 +39,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const { user, admin, allowed } = await getAdminContext()
+  const { user, admin, allowed, workspaceOwnerId } = await getAdminContext()
   if (!admin || !user) return NextResponse.json({ error: "Supabase admin access is not configured." }, { status: 503 })
   if (!allowed) return NextResponse.json({ error: "You do not have permission to invite dashboard users." }, { status: 403 })
   const body = await request.json() as { email?: string; displayName?: string; role?: string }
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
   const { data: invitation, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, { data: { full_name: displayName ?? "" } })
   if (inviteError || !invitation.user) return NextResponse.json({ error: inviteError?.message ?? "The invitation could not be sent." }, { status: 400 })
-  const { error } = await admin.from("dashboard_users").insert({ user_id: invitation.user.id, email, display_name: displayName, role, status: "Invited", invited_by: user.id })
+  const { error } = await admin.from("dashboard_users").insert({ user_id: invitation.user.id, workspace_owner_id: workspaceOwnerId, email, display_name: displayName, role, status: "Invited", invited_by: user.id })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }

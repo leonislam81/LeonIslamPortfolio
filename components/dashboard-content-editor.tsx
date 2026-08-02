@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
+import { getWorkspaceOwnerId } from "@/lib/supabase/workspace"
 
 type Section = { id: string; type: "hero" | "rich_text" | "feature_list" | "cta"; label: string; heading: string; body: string; items: string[]; buttonLabel: string; buttonHref: string }
 type Page = { id: string; slug: string; title: string; excerpt: string; body: { sections?: Section[] }; seo_title: string; seo_description: string; status: "Draft" | "Published" | "Archived"; published_at: string | null; updated_at: string }
@@ -86,7 +87,8 @@ export function DashboardContentEditor({ initialPages, userId }: { initialPages:
   const ensurePage = async (template: typeof pageTemplates[number]) => {
     if (!supabase) return
     setSaving(true)
-    const { data, error } = await supabase.from("content_pages").insert({ owner_id: userId, slug: template.slug, title: template.title, excerpt: template.excerpt, body: { sections: defaultSections(template.slug) }, seo_title: `${template.title} | Leon Islam`, seo_description: template.excerpt, status: "Draft" }).select().single()
+    const workspaceOwnerId = await getWorkspaceOwnerId(supabase, userId)
+    const { data, error } = await supabase.from("content_pages").insert({ owner_id: workspaceOwnerId, slug: template.slug, title: template.title, excerpt: template.excerpt, body: { sections: defaultSections(template.slug) }, seo_title: `${template.title} | Leon Islam`, seo_description: template.excerpt, status: "Draft" }).select().single()
     if (error) setNotice(error.message); else if (data) { setPages((current) => [...current, data as Page]); setSelectedSlug(template.slug); setNotice("Draft created") }
     setSaving(false)
   }
@@ -109,9 +111,10 @@ export function DashboardContentEditor({ initialPages, userId }: { initialPages:
     if (!supabase || !draft) return
     setSaving(true); setNotice("")
     const payload = { title: draft.title, excerpt: draft.excerpt, body: draft.body, seo_title: draft.seo_title, seo_description: draft.seo_description, status, published_at: status === "Published" ? new Date().toISOString() : draft.published_at }
-    const { data, error } = await supabase.from("content_pages").update(payload).eq("id", draft.id).eq("owner_id", userId).select().single()
+    const workspaceOwnerId = await getWorkspaceOwnerId(supabase, userId)
+    const { data, error } = await supabase.from("content_pages").update(payload).eq("id", draft.id).eq("owner_id", workspaceOwnerId).select().single()
     if (error) setNotice(error.message); else if (data) {
-      await supabase.from("content_revisions").insert({ page_id: draft.id, owner_id: userId, body: draft.body, seo_title: draft.seo_title, seo_description: draft.seo_description })
+      await supabase.from("content_revisions").insert({ page_id: draft.id, owner_id: workspaceOwnerId, body: draft.body, seo_title: draft.seo_title, seo_description: draft.seo_description })
       setPages((current) => current.map((page) => page.id === draft.id ? data as Page : page)); setHasChanges(false); setLastSavedAt(new Date().toISOString()); setNotice(status === "Published" ? "Published to the live site" : "Draft saved")
     }
     setSaving(false)
