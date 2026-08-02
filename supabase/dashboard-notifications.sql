@@ -13,4 +13,10 @@ create index if not exists dashboard_notifications_workspace_created_idx on publ
 create index if not exists dashboard_notifications_unread_idx on public.dashboard_notifications(workspace_owner_id, is_read);
 alter table public.dashboard_notifications enable row level security;
 
+drop policy if exists "Dashboard owners can manage notifications" on public.dashboard_notifications;
+create policy "Dashboard owners can manage notifications" on public.dashboard_notifications
+  for all to authenticated
+  using (workspace_owner_id = auth.uid())
+  with check (workspace_owner_id = auth.uid());
+
 notify pgrst, 'reload schema';
