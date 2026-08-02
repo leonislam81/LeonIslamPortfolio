@@ -37,6 +37,10 @@ do $$ begin
     execute 'drop policy if exists "Workspace members can manage scheduled emails" on public.audit_scheduled_emails';
     execute 'create policy "Workspace members can manage scheduled emails" on public.audit_scheduled_emails for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id))';
   end if;
+  if to_regclass('public.email_campaigns') is not null then
+    execute 'drop policy if exists "Workspace members can manage email campaigns" on public.email_campaigns';
+    execute 'create policy "Workspace members can manage email campaigns" on public.email_campaigns for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id))';
+  end if;
 end $$;
 
 notify pgrst, 'reload schema';
