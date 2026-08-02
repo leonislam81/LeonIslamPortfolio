@@ -15,6 +15,12 @@ alter table public.email_campaigns add column if not exists open_count integer n
 alter table public.email_campaigns add column if not exists click_count integer not null default 0;
 alter table public.email_campaigns add column if not exists last_opened_at timestamptz;
 alter table public.email_campaigns add column if not exists last_clicked_at timestamptz;
+alter table public.email_campaigns add column if not exists provider_message_id text;
+alter table public.email_campaigns add column if not exists delivery_status text not null default 'pending';
+alter table public.email_campaigns add column if not exists delivered_count integer not null default 0;
+alter table public.email_campaigns add column if not exists bounced_count integer not null default 0;
+alter table public.email_campaigns add column if not exists complained_count integer not null default 0;
+alter table public.email_campaigns add column if not exists last_delivery_event timestamptz;
 
 create index if not exists email_campaigns_owner_created_idx on public.email_campaigns(owner_id, created_at desc);
 alter table public.email_campaigns enable row level security;
