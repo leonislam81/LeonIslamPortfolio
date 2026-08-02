@@ -21,6 +21,7 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { DashboardSignOutButton } from "@/components/dashboard-sign-out-button"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
+import { canAccessDashboardRoute, type DashboardRole } from "@/lib/dashboard-permissions"
 
 const navigation = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -34,7 +35,7 @@ const navigation = [
   { label: "Users", href: "/dashboard/users", icon: Users },
 ]
 
-export function AdminShell({ children }: { children: ReactNode }) {
+export function AdminShell({ children, initialRole }: { children: ReactNode; initialRole?: DashboardRole }) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -61,7 +62,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         {collapsed && <button type="button" onClick={() => setCollapsed(false)} className="mt-6 rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white" aria-label="Expand sidebar"><PanelLeftOpen className="size-4" /></button>}
 
         <nav className="mt-8 w-full space-y-1" aria-label="Admin navigation">
-          {navigation.map((item) => {
+          {navigation.filter((item) => canAccessDashboardRoute(initialRole ?? null, item.href)).map((item) => {
             const Icon = item.icon
             const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href)
             return <a key={item.label} href={item.href} title={collapsed ? item.label : undefined} className={`flex items-center rounded-xl py-3 text-sm font-semibold transition ${collapsed ? "justify-center px-3" : "gap-3 px-3"} ${active ? "bg-sky-500 text-slate-950" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}><Icon className="size-4 shrink-0" />{!collapsed && <><span>{item.label}</span>{item.label === "Leads inbox" && newLeadCount > 0 && <span className="ml-auto rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">{newLeadCount}</span>}</>}</a>
@@ -76,7 +77,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
       <div className="min-w-0">
         <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/95 px-5 py-3 backdrop-blur lg:hidden"><a href="/dashboard" className="font-bold">Leon Islam Admin</a><button type="button" onClick={() => setMobileOpen((value) => !value)} className="inline-flex items-center gap-1 text-sm font-semibold text-sky-700" aria-expanded={mobileOpen}>{mobileOpen ? "Close" : "Menu"} <ChevronRight className={`size-4 transition-transform ${mobileOpen ? "rotate-90" : ""}`} /></button></header>
-        {mobileOpen && <nav className="sticky top-[53px] z-20 border-b border-slate-200 bg-white p-3 shadow-lg lg:hidden" aria-label="Mobile admin navigation">{navigation.map((item) => { const Icon = item.icon; const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href); return <a key={item.label} href={item.href} onClick={() => setMobileOpen(false)} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${active ? "bg-sky-100 text-sky-800" : "text-slate-600 hover:bg-slate-50"}`}><Icon className="size-4" />{item.label}</a> })}</nav>}
+        {mobileOpen && <nav className="sticky top-[53px] z-20 border-b border-slate-200 bg-white p-3 shadow-lg lg:hidden" aria-label="Mobile admin navigation">{navigation.filter((item) => canAccessDashboardRoute(initialRole ?? null, item.href)).map((item) => { const Icon = item.icon; const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href); return <a key={item.label} href={item.href} onClick={() => setMobileOpen(false)} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${active ? "bg-sky-100 text-sky-800" : "text-slate-600 hover:bg-slate-50"}`}><Icon className="size-4" />{item.label}</a> })}</nav>}
         {mobileOpen && newLeadCount > 0 && <div className="border-b border-rose-100 bg-rose-50 px-5 py-2 text-xs font-semibold text-rose-700 lg:hidden">{newLeadCount} new lead{newLeadCount === 1 ? "" : "s"} waiting in Leads Inbox.</div>}
         {children}
       </div>

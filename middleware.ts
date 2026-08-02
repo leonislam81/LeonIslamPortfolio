@@ -18,7 +18,18 @@ export async function middleware(request: NextRequest) {
     },
   })
 
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (user && request.nextUrl.pathname !== "/dashboard/login") {
+    const { data: membership } = await supabase.from("dashboard_users").select("role,status").eq("user_id", user.id).maybeSingle()
+    if (membership?.status === "Disabled" || (membership && membership.status !== "Active")) {
+      return NextResponse.redirect(new URL("/dashboard/login", request.url))
+    }
+    if (membership?.role && membership.role !== "Owner" && membership.role !== "Administrator") {
+      const path = request.nextUrl.pathname
+      const allowed = path === "/dashboard" || (path.startsWith("/dashboard/content") || path.startsWith("/dashboard/site-management")) && ["Editor", "Author", "Contributor"].includes(membership.role) || (path.startsWith("/dashboard/projects") || path.startsWith("/dashboard/leads") || path.startsWith("/dashboard/marketing") || path.startsWith("/dashboard/campaigns")) && membership.role === "Editor"
+      if (!allowed) return NextResponse.redirect(new URL("/dashboard", request.url))
+    }
+  }
   return response
 }
 
