@@ -17,6 +17,7 @@ import {
   Mail,
   Users,
   History,
+  Bell,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -35,6 +36,7 @@ const navigation = [
   { label: "Email campaigns", href: "/dashboard/campaigns", icon: Mail },
   { label: "Users", href: "/dashboard/users", icon: Users },
   { label: "Activity", href: "/dashboard/activity", icon: History },
+  { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
 ]
 
 export function AdminShell({ children, initialRole }: { children: ReactNode; initialRole?: DashboardRole }) {
@@ -42,10 +44,12 @@ export function AdminShell({ children, initialRole }: { children: ReactNode; ini
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [newLeadCount, setNewLeadCount] = useState(0)
+  const [notificationCount, setNotificationCount] = useState(0)
   useEffect(() => {
     const supabase = createSupabaseBrowserClient()
     if (!supabase) return
     void supabase.from("audit_leads").select("id", { count: "exact", head: true }).eq("status", "New").then(({ count }) => setNewLeadCount(count ?? 0))
+    void supabase.from("dashboard_notifications").select("id", { count: "exact", head: true }).eq("is_read", false).then(({ count }) => setNotificationCount(count ?? 0))
   }, [pathname])
 
   if (pathname === "/dashboard/login") return <>{children}</>
@@ -67,7 +71,7 @@ export function AdminShell({ children, initialRole }: { children: ReactNode; ini
           {navigation.filter((item) => canAccessDashboardRoute(initialRole ?? null, item.href)).map((item) => {
             const Icon = item.icon
             const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href)
-            return <a key={item.label} href={item.href} title={collapsed ? item.label : undefined} className={`flex items-center rounded-xl py-3 text-sm font-semibold transition ${collapsed ? "justify-center px-3" : "gap-3 px-3"} ${active ? "bg-sky-500 text-slate-950" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}><Icon className="size-4 shrink-0" />{!collapsed && <><span>{item.label}</span>{item.label === "Leads inbox" && newLeadCount > 0 && <span className="ml-auto rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">{newLeadCount}</span>}</>}</a>
+            return <a key={item.label} href={item.href} title={collapsed ? item.label : undefined} className={`flex items-center rounded-xl py-3 text-sm font-semibold transition ${collapsed ? "justify-center px-3" : "gap-3 px-3"} ${active ? "bg-sky-500 text-slate-950" : "text-slate-300 hover:bg-slate-800 hover:text-white"}`}><Icon className="size-4 shrink-0" />{!collapsed && <><span>{item.label}</span>{item.label === "Leads inbox" && newLeadCount > 0 && <span className="ml-auto rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">{newLeadCount}</span>}{item.label === "Notifications" && notificationCount > 0 && <span className="ml-auto rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-slate-950">{notificationCount}</span>}</>}</a>
           })}
         </nav>
 

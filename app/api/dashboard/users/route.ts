@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { createSupabaseAdminClient } from "@/lib/supabase/admin"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { recordDashboardActivity } from "@/lib/dashboard-activity"
+import { recordDashboardNotification } from "@/lib/dashboard-notifications"
 
 const roles = ["Owner", "Administrator", "Editor", "Author", "Contributor", "Viewer"] as const
 const statuses = ["Invited", "Active", "Disabled"] as const
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
   const { error } = await admin.from("dashboard_users").insert({ user_id: invitation.user.id, workspace_owner_id: workspaceOwnerId, email, display_name: displayName, role, status: "Invited", invited_by: user.id })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   await recordDashboardActivity({ workspaceOwnerId: workspaceOwnerId ?? user.id, actorId: user.id, actorEmail: user.email, action: "Invited dashboard user", entityType: "User", entityId: invitation.user.id, details: { email, role } })
+  await recordDashboardNotification({ workspaceOwnerId: workspaceOwnerId ?? user.id, title: "New user invited", message: `${email} was invited with the ${role} role.`, kind: "info", href: "/dashboard/users" })
   return NextResponse.json({ ok: true })
 }
 

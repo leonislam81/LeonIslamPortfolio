@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
 import { createSupabaseAdminClient } from "@/lib/supabase/admin"
+import { recordDashboardNotification } from "@/lib/dashboard-notifications"
 import { getAuditWorkflowSettings } from "@/lib/dashboard-settings"
 
 export const runtime = "nodejs"
@@ -552,6 +553,7 @@ export async function POST(request: Request) {
         marketing_consent_at: marketingConsent ? new Date().toISOString() : null,
       })
       if (databaseError) console.error("Supabase audit lead error", databaseError.message)
+      else await recordDashboardNotification({ workspaceOwnerId: ownerId, title: "New lead received", message: `${name || email} submitted a new ${leadType.toLowerCase()} enquiry.`, kind: "info", href: "/dashboard/leads" })
     }
   }
 

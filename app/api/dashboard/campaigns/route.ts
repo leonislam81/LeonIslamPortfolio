@@ -3,6 +3,7 @@ import { Resend } from "resend"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { getDashboardMembership } from "@/lib/dashboard-access"
 import { recordDashboardActivity } from "@/lib/dashboard-activity"
+import { recordDashboardNotification } from "@/lib/dashboard-notifications"
 
 const sender = "Leon Islam Website <info@leonislam.com>"
 const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character)
@@ -50,6 +51,7 @@ export async function POST(request: Request) {
   if (sendError) {
     await supabase.from("email_campaigns").update({ status: "Failed", delivery_status: "failed", error_message: sendError.message, updated_at: new Date().toISOString() }).eq("id", campaign.id).eq("owner_id", ownerId)
     await recordDashboardActivity({ workspaceOwnerId: ownerId, actorId: user.id, actorEmail: user.email, action: "Campaign send failed", entityType: "Campaign", entityId: campaign.id, details: { subject } })
+    await recordDashboardNotification({ workspaceOwnerId: ownerId, title: "Campaign send failed", message: `The campaign “${subject}” could not be delivered.`, kind: "error", href: "/dashboard/campaigns" })
     return NextResponse.json({ error: "The campaign could not be sent. The failed attempt was saved in history." }, { status: 502 })
   }
   const { data: updated } = await supabase.from("email_campaigns").update({ status: "Sent", delivery_status: "sent", provider_message_id: sendData?.id ?? null, sent_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", campaign.id).eq("owner_id", ownerId).select("id,subject,message,recipient_count,status,error_message,sent_at,open_count,click_count,last_opened_at,last_clicked_at,delivery_status,delivered_count,bounced_count,complained_count,last_delivery_event,created_at,updated_at").single()
