@@ -57,8 +57,8 @@ export function AdminShell({ children, initialRole }: { children: ReactNode; ini
   if (pathname === "/dashboard/login") return <>{children}</>
 
   return (
-    <div className={`min-h-screen bg-slate-100 text-slate-950 transition-[grid-template-columns] duration-300 lg:grid ${collapsed ? "lg:grid-cols-[76px_1fr]" : "lg:grid-cols-[260px_1fr]"}`}>
-      <aside className={`hidden min-h-screen flex-col bg-slate-950 px-3 py-6 text-slate-100 transition-all duration-300 lg:flex ${collapsed ? "items-center" : ""}`}>
+    <div className={`min-h-screen bg-slate-100 text-slate-950 transition-[grid-template-columns] duration-300 xl:grid ${collapsed ? "xl:grid-cols-[76px_1fr]" : "xl:grid-cols-[260px_1fr]"}`}>
+      <aside className={`hidden min-h-screen flex-col bg-slate-950 px-3 py-6 text-slate-100 transition-all duration-300 xl:flex ${collapsed ? "items-center" : ""}`}>
         <div className={`flex w-full items-center ${collapsed ? "justify-center" : "justify-between"}`}>
           <a href="/dashboard" className="flex items-center gap-3 rounded-2xl p-2" title="Leon Islam Admin">
             <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-sky-500 text-slate-950"><Sparkles className="size-5" /></span>
@@ -84,9 +84,9 @@ export function AdminShell({ children, initialRole }: { children: ReactNode; ini
       </aside>
 
       <div className="min-w-0">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/95 px-5 py-3 backdrop-blur lg:hidden"><a href="/dashboard" className="font-bold">Leon Islam Admin</a><button type="button" onClick={() => setMobileOpen((value) => !value)} className="inline-flex items-center gap-1 text-sm font-semibold text-sky-700" aria-expanded={mobileOpen}>{mobileOpen ? "Close" : "Menu"} <ChevronRight className={`size-4 transition-transform ${mobileOpen ? "rotate-90" : ""}`} /></button></header>
-        {mobileOpen && <nav className="sticky top-[53px] z-20 border-b border-slate-200 bg-white p-3 shadow-lg lg:hidden" aria-label="Mobile admin navigation">{navigation.filter((item) => canAccessDashboardRoute(initialRole ?? null, item.href)).map((item) => { const Icon = item.icon; const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href); return <a key={item.label} href={item.href} onClick={() => setMobileOpen(false)} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${active ? "bg-sky-100 text-sky-800" : "text-slate-600 hover:bg-slate-50"}`}><Icon className="size-4" />{item.label}</a> })}</nav>}
-        {mobileOpen && newLeadCount > 0 && <div className="border-b border-rose-100 bg-rose-50 px-5 py-2 text-xs font-semibold text-rose-700 lg:hidden">{newLeadCount} new lead{newLeadCount === 1 ? "" : "s"} waiting in Leads Inbox.</div>}
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white/95 px-5 py-3 backdrop-blur xl:hidden"><a href="/dashboard" className="font-bold">Leon Islam Admin</a><button type="button" onClick={() => setMobileOpen((value) => !value)} className="inline-flex items-center gap-1 text-sm font-semibold text-sky-700" aria-expanded={mobileOpen}>{mobileOpen ? "Close" : "Menu"} <ChevronRight className={`size-4 transition-transform ${mobileOpen ? "rotate-90" : ""}`} /></button></header>
+        {mobileOpen && <nav className="sticky top-[53px] z-20 border-b border-slate-200 bg-white p-3 shadow-lg xl:hidden" aria-label="Mobile admin navigation">{navigation.filter((item) => canAccessDashboardRoute(initialRole ?? null, item.href)).map((item) => { const Icon = item.icon; const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.href); return <a key={item.label} href={item.href} onClick={() => setMobileOpen(false)} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold ${active ? "bg-sky-100 text-sky-800" : "text-slate-600 hover:bg-slate-50"}`}><Icon className="size-4" />{item.label}</a> })}</nav>}
+        {mobileOpen && newLeadCount > 0 && <div className="border-b border-rose-100 bg-rose-50 px-5 py-2 text-xs font-semibold text-rose-700 xl:hidden">{newLeadCount} new lead{newLeadCount === 1 ? "" : "s"} waiting in Leads Inbox.</div>}
         {children}
       </div>
     </div>
