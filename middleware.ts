@@ -26,7 +26,7 @@ export async function middleware(request: NextRequest) {
     }
     if (membership?.role && membership.role !== "Owner" && membership.role !== "Administrator") {
       const path = request.nextUrl.pathname
-      const allowed = path === "/dashboard" || path.startsWith("/dashboard/notifications") || (path.startsWith("/dashboard/content") || path.startsWith("/dashboard/site-management")) && ["Editor", "Author", "Contributor"].includes(membership.role) || (path.startsWith("/dashboard/projects") || path.startsWith("/dashboard/leads") || path.startsWith("/dashboard/marketing") || path.startsWith("/dashboard/campaigns")) && membership.role === "Editor"
+      const allowed = path === "/dashboard" || path.startsWith("/dashboard/notifications") || path.startsWith("/dashboard/bookings") || (path.startsWith("/dashboard/content") || path.startsWith("/dashboard/site-management")) && ["Editor", "Author", "Contributor"].includes(membership.role) || (path.startsWith("/dashboard/projects") || path.startsWith("/dashboard/leads") || path.startsWith("/dashboard/marketing") || path.startsWith("/dashboard/campaigns")) && membership.role === "Editor"
       if (!allowed) return NextResponse.redirect(new URL("/dashboard", request.url))
     }
   }

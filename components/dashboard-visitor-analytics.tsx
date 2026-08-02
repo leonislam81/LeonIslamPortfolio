@@ -1,0 +1,11 @@
+import { Eye, UsersRound } from "lucide-react"
+import type { SiteAnalyticsSummary } from "@/lib/site-analytics"
+
+export function DashboardVisitorAnalytics({ summary }: { summary: SiteAnalyticsSummary }) {
+  const max = Math.max(...summary.daily.map((day) => day.visits), 1)
+  return <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-xl">
+    <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-300">Website traffic</p><h2 className="mt-2 text-2xl font-semibold">Visitor activity</h2><p className="mt-1 text-sm text-slate-400">Last 30 days, based on visitors who accepted analytics cookies.</p></div><div className="flex gap-3"><div className="rounded-2xl bg-white/10 px-4 py-3"><Eye className="mb-2 h-4 w-4 text-cyan-300" /><p className="text-2xl font-semibold">{summary.visits}</p><p className="text-xs text-slate-400">Visits</p></div><div className="rounded-2xl bg-white/10 px-4 py-3"><UsersRound className="mb-2 h-4 w-4 text-violet-300" /><p className="text-2xl font-semibold">{summary.uniqueVisitors}</p><p className="text-xs text-slate-400">Visitors</p></div></div></div>
+    <div className="mt-8 flex h-32 items-end gap-2">{summary.daily.map((day) => <div key={day.label} className="flex h-full flex-1 flex-col justify-end gap-2"><div title={`${day.visits} visits`} className="rounded-t-md bg-cyan-400/80" style={{ height: `${Math.max((day.visits / max) * 100, day.visits ? 8 : 2)}%` }} /><span className="text-center text-[10px] text-slate-500">{day.label.split(" ")[1]}</span></div>)}</div>
+    {summary.topPages.length > 0 && <div className="mt-6 border-t border-white/10 pt-5"><p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Most visited pages</p><div className="mt-3 grid gap-2 sm:grid-cols-2">{summary.topPages.map((page) => <div key={page.path} className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-sm"><span className="truncate text-slate-300">{page.path}</span><span className="ml-3 font-semibold text-cyan-300">{page.visits}</span></div>)}</div></div>}
+  </section>
+}

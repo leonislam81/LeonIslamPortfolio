@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Cookie, Settings2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -12,6 +13,7 @@ const storageKey = 'leon-analytics-consent'
 export function CookieConsent({ measurementId }: { measurementId: string }) {
   const [choice, setChoice] = useState<ConsentChoice>(null)
   const [isReady, setIsReady] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     const savedChoice = window.localStorage.getItem(storageKey)
@@ -35,6 +37,13 @@ export function CookieConsent({ measurementId }: { measurementId: string }) {
     script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`
     document.head.appendChild(script)
   }, [choice, measurementId])
+
+  useEffect(() => {
+    if (choice !== 'accepted' || typeof window === 'undefined') return
+    let visitorId = window.localStorage.getItem('leon-anonymous-visitor-id')
+    if (!visitorId) { visitorId = crypto.randomUUID(); window.localStorage.setItem('leon-anonymous-visitor-id', visitorId) }
+    void fetch('/api/analytics/visit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ visitorId, path: pathname, referrer: document.referrer }) })
+  }, [choice, pathname])
 
   const saveChoice = (nextChoice: Exclude<ConsentChoice, null>) => {
     window.localStorage.setItem(storageKey, nextChoice)

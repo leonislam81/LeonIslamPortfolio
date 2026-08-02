@@ -18,6 +18,7 @@ import {
   Users,
   History,
   Bell,
+  CalendarCheck2,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -37,6 +38,7 @@ const navigation = [
   { label: "Users", href: "/dashboard/users", icon: Users },
   { label: "Activity", href: "/dashboard/activity", icon: History },
   { label: "Notifications", href: "/dashboard/notifications", icon: Bell },
+  { label: "Bookings", href: "/dashboard/bookings", icon: CalendarCheck2 },
 ]
 
 export function AdminShell({ children, initialRole }: { children: ReactNode; initialRole?: DashboardRole }) {

@@ -51,6 +51,14 @@ do $$ begin
     execute 'drop policy if exists "Workspace members can manage notifications" on public.dashboard_notifications';
     execute 'create policy "Workspace members can manage notifications" on public.dashboard_notifications for all to authenticated using (public.is_dashboard_workspace_member(workspace_owner_id)) with check (public.is_dashboard_workspace_member(workspace_owner_id))';
   end if;
+  if to_regclass('public.bookings') is not null then
+    execute 'drop policy if exists "Workspace members can manage bookings" on public.bookings';
+    execute 'create policy "Workspace members can manage bookings" on public.bookings for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id))';
+  end if;
+  if to_regclass('public.bookings') is not null then
+    execute 'drop policy if exists "Workspace members can manage bookings" on public.bookings';
+    execute 'create policy "Workspace members can manage bookings" on public.bookings for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id))';
+  end if;
 end $$;
 
 notify pgrst, 'reload schema';
