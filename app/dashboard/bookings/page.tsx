@@ -10,6 +10,6 @@ export default async function DashboardBookingsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/dashboard/login")
   const membership = await getDashboardMembership()
-  const { data } = await supabase.from("bookings").select("id,booking_uid,status,guest_name,guest_email,guest_timezone,event_title,start_time,end_time,location,notes,created_at").eq("owner_id", membership?.workspaceOwnerId ?? user.id).order("start_time", { ascending: false }).limit(200)
+  const { data } = await supabase.from("bookings").select("id,booking_uid,status,guest_name,guest_email,guest_timezone,event_title,start_time,end_time,location,notes,created_at,payload").eq("owner_id", membership?.workspaceOwnerId ?? user.id).order("start_time", { ascending: false }).limit(200)
   return <DashboardBookingsManager initialBookings={(data ?? []) as any} />
 }
