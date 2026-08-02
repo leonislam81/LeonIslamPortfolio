@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createSupabaseAdminClient } from "@/lib/supabase/admin"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
+import { recordDashboardActivity } from "@/lib/dashboard-activity"
 
 const roles = ["Owner", "Administrator", "Editor", "Author", "Contributor", "Viewer"] as const
 const statuses = ["Invited", "Active", "Disabled"] as const
@@ -54,11 +55,12 @@ export async function POST(request: Request) {
   if (inviteError || !invitation.user) return NextResponse.json({ error: inviteError?.message ?? "The invitation could not be sent." }, { status: 400 })
   const { error } = await admin.from("dashboard_users").insert({ user_id: invitation.user.id, workspace_owner_id: workspaceOwnerId, email, display_name: displayName, role, status: "Invited", invited_by: user.id })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  await recordDashboardActivity({ workspaceOwnerId: workspaceOwnerId ?? user.id, actorId: user.id, actorEmail: user.email, action: "Invited dashboard user", entityType: "User", entityId: invitation.user.id, details: { email, role } })
   return NextResponse.json({ ok: true })
 }
 
 export async function PATCH(request: Request) {
-  const { admin, allowed } = await getAdminContext()
+  const { user, admin, allowed, workspaceOwnerId } = await getAdminContext()
   if (!admin) return NextResponse.json({ error: "Supabase admin access is not configured." }, { status: 503 })
   if (!allowed) return NextResponse.json({ error: "You do not have permission to update dashboard users." }, { status: 403 })
   const body = await request.json() as { userId?: string; role?: string; status?: string }
@@ -66,5 +68,6 @@ export async function PATCH(request: Request) {
   const updates = { ...(body.role ? { role: body.role } : {}), ...(body.status ? { status: body.status } : {}), updated_at: new Date().toISOString() }
   const { error } = await admin.from("dashboard_users").update(updates).eq("user_id", body.userId)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  await recordDashboardActivity({ workspaceOwnerId: workspaceOwnerId ?? user?.id ?? body.userId, actorId: user?.id ?? body.userId, actorEmail: user?.email, action: body.role ? "Changed dashboard user role" : "Changed dashboard user status", entityType: "User", entityId: body.userId, details: { role: body.role ?? null, status: body.status ?? null } })
   return NextResponse.json({ ok: true })
 }

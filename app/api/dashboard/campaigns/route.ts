@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { Resend } from "resend"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { getDashboardMembership } from "@/lib/dashboard-access"
+import { recordDashboardActivity } from "@/lib/dashboard-activity"
 
 const sender = "Leon Islam Website <info@leonislam.com>"
 const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character)
@@ -37,6 +38,7 @@ export async function POST(request: Request) {
   if (body.action === "save") {
     const { data, error } = await supabase.from("email_campaigns").insert({ owner_id: ownerId, subject, message, recipient_count: emails.length, status: "Draft" }).select("id,subject,message,recipient_count,status,error_message,sent_at,open_count,click_count,last_opened_at,last_clicked_at,delivery_status,delivered_count,bounced_count,complained_count,last_delivery_event,created_at,updated_at").single()
     if (error) return NextResponse.json({ error: "Could not save the campaign. Run the email campaigns SQL migration first." }, { status: 500 })
+    await recordDashboardActivity({ workspaceOwnerId: ownerId, actorId: user.id, actorEmail: user.email, action: "Saved email campaign draft", entityType: "Campaign", entityId: data.id, details: { subject, recipientCount: emails.length } })
     return NextResponse.json({ campaign: data })
   }
   if (!process.env.RESEND_API_KEY) return NextResponse.json({ error: "Email service is not configured. Save this campaign as a draft instead." }, { status: 503 })
@@ -47,8 +49,10 @@ export async function POST(request: Request) {
   const { data: sendData, error: sendError } = await new Resend(process.env.RESEND_API_KEY).emails.send({ from: sender, to: ["info@leonislam.com"], bcc: emails, replyTo: "info@leonislam.com", subject, html })
   if (sendError) {
     await supabase.from("email_campaigns").update({ status: "Failed", delivery_status: "failed", error_message: sendError.message, updated_at: new Date().toISOString() }).eq("id", campaign.id).eq("owner_id", ownerId)
+    await recordDashboardActivity({ workspaceOwnerId: ownerId, actorId: user.id, actorEmail: user.email, action: "Campaign send failed", entityType: "Campaign", entityId: campaign.id, details: { subject } })
     return NextResponse.json({ error: "The campaign could not be sent. The failed attempt was saved in history." }, { status: 502 })
   }
   const { data: updated } = await supabase.from("email_campaigns").update({ status: "Sent", delivery_status: "sent", provider_message_id: sendData?.id ?? null, sent_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", campaign.id).eq("owner_id", ownerId).select("id,subject,message,recipient_count,status,error_message,sent_at,open_count,click_count,last_opened_at,last_clicked_at,delivery_status,delivered_count,bounced_count,complained_count,last_delivery_event,created_at,updated_at").single()
+  await recordDashboardActivity({ workspaceOwnerId: ownerId, actorId: user.id, actorEmail: user.email, action: "Sent email campaign", entityType: "Campaign", entityId: campaign.id, details: { subject, recipientCount: emails.length } })
   return NextResponse.json({ campaign: updated })
 }

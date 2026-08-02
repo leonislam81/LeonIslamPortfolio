@@ -41,6 +41,12 @@ do $$ begin
     execute 'drop policy if exists "Workspace members can manage email campaigns" on public.email_campaigns';
     execute 'create policy "Workspace members can manage email campaigns" on public.email_campaigns for all to authenticated using (public.is_dashboard_workspace_member(owner_id)) with check (public.is_dashboard_workspace_member(owner_id))';
   end if;
+  if to_regclass('public.dashboard_activity_log') is not null then
+    execute 'drop policy if exists "Workspace members can view activity log" on public.dashboard_activity_log';
+    execute 'create policy "Workspace members can view activity log" on public.dashboard_activity_log for select to authenticated using (public.is_dashboard_workspace_member(workspace_owner_id))';
+    execute 'drop policy if exists "Workspace members can write activity log" on public.dashboard_activity_log';
+    execute 'create policy "Workspace members can write activity log" on public.dashboard_activity_log for insert to authenticated with check (public.is_dashboard_workspace_member(workspace_owner_id))';
+  end if;
 end $$;
 
 notify pgrst, 'reload schema';

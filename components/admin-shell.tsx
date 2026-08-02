@@ -16,6 +16,7 @@ import {
   Megaphone,
   Mail,
   Users,
+  History,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -33,6 +34,7 @@ const navigation = [
   { label: "Marketing audience", href: "/dashboard/marketing", icon: Megaphone },
   { label: "Email campaigns", href: "/dashboard/campaigns", icon: Mail },
   { label: "Users", href: "/dashboard/users", icon: Users },
+  { label: "Activity", href: "/dashboard/activity", icon: History },
 ]
 
 export function AdminShell({ children, initialRole }: { children: ReactNode; initialRole?: DashboardRole }) {
