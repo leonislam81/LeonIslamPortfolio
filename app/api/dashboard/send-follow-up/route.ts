@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
+import { getDashboardMembership } from "@/lib/dashboard-access"
 
 const sender = "Leon Islam Website <info@leonislam.com>"
 const escapeHtml = (value: string) => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character)
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
   const resend = new Resend(process.env.RESEND_API_KEY)
   const { error: sendError } = await resend.emails.send({ from: sender, to: [lead.email], replyTo: "info@leonislam.com", subject, html })
   if (sendError) return NextResponse.json({ error: "Could not send the email. Please try again." }, { status: 502 })
-  await supabase.from("audit_lead_activities").insert({ lead_id: payload.leadId, owner_id: user.id, activity_type: "email_sent", detail: `${isReaudit ? "Re-audit reminder" : "Audit follow-up"} email sent to ${lead.email}.` })
+  const membership = await getDashboardMembership()
+  await supabase.from("audit_lead_activities").insert({ lead_id: payload.leadId, owner_id: membership?.workspaceOwnerId ?? user.id, activity_type: "email_sent", detail: `${isReaudit ? "Re-audit reminder" : "Audit follow-up"} email sent to ${lead.email}.` })
   return NextResponse.json({ ok: true })
 }
